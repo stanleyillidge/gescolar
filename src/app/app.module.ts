@@ -23,7 +23,7 @@ import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-// esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a pagada
+// esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a Blaze (pago por uso)
 var firebaseConfig = {
   apiKey: "AIzaSyCdCTYPL1-PPQb3rpOi5Ls_oGoMfPjvXG8",
   authDomain: "g-escolar-plus-demo.firebaseapp.com",

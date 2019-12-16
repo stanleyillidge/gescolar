@@ -45,7 +45,7 @@
         "authID":{ // auth.uID
             "nombre":"String",
             "documentoNumero":"Number",
-            "documentoTipo":"String",
+            "documentoTipo": "registroCivil" | 'tarjetaIdentidad' | 'cedula' | 'pasaporte',
             "direccion":"String",
             "telefono":"Number",
             "activo":"Boolean",

@@ -22,6 +22,7 @@ import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 // esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a Blaze (pago por uso)
 var firebaseConfig = {
@@ -56,7 +57,8 @@ var firebaseConfig = {
     DataService,
     FileTransfer,
     File,
-    WebView
+    WebView,
+    GooglePlus
   ],
   bootstrap: [AppComponent]
 })

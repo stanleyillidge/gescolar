@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import anime from 'animejs/lib/anime.es';
 // import anime from 'animejs/lib/anime.es';
 
@@ -9,6 +9,8 @@ import anime from 'animejs/lib/anime.es';
 })
 export class LoginPage implements OnInit {
   
+  // @ViewChild('box') box: ElementRef;
+  
   constructor() { 
     // console.log('constr')
     // this.callAnime()
@@ -16,6 +18,8 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
     console.log('ngOnInit')
+    // this.box.nativeElement.classList.add('magictime');
+    // this.box.nativeElement.classList.add('slideDownReturn');
     this.callAnime()
   }
   

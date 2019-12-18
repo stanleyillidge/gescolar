@@ -1,13 +1,60 @@
 .login{
     width: 100px;
+    position: absolute;
+    top: 35%;
+    bottom: 80%;
+    left: 0;
+    right: 0;
+    margin: auto;
 }
-.path {
-    stroke-dasharray: 100;
-    animation: dash 2.5s linear;
-  }
-  
-  @keyframes dash {
-    to {
-      stroke-dashoffset: 1000;
-    }
-  }
+.ml{
+  // position: relative;
+}
+.logo{
+  text-align: center;
+  margin: 5vh 0 0 0;
+}
+
+.ml5 {
+  position: relative;
+    font-weight: 300;
+    font-size: 2.125em;
+    color: #402d2d;
+    text-align: center;
+    margin: 40vh 0 0 0;
+}
+
+.ml5 .text-wrapper {
+  position: relative;
+  display: inline-block;
+  padding-top: 0.1em;
+  padding-right: 0.05em;
+  padding-bottom: 0.15em;
+  line-height: 1em;
+}
+
+.ml5 .line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 3px;
+  width: 100%;
+  background-color: #402d2d;
+  transform-origin: 0.5 0;
+}
+
+.ml5 .ampersand {
+  font-family: Baskerville, "EB Garamond", serif;
+  font-style: italic;
+  font-weight: 400;
+  width: 1em;
+  margin-right: -0.1em;
+  margin-left: -0.1em;
+}
+
+.ml5 .letters {
+  display: inline-block;
+  opacity: 0;
+}

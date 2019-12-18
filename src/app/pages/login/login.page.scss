@@ -1,0 +1,13 @@
+.login{
+    width: 100px;
+}
+.path {
+    stroke-dasharray: 100;
+    animation: dash 2.5s linear;
+  }
+  
+  @keyframes dash {
+    to {
+      stroke-dashoffset: 1000;
+    }
+  }

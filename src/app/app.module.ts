@@ -23,6 +23,7 @@ import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
+import { ComponentsModule } from './components/components.module';
 
 // esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a Blaze (pago por uso)
 var firebaseConfig = {
@@ -48,7 +49,8 @@ var firebaseConfig = {
     AngularFirestoreModule,
     AngularFireDatabaseModule,
     IonicStorageModule.forRoot(),
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ComponentsModule
   ],
   providers: [
     StatusBar,

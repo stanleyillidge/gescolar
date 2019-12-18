@@ -32,17 +32,16 @@ export class Tab1Page {
 
   async login() {
     let params;
-    if (this.platform.is('android')) {
+    console.log("cordova",this.platform.is("cordova"))
+    console.log("desktop",this.platform.is("desktop"))
+    if (this.platform.is("cordova")) {
       params = {
         webClientId: '395322918531-1qitkhfhp0ki8hv4msra3cp5dc8p7o1o.apps.googleusercontent.com',
         offline: true,
-        scopes: "profile email"
+        scopes: "profile email",
+        hd: "lreginaldofischione.edu.co"
       }
-    }
-    else {
-      params = {}
-    }
-    this.google.login(params)
+      this.google.login(params)
       .then((response) => {
         const { idToken, accessToken } = response
         this.onLoginSuccess(idToken, accessToken);
@@ -50,6 +49,24 @@ export class Tab1Page {
         console.log(error)
         alert('error:' + JSON.stringify(error))
       });
+    }else if(this.platform.is("desktop")) {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+      provider.addScope('https://www.googleapis.com/auth/drive');
+      provider.setCustomParameters({
+          hd: "lreginaldofischione.edu.co"
+      }),
+      this.fireAuth.auth.signInWithPopup(provider)
+      .then((response) => {
+        this.test = true;
+        console.log(response)
+        this.loading.dismiss();
+      }).catch((error) => {
+        console.log(error)
+        alert('error:' + JSON.stringify(error))
+      });
+    }
+    
   }
   onLoginSuccess(accessToken, accessSecret) {
     const credential = accessSecret ? firebase.auth.GoogleAuthProvider
@@ -58,6 +75,7 @@ export class Tab1Page {
     this.fireAuth.auth.signInWithCredential(credential)
       .then((response) => {
         // this.router.navigate(["/profile"]);
+        console.log(response)
         this.test = true;
         this.loading.dismiss();
       })
@@ -73,7 +91,29 @@ export class Tab1Page {
     })
   }
 }
-/* googleLogin() {
+/* 
+googleLogin(): Promise<any> {
+  return new Promise((resolve, reject) => { 
+    this.googlePlus.login({
+      'webClientId': '5351366995-npuh9q89gaoiagoc4jssqck26gorj7hh.apps.googleusercontent.com',
+      'offline': true
+    }).then( res => {
+            const googleCredential = firebase.auth.GoogleAuthProvider
+                .credential(res.idToken);
+
+            firebase.auth().signInWithCredential(googleCredential)
+          .then( response => {
+              console.log("Firebase success: " + JSON.stringify(response));
+              resolve(response)
+          });
+    }, err => {
+        console.error("Error: ", err)
+        reject(err);
+    });
+  });
+}
+
+googleLogin() {
   this.platform.is("cordova") ? this.nativeGoogleLogin() : this.webGoogleLogin()
 }
 signOut() {

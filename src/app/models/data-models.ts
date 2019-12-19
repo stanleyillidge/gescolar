@@ -1,13 +1,13 @@
 // ---- Basicos -----------------
-    export class Institucion{
+    export class Institucion{ 
         public key: string
             public calendario: "calendarioA" | "calendarioB" | "calendarioC"
             public razonSocial: string
             public rut: string
             public nit: string
-            public escudo: string
+            public escudo: string // url hacia la img
             public dane: string
-            public resolucionAprobacion: string
+            public resolucionAprobacion: string // url hacia el doc
             public generoAtendIDo:"mixto" | "masculino" | "femenino"
             public nivelEnseñanza:{
                 Preescolar: Boolean,
@@ -121,6 +121,7 @@
             public activo: boolean
             public nombre: string
             public documentoTipo: "registroCivil" | 'tarjetaIdentidad' | 'cedula' | 'pasaporte'
+            public documentoNum: number
             public telefono: number
             public direccion: string
             public barrio: string

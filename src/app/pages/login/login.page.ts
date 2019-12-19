@@ -9,7 +9,7 @@ import anime from 'animejs/lib/anime.es';
 })
 export class LoginPage implements OnInit {
   
-  // @ViewChild('box') box: ElementRef;
+  @ViewChild('box') box: ElementRef;
   
   constructor() { 
     // console.log('constr')
@@ -17,9 +17,14 @@ export class LoginPage implements OnInit {
   }
 
   ngOnInit() {
-    console.log('ngOnInit')
-    // this.box.nativeElement.classList.add('magictime');
-    // this.box.nativeElement.classList.add('slideDownReturn');
+    console.log('ngOnInit');
+    // setTimeout(() => {
+    //   console.log("Async Callback");
+    //   callBack();
+    // }, 1500);
+    this.box.nativeElement.classList.add('magictime');
+    // this.box.nativeElement.classList.add('puffIn');
+    this.box.nativeElement.classList.add('slideDownReturn');
     this.callAnime()
   }
   

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import anime from 'animejs/lib/anime.es';
 // import anime from 'animejs/lib/anime.es';
 
@@ -7,17 +7,17 @@ import anime from 'animejs/lib/anime.es';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements AfterViewInit {
   
-  @ViewChild('box') box: ElementRef;
+  @ViewChild('box', {static: false}) box: ElementRef;
   
   constructor() { 
     // console.log('constr')
     // this.callAnime()
   }
 
-  ngOnInit() {
-    console.log('ngOnInit');
+  ngAfterViewInit() {
+    console.log('ngAfterViewInit');
     // setTimeout(() => {
     //   console.log("Async Callback");
     //   callBack();

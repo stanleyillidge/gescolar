@@ -123,7 +123,7 @@ const googleCredentials = {
   });
 // -------------------------------------------
 // --- Crea un usuario en G SUite ------------
-  exports.addGsuiteUser = functions.https.onRequest((request, response) => {
+  exports.addGsuiteUsers = functions.https.onRequest((request, response) => {
     const eventData = request.body; // recupero la data
     // autentico con google
     const oAuth2Client = new OAuth2(
@@ -173,8 +173,8 @@ const googleCredentials = {
       directory.users.insert({"resource":event}).then((data:any) => {
         console.log('Request successful',data);
         const firebaseUser = new Usuario
-        firebaseUser.key = data.id
-        firebaseUser.rol = event.organizations[0].description
+        firebaseUser.key = data.data.id
+        firebaseUser.rol = event.organizations[0].description.toLowerCase()
         firebaseUser.creacion = new Date
         firebaseUser.sede = '' // ojo definir unidad organizativa desde que se envia la solicitud de crear al usuario
         firebaseUser.activo = true;

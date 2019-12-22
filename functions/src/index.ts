@@ -1,7 +1,11 @@
 import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+admin.initializeApp(functions.config().firebase);
+const ref = admin.database().ref();
 const {google} = require('googleapis');
 const OAuth2 = google.auth.OAuth2; 
-
+const calendar = google.calendar('v3');
+const TIME_ZONE = 'EST';
 const googleCredentials = {
   "web":{
     "client_id":"395322918531-r0ss9he8te2mavf9bjta12pv8rstgcvt.apps.googleusercontent.com",
@@ -15,12 +19,47 @@ const googleCredentials = {
   },
   "refresh_token":"1//04KwVAUfuTxuyCgYIARAAGAQSNwF-L9Ir2D4FcekieaCgH276vzuMWQ-pYVRGHGMlpNHx-n-ybgQUqBurkLjgDyfEO0AG3cgoPdM"
 };
-const calendar = google.calendar('v3');
-
-
-const TIME_ZONE = 'EST';
-//--- Escrive data en un G Sheet -------------
+// --- clase Usuario -------------------------
+  import { Usuario, Claims } from '../../src/app/models/data-models';
+  /* export class Usuario{ // en la Base de datos guardar por rol como key principal
+    public key: string // UID generado desde el Auth
+      public rol: "super" | "rector" | "admin" | "auxiliar" | "coordinador" | "docente" | "estudiante"
+      readonly creacion: Date
+      public sede: string
+      public activo: boolean
+      public nombre: string
+      public documentoTipo: "registroCivil" | 'tarjetaIdentidad' | 'cedula' | 'pasaporte'
+      public documentoNum: number
+      public telefono: number
+      public direccion: string
+      public barrio: string
+      public email: string
+      public token: string // token de autorización para enviar y recibir Push Notifications
+    constructor(){
+      this.key = ''
+      this.rol = "estudiante"
+      this.creacion = new Date
+      this.sede = ''
+      this.activo = false
+      this.nombre = ''
+      this.documentoTipo = "registroCivil"
+      this.documentoNum = 0
+      this.telefono = 0
+      this.direccion = ''
+      this.barrio = ''
+      this.email = ''
+      this.token = ''
+    }
+  } */
+// -------------------------------------------
+// --- Escrive data en un G Sheet ------------
   export const exportaFS = functions.https.onCall(async (data, context) => {
+
+    // {
+    //   "data": {
+    //       "Titulo":"hola"
+    //   }
+    // }
 
     const oAuth2Client = new OAuth2(
       googleCredentials.web.client_id,
@@ -82,10 +121,11 @@ const TIME_ZONE = 'EST';
       throw new functions.https.HttpsError('internal', error.message);
     });
   });
-//--------------------------------------------
-//--- Crea un usuario en G SUite -------------
+// -------------------------------------------
+// --- Crea un usuario en G SUite ------------
   exports.addGsuiteUser = functions.https.onRequest((request, response) => {
-    const eventData = request.body;
+    const eventData = request.body; // recupero la data
+    // autentico con google
     const oAuth2Client = new OAuth2(
         googleCredentials.web.client_id,
         googleCredentials.web.client_secret,
@@ -111,20 +151,86 @@ const TIME_ZONE = 'EST';
   });
 
   function createGsuiteUser(event:any, auth:any) {
+    /*event:{
+      "name": {
+        "familyName": "picho",
+        "givenName": "perez"
+      },
+      "password": "123456789",
+      "primaryEmail": "picho@lreginaldofischione.edu.co",
+      "organizations": [
+        {
+          "title": "Directivo(a) Docente",
+          "primary": true,
+          "customType": "",
+          "description": "Coordinador"
+        }
+      ]
+    } */
     return new Promise(function(resolve, reject) {
       console.log('Usuario a ser creado:',event)
       const directory = google.admin({version: 'directory_v1', auth});
       directory.users.insert({"resource":event}).then((data:any) => {
-        console.log('Request successful');
-        resolve(data);
+        console.log('Request successful',data);
+        const firebaseUser = new Usuario
+        firebaseUser.key = data.id
+        firebaseUser.rol = event.organizations[0].description
+        firebaseUser.creacion = new Date
+        firebaseUser.sede = '' // ojo definir unidad organizativa desde que se envia la solicitud de crear al usuario
+        firebaseUser.activo = true;
+        firebaseUser.nombre = event.name.familyName + " " + event.name.givenName
+        firebaseUser.documentoTipo = 'registroCivil' // ojo definir documentoTipo desde que se envia la solicitud de crear al usuario
+        firebaseUser.documentoNum = 0 // ojo definir documentoNum desde que se envia la solicitud de crear al usuario
+        firebaseUser.telefono = 0  // ojo definir telefono desde que se envia la solicitud de crear al usuario
+        firebaseUser.direccion = ''  // ojo definir desde que se envia la solicitud de crear al usuario
+        firebaseUser.barrio = ''  // ojo definir desde que se envia la solicitud de crear al usuario
+        firebaseUser.email = event.primaryEmail
+        firebaseUser.token = ''
+        firebaseUser.password = event.password
+        createFirebaseUser(firebaseUser)
+        setTimeout(function(){ resolve(data); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
       }).catch((err:any) => {
         console.log('Rejecting because of error');
-        reject(err);
+        setTimeout(function(){ reject(err); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
       });
     });
   }
-//--------------------------------------------
-//--- Crea un evento en G Calendar -----------
+
+  function createFirebaseUser(user:Usuario){
+    admin.auth().createUser({
+      uid: user.key,
+      email: user.email,
+      password: user.password
+    })
+    .then(function(userRecord) {
+      console.log('Successfully created new user:', userRecord.uid);
+      setClaims(user)
+      .then(()=>{console.log('ok')})
+      .catch((error)=>{console.log('error',error)})
+    })
+    .catch(function(error) {
+      console.log('Error creating new user:', error);
+    });
+  }
+
+  function setClaims(user:Usuario){
+    console.log("Usuario a definir roles:", user);
+    const claims = new Claims
+    claims[user.rol] = true
+    return admin.auth().setCustomUserClaims(user.key, claims ).then(() => {
+      console.log("Successfully updated Claims to user:",user);
+      ref.child(user.rol).child(user.key).update(user)
+      .then(()=>{console.log('ok')})
+      .catch((error)=>{console.log('error',error)})
+      return user
+    }).catch(function (error) {
+      // console.log("Error creating new user:", error);
+      // return error;
+      throw new functions.https.HttpsError('unknown', error.message, error);
+    });
+  }
+// -------------------------------------------
+// --- Crea un evento en G Calendar ----------
   function addEvent(event:any, auth:any) {
     return new Promise(function(resolve, reject) {
         calendar.events.insert({
@@ -182,5 +288,5 @@ const TIME_ZONE = 'EST';
         return;
     });
   });
-//--------------------------------------------
+// -------------------------------------------
 

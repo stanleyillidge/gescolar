@@ -6,6 +6,9 @@ const {google} = require('googleapis');
 const OAuth2 = google.auth.OAuth2; 
 const calendar = google.calendar('v3');
 const TIME_ZONE = 'EST';
+// --- Importo los modelos de los datos ------
+  import { Usuario, Claims } from '../../src/app/models/data-models';
+// -------------------------------------------
 const googleCredentials = {
   "web":{
     "client_id":"395322918531-r0ss9he8te2mavf9bjta12pv8rstgcvt.apps.googleusercontent.com",
@@ -19,39 +22,6 @@ const googleCredentials = {
   },
   "refresh_token":"1//04KwVAUfuTxuyCgYIARAAGAQSNwF-L9Ir2D4FcekieaCgH276vzuMWQ-pYVRGHGMlpNHx-n-ybgQUqBurkLjgDyfEO0AG3cgoPdM"
 };
-// --- clase Usuario -------------------------
-  import { Usuario, Claims } from '../../src/app/models/data-models';
-  /* export class Usuario{ // en la Base de datos guardar por rol como key principal
-    public key: string // UID generado desde el Auth
-      public rol: "super" | "rector" | "admin" | "auxiliar" | "coordinador" | "docente" | "estudiante"
-      readonly creacion: Date
-      public sede: string
-      public activo: boolean
-      public nombre: string
-      public documentoTipo: "registroCivil" | 'tarjetaIdentidad' | 'cedula' | 'pasaporte'
-      public documentoNum: number
-      public telefono: number
-      public direccion: string
-      public barrio: string
-      public email: string
-      public token: string // token de autorización para enviar y recibir Push Notifications
-    constructor(){
-      this.key = ''
-      this.rol = "estudiante"
-      this.creacion = new Date
-      this.sede = ''
-      this.activo = false
-      this.nombre = ''
-      this.documentoTipo = "registroCivil"
-      this.documentoNum = 0
-      this.telefono = 0
-      this.direccion = ''
-      this.barrio = ''
-      this.email = ''
-      this.token = ''
-    }
-  } */
-// -------------------------------------------
 // --- Escrive data en un G Sheet ------------
   export const exportaFS = functions.https.onCall(async (data, context) => {
 
@@ -172,21 +142,21 @@ const googleCredentials = {
       const directory = google.admin({version: 'directory_v1', auth});
       directory.users.insert({"resource":event}).then((data:any) => {
         console.log('Request successful',data);
-        const firebaseUser = new Usuario
-        firebaseUser.key = data.data.id
-        firebaseUser.rol = event.organizations[0].description.toLowerCase()
-        firebaseUser.creacion = new Date
-        firebaseUser.sede = '' // ojo definir unidad organizativa desde que se envia la solicitud de crear al usuario
-        firebaseUser.activo = true;
-        firebaseUser.nombre = event.name.familyName + " " + event.name.givenName
-        firebaseUser.documentoTipo = 'registroCivil' // ojo definir documentoTipo desde que se envia la solicitud de crear al usuario
-        firebaseUser.documentoNum = 0 // ojo definir documentoNum desde que se envia la solicitud de crear al usuario
-        firebaseUser.telefono = 0  // ojo definir telefono desde que se envia la solicitud de crear al usuario
-        firebaseUser.direccion = ''  // ojo definir desde que se envia la solicitud de crear al usuario
-        firebaseUser.barrio = ''  // ojo definir desde que se envia la solicitud de crear al usuario
-        firebaseUser.email = event.primaryEmail
-        firebaseUser.token = ''
-        firebaseUser.password = event.password
+        const firebaseUser = new Usuario(data.data)
+        // firebaseUser.uid = data.data.id
+        // firebaseUser.rol = event.organizations[0].description.toLowerCase()
+        // firebaseUser.creacion = new Date
+        // firebaseUser.sede = '' // ojo definir unidad organizativa desde que se envia la solicitud de crear al usuario
+        // firebaseUser.activo = true;
+        // firebaseUser.nombre = event.name.familyName + " " + event.name.givenName
+        // firebaseUser.documentoTipo = 'Registro Civil' // ojo definir documentoTipo desde que se envia la solicitud de crear al usuario
+        // firebaseUser.documentoNum = 0 // ojo definir documentoNum desde que se envia la solicitud de crear al usuario
+        // firebaseUser.telefono = ''  // ojo definir telefono desde que se envia la solicitud de crear al usuario
+        // firebaseUser.direccion = ''  // ojo definir desde que se envia la solicitud de crear al usuario
+        // firebaseUser.barrio = ''  // ojo definir desde que se envia la solicitud de crear al usuario
+        // firebaseUser.email = event.primaryEmail
+        // firebaseUser.token = ''
+        // firebaseUser.password = event.password
         createFirebaseUser(firebaseUser)
         setTimeout(function(){ resolve(data); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
       }).catch((err:any) => {
@@ -198,7 +168,7 @@ const googleCredentials = {
 
   function createFirebaseUser(user:Usuario){
     admin.auth().createUser({
-      uid: user.key,
+      uid: user.uid,
       email: user.email,
       password: user.password
     })
@@ -217,9 +187,9 @@ const googleCredentials = {
     console.log("Usuario a definir roles:", user);
     const claims = new Claims
     claims[user.rol] = true
-    return admin.auth().setCustomUserClaims(user.key, claims ).then(() => {
+    return admin.auth().setCustomUserClaims(user.uid, claims ).then(() => {
       console.log("Successfully updated Claims to user:",user);
-      ref.child(user.rol).child(user.key).update(user)
+      ref.child(user.rol).child(user.uid).update(user)
       .then(()=>{console.log('ok')})
       .catch((error)=>{console.log('error',error)})
       return user

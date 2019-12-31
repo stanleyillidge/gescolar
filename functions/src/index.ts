@@ -146,20 +146,6 @@ const googleCredentials = {
         // console.log('Data para crear el Usuario de firebase',data.data);
         const firebaseUser = new Usuario(data.data)
         console.log('Usuario de firebasea ser creado',firebaseUser);
-        // firebaseUser.uid = data.data.id
-        // firebaseUser.rol = event.organizations[0].description.toLowerCase()
-        // firebaseUser.creacion = new Date
-        // firebaseUser.sede = '' // ojo definir unidad organizativa desde que se envia la solicitud de crear al usuario
-        // firebaseUser.activo = true;
-        // firebaseUser.nombre = event.name.familyName + " " + event.name.givenName
-        // firebaseUser.documentoTipo = 'Registro Civil' // ojo definir documentoTipo desde que se envia la solicitud de crear al usuario
-        // firebaseUser.documentoNum = 0 // ojo definir documentoNum desde que se envia la solicitud de crear al usuario
-        // firebaseUser.telefono = ''  // ojo definir telefono desde que se envia la solicitud de crear al usuario
-        // firebaseUser.direccion = ''  // ojo definir desde que se envia la solicitud de crear al usuario
-        // firebaseUser.barrio = ''  // ojo definir desde que se envia la solicitud de crear al usuario
-        // firebaseUser.email = event.primaryEmail
-        // firebaseUser.token = ''
-        // firebaseUser.password = event.password
         createFirebaseUser(firebaseUser)
         setTimeout(function(){ resolve(data); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
       }).catch((err:any) => {
@@ -262,4 +248,31 @@ const googleCredentials = {
     });
   });
 // -------------------------------------------
-
+// --- Eliminar usuarios en Firebase ---------
+  export const Eliminar = functions.https.onRequest((request, response) => {
+    // listAllUsers().then(()=>{
+    //   response.send("Usuarios eliminados!");
+    // })
+    // .catch((e)=>{
+    //   response.send("Error eliminando usuarios! "+e);
+    // })
+    admin.auth().listUsers(1000)
+    .then(function(listUsersResult) {
+      listUsersResult.users.forEach(function(userRecord) {
+        console.log('user', userRecord.toJSON());
+        admin.auth().deleteUser(userRecord.uid)
+        .then(function() {
+          console.log('Successfully deleted user');
+        })
+        .catch(function(error) {
+          console.log('Error deleting user:', error);
+        });
+      });
+      response.send("Usuarios eliminados!");
+    })
+    .catch(function(error) {
+      console.log('Error listing users:', error);
+      response.send("Error eliminando usuarios! "+error);
+    });
+  });
+// -------------------------------------------

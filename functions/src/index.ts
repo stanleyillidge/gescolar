@@ -142,7 +142,10 @@ const googleCredentials = {
       const directory = google.admin({version: 'directory_v1', auth});
       directory.users.insert({"resource":event}).then((data:any) => {
         console.log('Request successful',data);
+        data.data.password = event.password;
+        // console.log('Data para crear el Usuario de firebase',data.data);
         const firebaseUser = new Usuario(data.data)
+        console.log('Usuario de firebasea ser creado',firebaseUser);
         // firebaseUser.uid = data.data.id
         // firebaseUser.rol = event.organizations[0].description.toLowerCase()
         // firebaseUser.creacion = new Date

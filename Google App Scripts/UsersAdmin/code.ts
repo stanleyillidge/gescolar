@@ -3,8 +3,11 @@
     import { GsuiteRelations, GsuiteAddresses, GsuitePhones } from './DataModel';
     import { GsuiteGender, CustomSchemas } from './DataModel';
 // --- Global Variables -------------
+    const url = 'https://us-central1-g-escolar-plus-demo.cloudfunctions.net/addGsuiteUsers';
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Estudiantes');
-    const data = sheet.getDataRange().getValues();
+    const data = sheet.getRange(2, 1, sheet.getLastRow()-1, sheet.getLastColumn()).getValues();
+    Logger.log('Data:');
+    Logger.log(data);
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues();
 
     // --- Colmunas a tener en cuenta ---
@@ -58,52 +61,118 @@
     function menuItem1() {
         for (const i in data) {
             if (data.hasOwnProperty(i)) {
-                const a = new GsuiteUser({
+                const estudiante = new GsuiteUser({
                     name: new GsuiteName({
-                        familyName: data[i][Apellido1Index],
-                        givenName: data[i][Nombre1Index]
+                        familyName: data[i][Apellido1Index] + ' ' + data[i][Apellido2Index],
+                        givenName: ((data[i][Nombre2Index] !== '') ?
+                        data[i][Nombre1Index] + ' ' + data[i][Nombre2Index] : data[i][Nombre1Index])
                     }),
-                    password: data[i][PasswordIndex],
+                    password: data[i][PasswordIndex]+'',
                     primaryEmail: data[i][EmailIndex],
-                    organizations: new GsuiteOrganizations({
+                    organizations: [new GsuiteOrganizations({
                         title: data[i][RolIndex]
-                    }),
-                    orgUnitPath: data[i][SedeIndex],
-                    relations: new GsuiteRelations({
+                    })],
+                    orgUnitPath: '/' + data[i][SedeIndex],
+                    relations: [new GsuiteRelations({
                         value: data[i][ACNombre1Index] + ' ' + data[i][ACApellido1Index],
                         type: 'father'
-                    }),
-                    addresses: new GsuiteAddresses({
+                    })],
+                    addresses: [new GsuiteAddresses({
                         streetAddress: data[i][DireccionIndex],
                         extendedAddress: data[i][BarrioIndex],
                         locality: data[i][DepartamentoIndex],
                         region: data[i][MunicipioIndex]
+                    })],
+                    phones: [new GsuitePhones({
+                        value: data[i][ACTelefonoIndex]+''
+                    })],
+                    gender: new GsuiteGender({
+                        type: ((data[i][GeneroIndex] === 'masculino') ? 'male' : 'female')
+                    }),
+                    customSchemas: {
+                        Datos_Estudiantes: {
+                            Fecha_de_nacimiento: formatDate(data[i][FechaNacimientoIndex]),
+                            Tipo_de_documento: data[i][DocTipoIndex],
+                            Numero_de_documento: data[i][DocNumIndex]+'',
+                            Jornada: data[i][JornadaIndex],
+                            Grupo: data[i][GrupoIndex]+'',
+                            Grado: data[i][GradoIndex]+'',
+                        }
+                    }
+                    /* customSchemas: new CustomSchemas({
+                        Fecha_de_nacimiento: data[i][FechaNacimientoIndex],
+                        Tipo_de_documento: data[i][DocTipoIndex],
+                        Numero_de_documento: data[i][DocNumIndex]+'',
+                        Jornada: data[i][JornadaIndex],
+                        Grupo: data[i][GrupoIndex]+'',
+                        Grado: data[i][GradoIndex]+'',
+                    }) */
+                });
+                const acudiente = new GsuiteUser({
+                    name: new GsuiteName({
+                        familyName: data[i][ACApellido1Index] + ' ' + data[i][ACApellido2Index],
+                        givenName: ((data[i][ACNombre2Index] !== '') ?
+                        data[i][ACNombre1Index] + ' ' + data[i][ACNombre2Index] : data[i][ACNombre1Index])
+                    }),
+                    password: data[i][ACPasswordIndex],
+                    primaryEmail: data[i][ACEmailIndex],
+                    organizations: new GsuiteOrganizations({
+                        title: data[i][ACRolIndex]
+                    }),
+                    orgUnitPath: '/' + data[i][SedeIndex],
+                    relations: new GsuiteRelations({
+                        value: data[i][Nombre1Index] + ' ' + data[i][Apellido1Index],
+                        type: 'father'
+                    }),
+                    addresses: new GsuiteAddresses({
+                        streetAddress: data[i][ACDireccionIndex],
+                        extendedAddress: data[i][ACBarrioIndex],
+                        locality: data[i][ACDepartamentoIndex],
+                        region: data[i][ACMunicipioIndex]
                     }),
                     phones: new GsuitePhones({
                         value: data[i][ACTelefonoIndex]
                     }),
                     gender: new GsuiteGender({
-                        type: ((data[i][GeneroIndex] === 'masculino') ? 'male' : 'female')
+                        type: ((data[i][ACGeneroIndex] === 'masculino') ? 'male' : 'female')
                     }),
-                    customSchemas: new CustomSchemas({
+                    /* customSchemas: new CustomSchemas({
                         Identificacion: {
-                            tipo: data[i][DocTipoIndex],
-                            numero: data[i][DocNumIndex],
-                            fechaNacim: data[i][FechaNacimientoIndex]
-                        },
-                        jornada: data[i][JornadaIndex],
-                        grado: data[i][GradoIndex],
-                        grupo: data[i][GrupoIndex]
-                    }),
+                            tipo: data[i][ACDocTipoIndex],
+                            numero: data[i][ACDocNumIndex],
+                            fechaNacim: data[i][ACFechaNacimientoIndex]
+                        }
+                    }), */
                 });
+                // send the request and parse the response message.
+                const message = UrlFetchApp.fetch(url, {
+                    method: 'post',
+                    contentType: 'application/json',
+                    payload: JSON.stringify(estudiante)
+                }).getContentText();
+                const systemMessage = JSON.parse(message).message;
+                Logger.log(systemMessage);
                 Logger.log('Usuario ' + i);
-                Logger.log(a);
+                Logger.log(estudiante.primaryEmail);
+                // Logger.log(acudiente.primaryEmail);
             }
         }
         SpreadsheetApp.getUi()
-            .alert('You clicked the first menu item! - Sta Ok - 4');
+            .alert('Usuarios creados con exito! - 7');
     }
-
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+    
+        if (month.length < 2) 
+            month = '0' + month;
+        if (day.length < 2) 
+            day = '0' + day;
+    
+        return [year, month, day].join('-');
+    }
     function menuItem2() {
         SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
             .alert('You clicked the second menu item!');

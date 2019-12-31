@@ -153,14 +153,14 @@
         }
     } */
     type roles =
-        | 'super'
-        | 'rector'
-        | 'admin'
-        | 'auxiliar'
-        | 'coordinador'
-        | 'docente'
-        | 'estudiante'
-        | 'acudiente'; // los usuarios acudientes perteneceran a misma unid organizativa
+        | 'Super'
+        | 'Rector'
+        | 'Admin'
+        | 'Auxiliar'
+        | 'Coordinador'
+        | 'Docente'
+        | 'Estudiante'
+        | 'Acudiente'; // los usuarios acudientes perteneceran a misma unid organizativa
     type documentoTipo =
         | 'Registro Civil'
         | 'Tarjeta de identidad'
@@ -171,7 +171,7 @@
         familyName: string;
         givenName: string;
         fullName?: string;
-        constructor(a) {
+        constructor(a: any) {
             this.familyName = a.familyName;
             this.givenName = a.givenName;
             this.fullName = ((a.fullName) ? a.fullName : '');
@@ -182,7 +182,7 @@
         primary: boolean; // true, si es el rol principal
         department: string; // dependencia según el rol
         description: string; // La descripción del rol
-        constructor(a) {
+        constructor(a: any) {
             this.title = a.title;
             this.primary = true;
             this.department = a.department;
@@ -211,7 +211,7 @@
             | 'sister'
             | 'spouse';
         customType?: string; // Si el valor de type es custom, esta propiedad contiene el tipo personalizado.
-        constructor(a) {
+        constructor(a: any) {
             this.value = a.value;
             this.type = a.type;
         }
@@ -225,7 +225,7 @@
         postalCode?: string; // El código postal o postal, si corresponde.
         country: string; // País.
         primary: boolean; // Si esta es la dirección principal del usuario.
-        constructor(a) {
+        constructor(a: any) {
             this.type = a.type;
             this.streetAddress = a.streetAddress;
             this.extendedAddress = a.extendedAddress;
@@ -261,7 +261,7 @@
             | 'work_mobile'
             | 'work_pager';
         customType?: string; // Si el valor de type es custom, esta propiedad contiene el tipo personalizado.
-        constructor(a) {
+        constructor(a: any) {
             this.value = a.value;
             this.primary = true;
             this.type = 'main';
@@ -271,28 +271,28 @@
         type: 'female' |  'male' |  'other' |  'unknown';
         customGender?: string; // Género personalizado.
         addressMeAs?: string; // la forma correcta de referirse al propietario, por ejemplo él / él / su o ellos / ellos / su.
-        constructor(a) {
+        constructor(a: any) {
             this.type = a.type;
         }
     }
     export class CustomSchemas {
-        Identificacion: {
-            tipo: documentoTipo;
-            numero: number;
-            fechaNacim: Date;
+        'Datos_Estudiantes': {
+            'Fecha_de_nacimiento': Date;
+            'Tipo_de_documento': documentoTipo;
+            'Numero_de_documento': string;
+            Jornada: 'mañana' | 'tarde' | 'noche' | 'sabados';
+            Grupo: string;
+            Grado: string;
         };
-        jornada?: 'mañana' | 'tarde' | 'noche' | 'sabados';
-        grado?: string;
-        grupo?: string;
-        constructor(a) {
-            this.Identificacion = {
-                tipo: a.Identificacion.tipo,
-                numero: a.Identificacion.numero,
-                fechaNacim: a.Identificacion.fechaNacim
+        constructor(a: any) {
+            this.Datos_Estudiantes = {
+                Fecha_de_nacimiento: a.Fecha_de_nacimiento,
+                Tipo_de_documento: a.Tipo_de_documento,
+                Numero_de_documento: a.Numero_de_documento,
+                Jornada: ((a.Jornada) ? a.Jornada : ''),
+                Grado: ((a.Grado) ? a.Grado : ''),
+                Grupo: ((a.Grupo) ? a.Grupo : '')
             };
-            this.jornada = ((a.jornada) ? a.jornada : '');
-            this.grado = ((a.grado) ? a.grado : '');
-            this.grupo = ((a.grupo) ? a.grupo : '');
         }
     }
     export class GsuiteUser {
@@ -325,7 +325,7 @@
         }
         get Edad() {
             const today = new Date();
-            const birthDate = new Date(this.customSchemas.Identificacion.fechaNacim);
+            const birthDate = new Date(this.customSchemas.Datos_Estudiantes.Fecha_de_nacimiento);
             let age = today.getFullYear() - birthDate.getFullYear();
             const m = today.getMonth() - birthDate.getMonth();
             if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
@@ -350,21 +350,23 @@
     }
     export class Claims {
         // en la Base de datos guardar por rol como key principal
-        public super: boolean;
-        public rector: boolean;
-        public admin: boolean;
-        public auxiliar: boolean;
-        public coordinador: boolean;
-        public docente: boolean;
-        public estudiante: boolean;
+        public Super: boolean;
+        public Rector: boolean;
+        public Admin: boolean;
+        public Auxiliar: boolean;
+        public Coordinador: boolean;
+        public Docente: boolean;
+        public Estudiante: boolean;
+        public Acudiente: boolean;
         constructor() {
-            this.super = false;
-            this.rector = false;
-            this.admin = false;
-            this.auxiliar = false;
-            this.coordinador = false;
-            this.docente = false;
-            this.estudiante = false;
+            this.Super = false;
+            this.Rector = false;
+            this.Admin = false;
+            this.Auxiliar = false;
+            this.Coordinador = false;
+            this.Docente = false;
+            this.Estudiante = false;
+            this.Acudiente = false;
         }
     }
     export class Usuario {
@@ -377,7 +379,7 @@
         public nombre: string;
         public fechaNacim: Date;
         public documentoTipo: documentoTipo;
-        public documentoNum: number;
+        public documentoNum: string;
         public telefonos: GsuitePhones[];
         public direcciones: GsuiteAddresses[];
         public email: string;
@@ -391,9 +393,9 @@
             this.sede = guser.orgUnitPath;
             this.activo = true;
             this.nombre = guser.name.givenName + ' ' + guser.name.familyName;
-            this.fechaNacim = guser.customSchemas.Identificacion.fechaNacim;
-            this.documentoTipo = guser.customSchemas.Identificacion.tipo;
-            this.documentoNum = guser.customSchemas.Identificacion.numero;
+            this.fechaNacim = guser.customSchemas.Datos_Estudiantes.Fecha_de_nacimiento;
+            this.documentoTipo = guser.customSchemas.Datos_Estudiantes.Tipo_de_documento;
+            this.documentoNum = guser.customSchemas.Datos_Estudiantes.Numero_de_documento;
             this.telefonos = guser.phones;
             this.direcciones = guser.addresses;
             this.email = guser.primaryEmail;

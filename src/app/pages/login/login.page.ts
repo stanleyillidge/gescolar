@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import anime from 'animejs/lib/anime.es';
+import { Router } from '@angular/router';
 // import anime from 'animejs/lib/anime.es';
 
 @Component({
@@ -8,10 +9,12 @@ import anime from 'animejs/lib/anime.es';
   styleUrls: ['./login.page.scss'],
 })
 export class LoginPage implements AfterViewInit {
-  
+
   @ViewChild('box', {static: false}) box: ElementRef;
-  
-  constructor() { 
+
+  constructor(
+    private router: Router,
+  ) {
     // console.log('constr')
     // this.callAnime()
   }
@@ -49,5 +52,8 @@ export class LoginPage implements AfterViewInit {
       duration: 600,
       offset: '-=300'
     })
+  }
+  in(){
+    this.router.navigate(["/home"]);
   }
 }

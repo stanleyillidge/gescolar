@@ -94,7 +94,7 @@ const googleCredentials = {
 // -------------------------------------------
 // --- Crea un usuario en G SUite ------------
   exports.addGsuiteUsers = functions.https.onRequest((request, response) => {
-    const event = request.body; // recupero la data
+    const eventData = request.body; // recupero la data
     // autentico con google
     const oAuth2Client = new OAuth2(
         googleCredentials.web.client_id,
@@ -106,96 +106,92 @@ const googleCredentials = {
         refresh_token: googleCredentials.refresh_token
     });
 
-    createGsuiteUser(event, oAuth2Client).then(data => {
-      response.status(200).send(data);
-      return;
+    createGsuiteUser(eventData, oAuth2Client).then(data => {
+        response.status(200).send(data);
+        return;
     }).catch(err => {
-      console.error('Error create user: ' + err.message);
-      const CUSER_ERROR_RESPONSE = {
-        status: "500",
-        message: "Error: " + err.message
-      };
-      response.status(500).send(CUSER_ERROR_RESPONSE); 
-      return;
+        console.error('Error create user: ' + err.message);
+        const CUSER_ERROR_RESPONSE = {
+          status: "500",
+          message: "Error: " + err.message
+        };
+        response.status(500).send(CUSER_ERROR_RESPONSE); 
+        return;
     });
   });
 
   function createGsuiteUser(event:any, auth:any) {
+    /*event:{
+      "name": {
+        "familyName": "picho",
+        "givenName": "perez"
+      },
+      "password": "123456789",
+      "primaryEmail": "picho@lreginaldofischione.edu.co",
+      "organizations": [
+        {
+          "title": "Directivo(a) Docente",
+          "primary": true,
+          "customType": "",
+          "description": "Coordinador"
+        }
+      ]
+    } */
     return new Promise(function(resolve, reject) {
       console.log('Usuario a ser creado:',event)
       const directory = google.admin({version: 'directory_v1', auth});
       directory.users.insert({"resource":event}).then((data:any) => {
         // console.log('Request successful',data);
         data.data.password = event.password;
+        // console.log('Data para crear el Usuario de firebase',data.data);
         const firebaseUser = new Usuario(data.data)
         // console.log('Usuario de firebasea ser creado',firebaseUser);
-        // --- Creo el usuario en firebase ------
-          admin.auth().createUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            password: firebaseUser.password
-          })
-          .then(function(userRecord) {
-            // console.log('Successfully created new user:', userRecord.uid);
-            // --- Definio los permisos por Rol ------
-              const claims = new Claims
-              claims[firebaseUser.rol] = true
-              admin.auth().setCustomUserClaims(firebaseUser.uid, claims ).then(() => {
-                // console.log("Successfully updated Claims to user:",firebaseUser);
-                // --- Guardo el usuario en la base de Datos ----
-                  ref.child(firebaseUser.rol).child(firebaseUser.uid).update(firebaseUser)
-                  .then(()=>{
-                    console.log('El usuario fue creado correctamente',firebaseUser);
-                    // response.status(200).send(data);
-                    resolve(firebaseUser)
-                  })
-                  .catch((error)=>{
-                    console.log('Error guardando el usuario en Firebase:', error);
-                    const e = 'Error guardando el usuario en Firebase:';
-                    console.error(e + error.message);
-                    const CUSER_ERROR_RESPONSE = {
-                      status: "500",
-                      message: e + " " + error.message
-                    };
-                    reject(CUSER_ERROR_RESPONSE)
-                    // return CUSER_ERROR_RESPONSE;
-                  })
-                // ----------------------------------------------
-              }).catch(function (error) {
-                console.log("Error definiendo los permisos del usuario en Firebase:", error);
-                const e = "Error definiendo los permisos del usuario en Firebase:";
-                console.error(e + error.message);
-                const CUSER_ERROR_RESPONSE = {
-                  status: "500",
-                  message: e + " " + error.message
-                };
-                reject(CUSER_ERROR_RESPONSE)
-                // return CUSER_ERROR_RESPONSE;
-              });
-            // ---------------------------------------
-          })
-          .catch(function(error) {
-            console.log('Error creando el usuario en Firebase:', error);
-            const e = 'Error creando el usuario en Firebase:';
-            console.error(e + error.message);
-            const CUSER_ERROR_RESPONSE = {
-              status: "500",
-              message: e + " " + error.message
-            };
-            reject(CUSER_ERROR_RESPONSE)
-            // return CUSER_ERROR_RESPONSE;
-          });
-        // --------------------------------------
-      }).catch((error:any) => {
-        const e = 'Error creando el usuario en Gsuite:';
-        console.error(e + error.message);
-        const CUSER_ERROR_RESPONSE = {
-          status: "500",
-          message: e + " " + error.message
-        };
-        reject(CUSER_ERROR_RESPONSE)
-        // return CUSER_ERROR_RESPONSE;
+        createFirebaseUser(firebaseUser)
+        resolve(data)
+        // setTimeout(function(){ resolve(data); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
+      }).catch((err:any) => {
+        console.log('Rejecting because of error');
+        reject(err)
+        // setTimeout(function(){ reject(err); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
       });
+    });
+  }
+
+  function createFirebaseUser(user:Usuario){
+    admin.auth().createUser({
+      uid: user.uid,
+      email: user.email,
+      password: user.password
+    })
+    .then(function(userRecord) {
+      // console.log('Successfully created new user:', userRecord.uid);
+      setClaims(user)
+      .then(()=>{
+        // console.log('ok')
+      })
+      .catch((error)=>{console.log('error',error)})
+    })
+    .catch(function(error) {
+      console.log('Error creating new user:', error);
+    });
+  }
+
+  function setClaims(user:Usuario){
+    console.log("Usuario a definir roles:", user);
+    const claims = new Claims
+    claims[user.rol] = true
+    return admin.auth().setCustomUserClaims(user.uid, claims ).then(() => {
+      // console.log("Successfully updated Claims to user:",user);
+      ref.child(user.rol).child(user.uid).update(user)
+      .then(()=>{
+        console.log('El usuario fue creado correctamente',user);
+      })
+      .catch((error)=>{console.log('error',error)})
+      return user
+    }).catch(function (error) {
+      // console.log("Error creating new user:", error);
+      // return error;
+      throw new functions.https.HttpsError('unknown', error.message, error);
     });
   }
 // -------------------------------------------

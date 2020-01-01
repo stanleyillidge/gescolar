@@ -5,10 +5,9 @@
 // --- Global Variables -------------
     const url = 'https://us-central1-g-escolar-plus-demo.cloudfunctions.net/addGsuiteUsers';
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Estudiantes');
-    const data = sheet.getRange(2, 1, sheet.getLastRow()-1, sheet.getLastColumn()).getValues();
-    Logger.log('Data:');
-    Logger.log(data);
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues();
+    const lc = sheet.getLastColumn();
+    const data = sheet.getRange(2, 1, sheet.getLastRow()-1, lc).getValues();
+    const headers = sheet.getRange(1, 1, 1, lc).getValues();
 
     // --- Colmunas a tener en cuenta ---
     const Apellido1Index = headers[0].indexOf('Apellido1');
@@ -59,6 +58,7 @@
     }
 
     function menuItem1() {
+        let usuarios = [];
         for (const i in data) {
             if (data.hasOwnProperty(i)) {
                 const estudiante = new GsuiteUser({
@@ -99,16 +99,8 @@
                             Grado: data[i][GradoIndex]+'',
                         }
                     }
-                    /* customSchemas: new CustomSchemas({
-                        Fecha_de_nacimiento: data[i][FechaNacimientoIndex],
-                        Tipo_de_documento: data[i][DocTipoIndex],
-                        Numero_de_documento: data[i][DocNumIndex]+'',
-                        Jornada: data[i][JornadaIndex],
-                        Grupo: data[i][GrupoIndex]+'',
-                        Grado: data[i][GradoIndex]+'',
-                    }) */
                 });
-                const acudiente = new GsuiteUser({
+                /* const acudiente = new GsuiteUser({
                     name: new GsuiteName({
                         familyName: data[i][ACApellido1Index] + ' ' + data[i][ACApellido2Index],
                         givenName: ((data[i][ACNombre2Index] !== '') ?
@@ -136,29 +128,38 @@
                     gender: new GsuiteGender({
                         type: ((data[i][ACGeneroIndex] === 'masculino') ? 'male' : 'female')
                     }),
-                    /* customSchemas: new CustomSchemas({
-                        Identificacion: {
-                            tipo: data[i][ACDocTipoIndex],
-                            numero: data[i][ACDocNumIndex],
-                            fechaNacim: data[i][ACFechaNacimientoIndex]
+                    customSchemas: {
+                        Datos_Estudiantes: {
+                            Fecha_de_nacimiento: formatDate(data[i][FechaNacimientoIndex]),
+                            Tipo_de_documento: data[i][DocTipoIndex],
+                            Numero_de_documento: data[i][DocNumIndex]+'',
+                            Jornada: data[i][JornadaIndex],
+                            Grupo: data[i][GrupoIndex]+'',
+                            Grado: data[i][GradoIndex]+'',
                         }
-                    }), */
-                });
-                // send the request and parse the response message.
+                    }
+                }); */
+                // usuarios.push(JSON.stringify(estudiante))
                 const message = UrlFetchApp.fetch(url, {
                     method: 'post',
                     contentType: 'application/json',
                     payload: JSON.stringify(estudiante)
                 }).getContentText();
-                const systemMessage = JSON.parse(message).message;
-                Logger.log(systemMessage);
-                Logger.log('Usuario ' + i);
-                Logger.log(estudiante.primaryEmail);
-                // Logger.log(acudiente.primaryEmail);
+                // sheet.getRange(Number(i)+2, lc+1).setValue('ok')
+                // const systemMessage = JSON.parse(message);
+                // Logger.log(i);
+                // Logger.log(systemMessage.data);
             }
         }
-        SpreadsheetApp.getUi()
-            .alert('Usuarios creados con exito! - 8');
+        // const message = UrlFetchApp.fetch(url, {
+        //     method: 'post',
+        //     contentType: 'application/json',
+        //     payload: JSON.stringify(usuarios)
+        // }).getContentText();
+        // const systemMessage = JSON.parse(message).message;
+        // Logger.log(systemMessage);
+        // SpreadsheetApp.getUi()
+        //     .alert('Usuarios creados con exito! - 8');
     }
     function formatDate(date) {
         var d = new Date(date),

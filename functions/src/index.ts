@@ -351,12 +351,12 @@ oAuth2Client2.setCredentials({
 // -------------------------------------------
 // --- Eliminar usuarios en Firebase ---------
   export const Eliminar = functions.https.onRequest((request, response) => {
-    // listAllUsers().then(()=>{
-    //   response.send("Usuarios eliminados!");
-    // })
-    // .catch((e)=>{
-    //   response.send("Error eliminando usuarios! "+e);
-    // })
+    ref.child('Estudiante').remove().then(function() {
+      console.log('Successfully deleted Database Estudiantes');
+    })
+    .catch(function(error) {
+      console.log('Error deleting user:', error);
+    });
     admin.auth().listUsers(1000)
     .then(function(listUsersResult) {
       listUsersResult.users.forEach(function(userRecord) {

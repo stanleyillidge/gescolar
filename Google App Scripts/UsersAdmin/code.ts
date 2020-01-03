@@ -3,7 +3,7 @@
     import { GsuiteRelations, GsuiteAddresses, GsuitePhones } from './DataModel';
     import { GsuiteGender, CustomSchemas } from './DataModel';
 // --- Global Variables -------------
-    const url = 'https://us-central1-g-escolar-plus-demo.cloudfunctions.net/addGsuiteUsers';
+    const url = 'https://us-central1-g-escolar-plus-demo.cloudfunctions.net/addGsuiteUser';
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Estudiantes');
     const lc = sheet.getLastColumn();
     const data = sheet.getRange(2, 1, sheet.getLastRow()-1, lc).getValues();
@@ -143,7 +143,7 @@
                 const message = UrlFetchApp.fetch(url, {
                     method: 'post',
                     contentType: 'application/json',
-                    payload: JSON.stringify(estudiante)
+                    payload: JSON.stringify({data:estudiante})
                 }).getContentText();
                 // sheet.getRange(Number(i)+2, lc+1).setValue('ok')
                 // const systemMessage = JSON.parse(message);

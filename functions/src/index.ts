@@ -103,15 +103,28 @@ oAuth2Client2.setCredentials({
   });
 // -------------------------------------------
 // --- Crea un usuario en G SUite ------------
-  // exports.addGsuiteUsers = functions.https.onRequest((request, response) => {
-    export const addGsuiteUsers = functions.https.onCall((request, context) => {
+  exports.addGsuiteUser = functions.https.onRequest((request, response) => {
+    const eventData = request.body.data; // recupero la data
+    createGsuiteUser(eventData, oAuth2Client2).then(data => {
+        response.status(200).send(data);
+        return;
+    }).catch(err => {
+        console.error('Error create user: ' + err.message);
+        const CUSER_ERROR_RESPONSE = {
+          status: "500",
+          message: "Error: " + err.message
+        };
+        response.status(500).send(CUSER_ERROR_RESPONSE); 
+        return;
+    });
+  });
+
+  export const addGsuiteUsers = functions.https.onCall((request, response) => {
     const eventData = request;
-    // if(context.auth){
-      console.log('Usuario que solicita creacion:', context.rawRequest.rawBody); // Google userId: 116675950093144953544
-    // }
-    creaUsuario(eventData, oAuth2Client2).then(data => {
-        // response.status(200).send(data);
-        return data;
+    // console.log(response); // Google userId: 116675950093144953544
+    creaUsuarios(eventData, oAuth2Client2).then(data => {
+      // response.status(200).send(data);
+      return data;
     }).catch(err => {
         console.error('Error create user: ' + err.message);
         const CUSER_ERROR_RESPONSE = {
@@ -123,18 +136,18 @@ oAuth2Client2.setCredentials({
     });
   });
 
-  function creaUsuario(event: any, auth: any){
+  function creaUsuarios(event: any, auth: any){
     return new Promise(function(resolve, reject) {
       const guser = event;//JSON.parse(event);
       console.log('Usuario a ser creado:',guser);
       const directory = google.admin({version: 'directory_v1', auth});
-      directory.users.insert({"resource":guser}).then((data:any) => {
+      return directory.users.insert({"resource":guser}).then((data:any) => {
         // console.log('Request successful',data);
         data.data.password = guser.password;
         const firebaseUser = new Usuario(data.data);
         // console.log('Usuario de firebasea ser creado',firebaseUser);
         // --- Creo el usuario en firebase ------
-          admin.auth().createUser({
+          return admin.auth().createUser({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
             password: firebaseUser.password
@@ -144,10 +157,10 @@ oAuth2Client2.setCredentials({
             // --- Definio los permisos por Rol ------
               const claims = new Claims
               claims[firebaseUser.rol] = true
-              admin.auth().setCustomUserClaims(firebaseUser.uid, claims ).then(() => {
+              return admin.auth().setCustomUserClaims(firebaseUser.uid, claims ).then(() => {
                 // console.log("Successfully updated Claims to user:",firebaseUser);
                 // --- Guardo el usuario en la base de Datos ----
-                  ref.child(firebaseUser.rol).child(firebaseUser.uid).update(firebaseUser)
+                return ref.child(firebaseUser.rol).child(firebaseUser.uid).update(firebaseUser)
                   .then(()=>{
                     console.log('El usuario fue creado correctamente',firebaseUser);
                     resolve(event)
@@ -199,6 +212,81 @@ oAuth2Client2.setCredentials({
         reject(CUSER_ERROR_RESPONSE)
         // return CUSER_ERROR_RESPONSE;
       });
+    });
+  }
+
+  function createGsuiteUser(event:any, auth:any) {
+    /*event:{
+      "name": {
+        "familyName": "picho",
+        "givenName": "perez"
+      },
+      "password": "123456789",
+      "primaryEmail": "picho@lreginaldofischione.edu.co",
+      "organizations": [
+        {
+          "title": "Directivo(a) Docente",
+          "primary": true,
+          "customType": "",
+          "description": "Coordinador"
+        }
+      ]
+    } */
+    return new Promise(function(resolve, reject) {
+      console.log('Usuario a ser creado:',event)
+      const directory = google.admin({version: 'directory_v1', auth});
+      directory.users.insert({"resource":event}).then((data:any) => {
+        // console.log('Request successful',data);
+        data.data.password = event.password;
+        // console.log('Data para crear el Usuario de firebase',data.data);
+        const firebaseUser = new Usuario(data.data)
+        // console.log('Usuario de firebasea ser creado',firebaseUser);
+        createFirebaseUser(firebaseUser)
+        resolve(data)
+        // setTimeout(function(){ resolve(data); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
+      }).catch((err:any) => {
+        console.log('Rejecting because of error');
+        reject(err)
+        // setTimeout(function(){ reject(err); }, 10); // espero 10ms para continuar y no superar el limite de 10 usuarios por segundo
+      });
+    });
+  }
+
+  function createFirebaseUser(user:Usuario){
+    admin.auth().createUser({
+      uid: user.uid,
+      email: user.email,
+      password: user.password
+    })
+    .then(function(userRecord) {
+      // console.log('Successfully created new user:', userRecord.uid);
+      setClaims(user)
+      .then(()=>{
+        // console.log('ok')
+      })
+      .catch((error)=>{console.log('error',error)})
+    })
+    .catch(function(error) {
+      console.log('Error creating new user:', error);
+    });
+  }
+
+  function setClaims(user:Usuario){
+    // console.log("Usuario a definir roles:", user);
+    const claims = new Claims
+    claims[user.rol] = true
+    return admin.auth().setCustomUserClaims(user.uid, claims ).then(() => {
+      // console.log("Successfully updated Claims to user:",user);
+      ref.child(user.rol).child(user.uid).update(user)
+      .then(()=>{
+        console.log('El usuario fue creado correctamente',user);
+      })
+      .catch((error)=>{console.log('error',error)})
+      return user
+    }).catch(function (error) {
+      // console.log("Error creating new user:", error);
+      // return error;
+      throw new functions.https.HttpsError('unknown', error.message, error);
     });
   }
 // -------------------------------------------

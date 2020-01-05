@@ -386,21 +386,36 @@
         public relaciones?: Relaciones[];
         token?: string; // token de autorización para enviar y recibir Push Notifications
         password?: string;
-        constructor(guser: GsuiteUser | any) {
-            this.uid = guser.id;
-            this.rol = guser.organizations[0].title;
-            this.creacion = new Date();
-            this.sede = guser.orgUnitPath;
-            this.activo = true;
-            this.nombre = guser.name.givenName + ' ' + guser.name.familyName;
-            this.fechaNacim = guser.customSchemas.Datos_Estudiantes.Fecha_de_nacimiento;
-            this.documentoTipo = guser.customSchemas.Datos_Estudiantes.Tipo_de_documento;
-            this.documentoNum = guser.customSchemas.Datos_Estudiantes.Numero_de_documento;
-            this.telefonos = guser.phones;
-            this.direcciones = guser.addresses;
-            this.email = guser.primaryEmail;
-            this.token =  ((guser.token) ? guser.token : '');
-            this.password =  ((guser.password) ? guser.password : '');
+        constructor(user: GsuiteUser | Usuario) {
+            if (user instanceof GsuiteUser) {
+                this.uid = user.id;
+                this.rol = user.organizations[0].title;
+                this.creacion = new Date();
+                this.sede = user.orgUnitPath;
+                this.activo = true;
+                this.nombre = user.name.givenName + ' ' + user.name.familyName;
+                this.fechaNacim = user.customSchemas.Datos_Estudiantes.Fecha_de_nacimiento;
+                this.documentoTipo = user.customSchemas.Datos_Estudiantes.Tipo_de_documento;
+                this.documentoNum = user.customSchemas.Datos_Estudiantes.Numero_de_documento;
+                this.telefonos = user.phones;
+                this.direcciones = user.addresses;
+                this.email = user.primaryEmail;
+            } else {
+                this.uid = user.uid;
+                this.rol = user.rol;
+                this.creacion = user.creacion;
+                this.sede = user.sede;
+                this.activo = user.activo;
+                this.nombre = user.nombre;
+                this.fechaNacim = user.fechaNacim;
+                this.documentoTipo = user.documentoTipo;
+                this.documentoNum = user.documentoNum;
+                this.telefonos = user.telefonos;
+                this.direcciones = user.direcciones;
+                this.email = user.email;
+                this.token =  ((user.token) ? user.token : '');
+                this.password =  ((user.password) ? user.password : '');
+            }
         }
         get Edad() {
             const today = new Date();
@@ -430,8 +445,8 @@
         public año: string; // valor del AñoLectivo activo
             public uid: string; // UID generado desde el Auth
             public acudientes: Relaciones[];
-                public grado: string;
-                public grupo: string;
+            public grado: string;
+            public grupo: string;
         constructor(uid: string, acud: Relaciones[], g: string, gr: string) {
             this.año = new Date().getFullYear().toString();
             this.uid = uid;
@@ -448,7 +463,7 @@
     }
 // ---- Data Base ---------------
     export class LocalDatabase {
-        // public Matriculas: { [key: string]: Matricula };
+        public Matriculas: { [key: string]: Matricula };
         constructor() {
         }
     }

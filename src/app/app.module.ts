@@ -9,7 +9,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
-import { DataService } from './services/data-service';
+import { DataService2 } from './services/data-service';
 
 import { AngularFireModule } from "@angular/fire";
 import { AngularFireAuthModule } from "@angular/fire/auth";
@@ -26,7 +26,7 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { ComponentsModule } from './components/components.module';
 
 // esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a Blaze (pago por uso)
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyCdCTYPL1-PPQb3rpOi5Ls_oGoMfPjvXG8",
   authDomain: "g-escolar-plus-demo.firebaseapp.com",
   databaseURL: "https://g-escolar-plus-demo.firebaseio.com",
@@ -56,7 +56,7 @@ var firebaseConfig = {
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    DataService,
+    DataService2,
     FileTransfer,
     File,
     WebView,

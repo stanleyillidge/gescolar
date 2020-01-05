@@ -16,15 +16,15 @@ import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
 
 @Injectable()
-export class DataService {
+export class DataService2 {
     public ProductoObserver: ReplaySubject<any> = new ReplaySubject<any>();
     public BodegaObserver: ReplaySubject<any> = new ReplaySubject<any>();
     public InventarioObserver: ReplaySubject<any> = new ReplaySubject<any>();
     public UsuariosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     database: LocalDatabase;
-    plataforma: any = {desktop:Boolean,android:Boolean};
-    looper:number = 0;
+    plataforma: any = {desktop: Boolean, android: Boolean};
+    looper = 0;
     constructor(
         public platform: Platform,
         public alertController: AlertController,

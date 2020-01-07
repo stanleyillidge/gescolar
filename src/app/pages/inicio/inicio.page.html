@@ -5,7 +5,6 @@
 </ion-header>
 
 <ion-content>
-  <ion-button *ngIf=!test expand="full" (click)="login()">Login</ion-button>
   <ion-card class="welcome-card">
     <img src="/assets/shapes.svg" alt="" />
     <ion-card-header>
@@ -16,7 +15,7 @@
       <p>Now that your app has been created, you'll want to start building out features and components. Check out some of the resources below for next steps.</p>
     </ion-card-content>
   </ion-card>
-  <ion-list lines="none">
+  <!-- <ion-list lines="none">
     <ion-list-header>
       <ion-label>Resources</ion-label>
     </ion-list-header>
@@ -36,6 +35,6 @@
       <ion-icon slot="start" color="medium" name="color-fill"></ion-icon>
       <ion-label>Theme Your App</ion-label>
     </ion-item>
-  </ion-list>
-  <ion-button *ngIf=test expand="full" (click)="logout()">Logout</ion-button>
+  </ion-list> -->
+  <ion-button expand="full" (click)="logout()">Logout</ion-button>
 </ion-content>

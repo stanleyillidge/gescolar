@@ -386,6 +386,7 @@
         public relaciones?: Relaciones[];
         token?: string; // token de autorización para enviar y recibir Push Notifications
         password?: string;
+        photoURL?: string;
         constructor(user: GsuiteUser | Usuario) {
             if (user instanceof GsuiteUser) {
                 this.uid = user.id;
@@ -415,6 +416,7 @@
                 this.email = user.email;
                 this.token =  ((user.token) ? user.token : '');
                 this.password =  ((user.password) ? user.password : '');
+                this.photoURL = ((user.photoURL) ? user.photoURL : '');
             }
         }
         get Edad() {
@@ -464,6 +466,7 @@
 // ---- Data Base ---------------
     export class LocalDatabase {
         public Matriculas: { [key: string]: Matricula };
+        public usuario: { [key: string]: Matricula };
         constructor() {
         }
     }

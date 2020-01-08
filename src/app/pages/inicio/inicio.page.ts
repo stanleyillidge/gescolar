@@ -19,7 +19,7 @@ export class InicioPage implements OnInit {
   ) {
     const c = new Claims();
     c.Acudiente = true;
-    console.log(c.Rol);
+    console.log(c.Rol());
   }
   ngOnInit() {
   }

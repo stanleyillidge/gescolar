@@ -54,9 +54,7 @@ export class LoginPage implements OnInit, AfterViewInit {
     });
   }
   in() {
-    this.authService.login()
-    .then(u => {
-      this.router.navigate(['/home']);
-    });
+    this.authService.login();
+    // this.router.navigate(['/home']);
   }
 }

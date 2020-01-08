@@ -83,6 +83,38 @@
             };
         }
     }
+    export class AñoLectivo {
+        public key: string;
+        public inicio: Date;
+        public fin: Date;
+        public activo: boolean;
+        constructor() {
+            this.key = '';
+            this.inicio = new Date();
+            this.fin = new Date();
+            this.activo = true;
+        }
+    }
+    export class Matricula {
+        public año: string; // valor del AñoLectivo activo
+            public uid: string; // UID generado desde el Auth
+            public acudientes: Relaciones[];
+            public grado: string;
+            public grupo: string;
+        constructor(uid: string, acud: Relaciones[], g: string, gr: string) {
+            this.año = new Date().getFullYear().toString();
+            this.uid = uid;
+            this.acudientes = acud;
+            this.grado = g;
+            this.grupo = gr;
+        }
+    }
+    export class GestionDocumental {
+        public key: string;
+        constructor() {
+            this.key = '';
+        }
+    }
 // ---- G-suite User ------------
     // https://developers.google.com/admin-sdk/directory/v1/reference/users#resource
     /*event:{
@@ -151,6 +183,144 @@
                 (key): (value)
             }
         }
+    } */
+    /* {
+        "kind": "admin#directory#users",
+        "etag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/GF5gpRWDMKEUR7IYstBiiTyCDHs\"",
+        "users": [
+         {
+          "kind": "admin#directory#user",
+          "id": "113693280134534568114",
+          "etag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/kRcgegIzufPa_XZTwCI97UTb1xs\"",
+          "primaryEmail": "admin@lreginaldofischione.edu.co",
+          "name": {
+           "givenName": "Administrador",
+           "familyName": "GSuit Livio",
+           "fullName": "Administrador GSuit Livio"
+          },
+          "isAdmin": true,
+          "isDelegatedAdmin": false,
+          "lastLoginTime": "2020-01-05T18:15:44.000Z",
+          "creationTime": "2017-05-16T18:15:41.000Z",
+          "agreedToTerms": true,
+          "suspended": false,
+          "archived": false,
+          "changePasswordAtNextLogin": false,
+          "ipWhitelisted": false,
+          "emails": [
+           {
+            "address": "admin@lreginaldofischione.edu.co",
+            "primary": true
+           },
+           {
+            "address": "admin@lreginaldofischione.edu.co.test-google-a.com"
+           }
+          ],
+          "nonEditableAliases": [
+           "admin@lreginaldofischione.edu.co.test-google-a.com"
+          ],
+          "customerId": "C01q2wtti",
+          "orgUnitPath": "/",
+          "recoveryEmail": "datos.stanley.illidge@gmail.com",
+          "recoveryPhone": "+573008479682",
+          "isMailboxSetup": true,
+          "isEnrolledIn2Sv": false,
+          "isEnforcedIn2Sv": false,
+          "includeInGlobalAddressList": true,
+          "thumbnailPhotoUrl": "https://www.google.com/s2/photos/private/
+          AIbEiAIAAABECLKx4qa3t5OEvgEiC3ZjYXJkX3Bob3RvKig2MjkyMThjYjAxNT
+          ZiYjcyMDIyNGU4OWE1ZDQ1NjNlYWU4NTc2M2ZjMAG97ijDJueU4rsPe1HKEBx1qWkfZw",
+          "thumbnailPhotoEtag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/4V7jfhShsQ6sGSKvHC2aF7IF20M\""
+         }
+        ]
+    } */
+    /* {
+        "kind": "admin#directory#users",
+        "etag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/xhBJ3VkiVPxo00_Sgpzpe9iehM4\"",
+        "users": [
+         {
+          "kind": "admin#directory#user",
+          "id": "116675950093144953544",
+          "etag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/9Oeq-yHCE1GRJtHUrC_n1ly2fos\"",
+          "primaryEmail": "stanley.illidge@lreginaldofischione.edu.co",
+          "name": {
+           "givenName": "Stanley",
+           "familyName": "Illidge",
+           "fullName": "Stanley Illidge"
+          },
+          "isAdmin": true,
+          "isDelegatedAdmin": false,
+          "lastLoginTime": "2020-01-06T23:31:20.000Z",
+          "creationTime": "2017-07-04T19:50:18.000Z",
+          "agreedToTerms": true,
+          "suspended": false,
+          "archived": false,
+          "changePasswordAtNextLogin": false,
+          "ipWhitelisted": false,
+          "emails": [
+           {
+            "address": "Stanley.illidge@gmail.com",
+            "type": "custom",
+            "customType": ""
+           },
+           {
+            "address": "stanley.illidge@lreginaldofischione.edu.co",
+            "primary": true
+           },
+           {
+            "address": "stanley.illidge@lreginaldofischione.edu.co.test-google-a.com"
+           }
+          ],
+          "addresses": [
+           {
+            "type": "home",
+            "formatted": "Calle 14D#19-50"
+           }
+          ],
+          "organizations": [
+           {
+            "title": "Directivo(a) Docente",
+            "primary": true,
+            "customType": "",
+            "description": "Coordinador"
+           }
+          ],
+          "phones": [
+           {
+            "value": "3008479682",
+            "type": "work"
+           }
+          ],
+          "nonEditableAliases": [
+           "stanley.illidge@lreginaldofischione.edu.co.test-google-a.com"
+          ],
+          "gender": {
+           "type": "male"
+          },
+          "customerId": "C01q2wtti",
+          "orgUnitPath": "/Directivos",
+          "recoveryEmail": "stanley.illidge@gmail.com",
+          "recoveryPhone": "+573008479682",
+          "isMailboxSetup": true,
+          "isEnrolledIn2Sv": true,
+          "isEnforcedIn2Sv": false,
+          "includeInGlobalAddressList": true,
+          "thumbnailPhotoUrl": "https://www.google.com/s2/photos/private/
+          AIbEiAIAAABECMilsNCbiLi25wEiC3ZjYXJkX3Bob3RvKigyYzg4ZDU0Yzk1YzU
+          0MjA2NzQzNmZmZDg0NjAzY2NhZGRmNjBhYTgzMAGSQ8sVad_-_QZSuTH9z8s0dDlwOg",
+          "thumbnailPhotoEtag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/tGTKU4DAYLqzy1118qZ8vBhiOg4\"",
+          "customSchemas": {
+           "Datos_Estudiantes": {
+            "Fecha_de_nacimiento": "1982-08-07",
+            "Grupo": "1101",
+            "Numero_de_documento": "84091141",
+            "Tipo_de_documento": "cedula",
+            "Grado": "11",
+            "Jornada": "Tarde"
+           }
+          }
+         }
+        ]
     } */
     export type roles =
         | 'Super'
@@ -551,44 +721,24 @@
             return age;
         }
     }
-// ------------------------------
-    export class AñoLectivo {
-        public key: string;
-        public inicio: Date;
-        public fin: Date;
-        public activo: boolean;
-        constructor() {
-            this.key = '';
+// ---- AuthUser ----------------
+    export class AuthUser {
+        public data: GescolarUser;
+        inicio: Date;
+        fin?: Date;
+        // private historial: {};
+        constructor(a: GescolarUser) {
+            this.data = a;
             this.inicio = new Date();
-            this.fin = new Date();
-            this.activo = true;
         }
     }
-    export class Matricula {
-        public año: string; // valor del AñoLectivo activo
-            public uid: string; // UID generado desde el Auth
-            public acudientes: Relaciones[];
-            public grado: string;
-            public grupo: string;
-        constructor(uid: string, acud: Relaciones[], g: string, gr: string) {
-            this.año = new Date().getFullYear().toString();
-            this.uid = uid;
-            this.acudientes = acud;
-            this.grado = g;
-            this.grupo = gr;
+// ---- Local DataBase ----------
+    export class LocalDatabase {
+        // public Matriculas: { [key: string]: Matricula };
+        // public usuarios: { [key: string]: GescolarUser };
+        public authUser: AuthUser | null;
+        constructor(a: AuthUser | GescolarUser | Matricula) {
+            this.authUser = ((a instanceof AuthUser) ? a : null);
         }
     }
-    export class GestionDocumental {
-        public key: string;
-        constructor() {
-            this.key = '';
-        }
-    }
-// ---- Data Base ---------------
-    /* export class LocalDatabase {
-        public Matriculas: { [key: string]: Matricula };
-        public usuario: { [key: string]: GescolarUser };
-        constructor() {
-        }
-    } */
 // ------------------------------

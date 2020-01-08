@@ -102,6 +102,169 @@ oAuth2Client2.setCredentials({
     });
   });
 // -------------------------------------------
+// --- Get Firebase User ---------------------
+  exports.getFirebaseUser = functions.https.onCall((uid, context) => {
+    console.log('Data para consultar', uid);
+    return admin.auth().getUser(uid).then(user => {
+      console.log('Usuario consultado', user);
+      // const rta = JSON.stringify(user);
+      return user
+    }).catch(error => {
+      console.error('Error consultando user: ' + error.message);
+      const CUSER_ERROR_RESPONSE = {
+        status: "500",
+        message: "Error consultando user: " + error.message
+      };
+      // response.status(500).send(CUSER_ERROR_RESPONSE);
+      throw new functions.https.HttpsError('internal', CUSER_ERROR_RESPONSE.message);
+    });
+  });
+// -------------------------------------------
+// --- Crea Super Admin ----------------------
+  exports.creaSuperUser = functions.https.onRequest((request, response) => {
+    const user = {
+      "kind": "admin#directory#user",
+      "id": "116675950093144953544",
+      "etag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/9Oeq-yHCE1GRJtHUrC_n1ly2fos\"",
+      "primaryEmail": "stanley.illidge@lreginaldofischione.edu.co",
+      "name": {
+       "givenName": "Stanley",
+       "familyName": "Illidge",
+       "fullName": "Stanley Illidge"
+      },
+      "isAdmin": true,
+      "isDelegatedAdmin": false,
+      "lastLoginTime": "2020-01-06T23:31:20.000Z",
+      "creationTime": "2017-07-04T19:50:18.000Z",
+      "agreedToTerms": true,
+      "suspended": false,
+      "archived": false,
+      "changePasswordAtNextLogin": false,
+      "ipWhitelisted": false,
+      "emails": [
+       {
+        "address": "Stanley.illidge@gmail.com",
+        "type": "custom",
+        "customType": ""
+       },
+       {
+        "address": "stanley.illidge@lreginaldofischione.edu.co",
+        "primary": true
+       },
+       {
+        "address": "stanley.illidge@lreginaldofischione.edu.co.test-google-a.com"
+       }
+      ],
+      "addresses": [
+       {
+        "type": "home",
+        "formatted": "Calle 14D#19-50"
+       }
+      ],
+      "organizations": [
+       {
+        "title": "Directivo(a) Docente",
+        "primary": true,
+        "customType": "",
+        "description": "Coordinador"
+       }
+      ],
+      "phones": [
+       {
+        "value": "3008479682",
+        "type": "work"
+       }
+      ],
+      "nonEditableAliases": [
+       "stanley.illidge@lreginaldofischione.edu.co.test-google-a.com"
+      ],
+      "gender": {
+       "type": "male"
+      },
+      "customerId": "C01q2wtti",
+      "orgUnitPath": "/Directivos",
+      "recoveryEmail": "stanley.illidge@gmail.com",
+      "recoveryPhone": "+573008479682",
+      "isMailboxSetup": true,
+      "isEnrolledIn2Sv": true,
+      "isEnforcedIn2Sv": false,
+      "includeInGlobalAddressList": true,
+      "thumbnailPhotoUrl": "https://www.google.com/s2/photos/private/AIbEiAIAAABECMilsNCbiLi25wEiC3ZjYXJkX3Bob3RvKigyYzg4ZDU0Yzk1YzU0MjA2NzQzNmZmZDg0NjAzY2NhZGRmNjBhYTgzMAGSQ8sVad_-_QZSuTH9z8s0dDlwOg",
+      "thumbnailPhotoEtag": "\"xW2YlxjdVEsAJNu_Hp5Dnespo8s/tGTKU4DAYLqzy1118qZ8vBhiOg4\"",
+      "customSchemas": {
+       "Datos_Estudiantes": {
+        "Fecha_de_nacimiento": "1982-08-07",
+        "Grupo": "1101",
+        "Numero_de_documento": "84091141",
+        "Tipo_de_documento": "cedula",
+        "Grado": "11",
+        "Jornada": "Tarde"
+       }
+      }
+    }
+    const guser = new GsuiteUser(user); // recupero la data
+    console.log('Usuario de Gsuite',guser);
+    const geuser = new GescolarUser(guser);
+    console.log('Usuario a ser creado',geuser);
+    geuser.rol = 'Super';
+    // --- Creo el usuario en firebase ------
+      admin.auth().createUser({
+        uid: geuser.uid,
+        email: geuser.email,
+        password: 'a123a456a'
+      })
+      .then(function(userRecord) {
+        // console.log('Successfully created new user:', userRecord.uid);
+        // --- Definio los permisos por Rol ------
+          const claims = new Claims
+          claims[geuser.rol] = true
+          admin.auth().setCustomUserClaims(geuser.uid, claims ).then(() => {
+            // console.log("Successfully updated Claims to user:",geuser);
+            // --- Guardo el usuario en la base de Datos ----
+            ref.child(geuser.rol).child(geuser.uid).update(geuser)
+              .then(()=>{
+                console.log('El usuario fue creado correctamente',geuser);
+                response.status(200).send(geuser)
+              })
+              .catch((error)=>{
+                console.log('Error guardando el usuario en Firebase:', error);
+                const e = 'Error guardando el usuario en Firebase:';
+                console.error(e + error.message);
+                const CUSER_ERROR_RESPONSE = {
+                  status: "500",
+                  message: e + " " + error.message
+                };
+                response.status(500).send(CUSER_ERROR_RESPONSE)
+                // return CUSER_ERROR_RESPONSE;
+              })
+            // ----------------------------------------------
+          }).catch(function (error) {
+            console.log("Error definiendo los permisos del usuario en Firebase:", error);
+            const e = "Error definiendo los permisos del usuario en Firebase:";
+            console.error(e + error.message);
+            const CUSER_ERROR_RESPONSE = {
+              status: "500",
+              message: e + " " + error.message
+            };
+            response.status(500).send(CUSER_ERROR_RESPONSE)
+            // return CUSER_ERROR_RESPONSE;
+          });
+        // ---------------------------------------
+      })
+      .catch(function(error) {
+        console.log('Error creando el usuario en Firebase:', error);
+        const e = 'Error creando el usuario en Firebase:';
+        console.error(e + error.message);
+        const CUSER_ERROR_RESPONSE = {
+          status: "500",
+          message: e + " " + error.message
+        };
+        response.status(500).send(CUSER_ERROR_RESPONSE)
+        // return CUSER_ERROR_RESPONSE;
+      });
+    // --------------------------------------
+  });
+// -------------------------------------------
 // --- Crea un usuario en G SUite ------------
   exports.addGsuiteUser = functions.https.onRequest((request, response) => {
     const eventData = new GsuiteUser(request.body.data); // recupero la data

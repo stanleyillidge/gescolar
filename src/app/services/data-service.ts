@@ -174,12 +174,13 @@ export class DataService2 {
             });
             await loading.present();
             const CloudFunction = firebase.functions().httpsCallable(funcion);
-            return await CloudFunction(data).then(function(rta) {
+            return await CloudFunction(data).then((rta) => {
                 // Read result of the Cloud Function.
+                // s = JSON.parse(s);
                 console.log('Respuesta de ' + funcion + ':', rta);
                 loading.dismiss();
                 return rta;
-            }).catch(function(error) {
+            }).catch((error) => {
                 console.log('Usuario error: ', error);
                 const titulo = 'Error';
                 const mensaje = error.message;

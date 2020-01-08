@@ -12,18 +12,20 @@ import { Router } from '@angular/router';
 import { Platform, LoadingController, AlertController } from '@ionic/angular';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
-import { GescolarUser } from '../models/data-models';
+import { AuthUser, GescolarUser, FirebaseUser } from '../models/data-models';
+import { DataService2 } from './data-service';
 
 
 @Injectable()
 export class AuthService {
-    user: GescolarUser;
+    user: AuthUser;
     userData: any; // Save logged in user data
     estaAtenticado = false;
     loading: HTMLIonLoadingElement;
     test = false;
 
     constructor(
+        public ds: DataService2,
         private platform: Platform,
         private google: GooglePlus,
         public alertController: AlertController,
@@ -34,21 +36,28 @@ export class AuthService {
         public ngZone: NgZone // NgZone service to remove outside scope warning
     ) { }
     estado() {
-        // --- Vefico el estado de la autenticación ---
-        this.platform.ready().then(() => {
-            this.afAuth.auth.onAuthStateChanged(user => {
-              if (user) {
-                console.log('Esta autenticado!', user);
-                this.router.navigate(['/home']);
-              } else {
-                console.log('No esta autenticado!');
-                this.router.navigate(['/login']);
-              }
-            });
-        });
+      // --- Vefico el estado de la autenticación ---
+      const este = this;
+      this.afAuth.auth.onAuthStateChanged(user => {
+        if (user) {
+          console.log('Esta autenticado!', user.uid, user);
+          este.router.navigate(['/home']);
+          this.ds.CloudFunctions('getFirebaseUser', user.uid).then(s => {
+            // s = JSON.parse(s);
+            console.log('user', s.data);
+            const fuser = new FirebaseUser(s.data);
+            console.log('Fuser', fuser);
+            const geuser = new GescolarUser(fuser);
+            console.log('GEuser', geuser);
+          }).catch(e => {});
+        } else {
+          console.log('No esta autenticado!');
+          this.router.navigate(['/login']);
+        }
+      });
     }
     // Returns true when user is looged in and email is verified
-    get isLoggedIn(): GescolarUser {
+    get isLoggedIn(): AuthUser {
         return this.user;
         // return (user !== null && user.emailVerified !== false) ? true : false;
     }

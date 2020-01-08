@@ -4,7 +4,7 @@ import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/functions';
 import 'firebase/storage';
-import { Router } from "@angular/router";
+import { Router } from '@angular/router';
 import { LoadingController, AlertController, Platform, ToastController } from '@ionic/angular';
 // Ionic Storage
 import { Storage } from '@ionic/storage';
@@ -12,7 +12,7 @@ import { ReplaySubject } from 'rxjs';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
-import { LocalDatabase } from '../models/data-models';
+// import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class DataService2 {
     public InventarioObserver: ReplaySubject<any> = new ReplaySubject<any>();
     public UsuariosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
-    database: LocalDatabase;
+    database: any;
     plataforma: any = {desktop: Boolean, android: Boolean};
     looper = 0;
     constructor(
@@ -37,23 +37,23 @@ export class DataService2 {
         private file: File,
         private storage: Storage
     ) {
-        let este = this;
-        this.plataforma.desktop = this.platform.is("desktop");
-        this.plataforma.android = this.platform.is("android");
-        this.plataforma.cordova = this.platform.is("cordova");
-        this.storage.clear();// quitar cuando este en produccion
+        const este = this;
+        this.plataforma.desktop = this.platform.is('desktop');
+        this.plataforma.android = this.platform.is('android');
+        this.plataforma.cordova = this.platform.is('cordova');
+        this.storage.clear(); // quitar cuando este en produccion
     }
     // ---- Database ----------------------------------------------
-        async initDatabase(){
-            let este = this
-            if(this.plataforma.cordova){
-                this.checkDir()
+        async initDatabase() {
+            const este = this;
+            if (this.plataforma.cordova) {
+                this.checkDir();
             }
             this.database = new LocalDatabase;
             await this.storage.get('database').then(async (val) => {
-                if(val){
+                if (val) {
                     let datax = val;
-                    if(!this.IsJsonString(val)){
+                    if (!this.IsJsonString(val)) {
                         datax = JSON.stringify(val);
                     }
                     /* await this.cargaModelos(JSON.parse(datax)).then((r)=>{
@@ -63,7 +63,7 @@ export class DataService2 {
                         este.databaseEvents('Bodegas')
                         // return true
                     }) */
-                }else{
+                } else {
                     console.log('No hay datos almacenados');
                     /* this.decargaDatabase('bodegas').then(()=>{
                         este.decargaDatabase('productos').then(()=>{
@@ -85,52 +85,52 @@ export class DataService2 {
                     }) */
                     // return false
                 }
-                return
+                return;
             });
         }
     // ---- Imagenes ----------------------------------------------
-        public async download(producto:any){//(i:any,index:any,item:any) {
-            let este = this;
+        public async download(producto: any) {// (i:any,index:any,item:any) {
+            const este = this;
             // console.log(c + name + '.png',producto)
             if (this.plataforma.cordova && this.plataforma.android) {
-                return await this.downloadFile(producto)
-            }else{
-                return producto.imagen
+                return await this.downloadFile(producto);
+            } else {
+                return producto.imagen;
             }
         }
-        public async checkFileExists(producto:any){
-            let este = this;
-            let name = producto.key;
+        public async checkFileExists(producto: any) {
+            const este = this;
+            const name = producto.key;
             await this.file.checkFile(this.file.externalRootDirectory, 'inventarios/' + name + '.png')
             .then(_ => {
                 // alert("A file with the same name already exists!");
-                console.log("A file with the same name already exists!");
-                return true
+                console.log('A file with the same name already exists!');
+                return true;
             })
             // File does not exist yet, we can save normally
-            .catch(err =>{
-                return false
-            })
+            .catch(err => {
+                return false;
+            });
         }
-        public async downloadFile(producto:any){
+        public async downloadFile(producto: any) {
             const fileTransfer: FileTransferObject = this.fileTransfer.create();
-            let este = this;
-            let name = producto.key;
-            let file = producto.imagen;
-            let c = 'inventarios/';
-            return await fileTransfer.download(file, este.file.externalRootDirectory + '/'+ c + name + '.png')
+            const este = this;
+            const name = producto.key;
+            const file = producto.imagen;
+            const c = 'inventarios/';
+            return await fileTransfer.download(file, este.file.externalRootDirectory + '/' + c + name + '.png')
             .then((entry) => {
                 return este.webview.convertFileSrc(entry.nativeURL);
             })
-            .catch((err) =>{
-                console.log(producto.key,'Error saving file: ' + err.message);
-                return producto.imagen
-            })
+            .catch((err) => {
+                console.log(producto.key, 'Error saving file: ' + err.message);
+                return producto.imagen;
+            });
         }
-        async checkDir(){
-            let este = this;
-            return await this.file.checkDir(this.file.externalRootDirectory, 'inventarios').then(()=>{
-                console.log('El directorio si existe')
+        async checkDir() {
+            const este = this;
+            return await this.file.checkDir(this.file.externalRootDirectory, 'inventarios').then(() => {
+                console.log('El directorio si existe');
             }).catch(
                 // Directory does not exists, create a new one
                 err => este.file.createDir(este.file.externalRootDirectory, 'inventarios', false)
@@ -140,12 +140,12 @@ export class DataService2 {
                 }).catch(err => {
                     // alert('It was not possible to create the dir "inventarios". Err: ' + err.message);
                     console.log('It was not possible to create the dir "inventarios". Err: ' + err.message);
-                })			
+                })
             );
         }
     // ---- Generales ---------------------------------------------
-        get Database(){
-            return this.database
+        get Database() {
+            return this.database;
         }
         iteraModelo(modelo: any, data: any) {
             // console.log(modelo,data)
@@ -155,38 +155,38 @@ export class DataService2 {
                     modelo[i] = data[i];
                 }
             });
-            return modelo
+            return modelo;
         }
-        getKeyByValue(objects, value,key) { 
-            for(let i in objects){
-                if(objects[i][key] == value){
-                    return objects[i].key
+        getKeyByValue(objects, value, key) {
+            for (const i in objects) {
+                if (objects[i][key] == value) {
+                    return objects[i].key;
                 }
             }
         }
-        async CloudFunctions(funcion:string,data:any): Promise<any>{
-            let este = this;
+        async CloudFunctions(funcion: string, data: any): Promise<any> {
+            const este = this;
             const loading = await this.loadingController.create({
                 // message: 'Trabajando...',
-                spinner:"dots",
+                spinner:'dots',
                 translucent: true,
                 cssClass: 'backRed'
             });
             await loading.present();
-            let CloudFunction = firebase.functions().httpsCallable(funcion);
+            const CloudFunction = firebase.functions().httpsCallable(funcion);
             return await CloudFunction(data).then(function(rta) {
                 // Read result of the Cloud Function.
-                console.log('Respuesta de '+funcion+':',rta);
+                console.log('Respuesta de ' + funcion + ':', rta);
                 loading.dismiss();
-                return rta
+                return rta;
             }).catch(function(error) {
-                console.log('Usuario error: ',error);
-                let titulo = 'Error'
-                let mensaje = error.message
+                console.log('Usuario error: ', error);
+                const titulo = 'Error';
+                const mensaje = error.message;
                 loading.dismiss();
-                este.presentAlert(titulo,mensaje)
-                return error
-            })
+                este.presentAlert(titulo, mensaje);
+                return error;
+            });
         }
         IsJsonString(str) {
             try {
@@ -196,11 +196,11 @@ export class DataService2 {
             }
             return true;
         }
-        capitalize(s){
-            if (typeof s !== 'string') return ''
-            return s.charAt(0).toUpperCase() + s.slice(1)
+        capitalize(s) {
+            if (typeof s !== 'string') { return '' }
+            return s.charAt(0).toUpperCase() + s.slice(1);
         }
-        async presentAlert(titulo,mensaje) {
+        async presentAlert(titulo, mensaje) {
             const alert = await this.alertController.create({
             header: titulo,
             message: mensaje,
@@ -208,12 +208,12 @@ export class DataService2 {
             });
             await alert.present();
         }
-        async presentToastWithOptions(message,duration,position) {
+        async presentToastWithOptions(message, duration, position) {
             const toast = await this.toastController.create({
-            message: message,
+            message,
             // showCloseButton: true,
-            position: position,
-            duration: duration
+            position,
+            duration
             // closeButtonText: 'Done'
             });
             toast.present();

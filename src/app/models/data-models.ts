@@ -152,7 +152,7 @@
             }
         }
     } */
-    type roles =
+    export type roles =
         | 'Super'
         | 'Rector'
         | 'Admin'
@@ -161,7 +161,7 @@
         | 'Docente'
         | 'Estudiante'
         | 'Acudiente'; // los usuarios acudientes perteneceran a misma unid organizativa
-    type documentoTipo =
+    export type documentoTipo =
         | 'Registro Civil'
         | 'Tarjeta de identidad'
         | 'cedula'
@@ -297,7 +297,7 @@
     }
     export class GsuiteUser {
         // adaptador para crear usuarios con directory api de g-suite
-        public id?: string;
+        public id: string;
         public name: GsuiteName;
         public password: string;
         public primaryEmail: string;
@@ -335,6 +335,63 @@
         }
     }
 // ---- Firebase user -----------
+    export class UserMetadata {
+        public creationTime: string;
+        public lastSignInTime: string;
+        constructor(a: any) {
+            this.creationTime = a.creationTime;
+            this.lastSignInTime = a.lastSignInTime;
+        }
+    }
+    export class UserInfo {
+        public displayName: string;
+        public email: string;
+        public phoneNumber: string;
+        public photoURL: string;
+        public providerId: string;
+        public uid: string;
+        constructor(a: any) {
+            this.displayName = a.displayName;
+            this.email = a.email;
+            this.phoneNumber = a.phoneNumber;
+            this.photoURL = a.photoURL;
+            this.providerId = a.providerId;
+            this.uid = a.uid;
+        }
+    }
+    export class FirebaseUser {
+        public customClaims: any;
+        public disabled: boolean;
+        public displayName: string;
+        public email: string;
+        public emailVerified: boolean;
+        public metadata: UserMetadata;
+        public passwordHash: string;
+        public passwordSalt: string;
+        public phoneNumber: string;
+        public photoURL: string;
+        public providerData: UserInfo;
+        public tenantId: string | null;
+        public tokensValidAfterTime: string;
+        public uid: string;
+        constructor(a: any) {
+            this.customClaims = a.customClaims;
+            this.disabled = a.disabled;
+            this.displayName = a.displayName;
+            this.email = a.email;
+            this.emailVerified = a.emailVerified;
+            this.metadata = a.metadata;
+            this.passwordHash = a.passwordHash;
+            this.passwordSalt = a.passwordSalt;
+            this.phoneNumber = a.phoneNumber;
+            this.photoURL = a.photoURL;
+            this.providerData = a.providerData;
+            this.tenantId = a.tenantId;
+            this.tokensValidAfterTime = a.tokensValidAfterTime;
+            this.uid = a.uid;
+        }
+    }
+// ---- GescolarUser ------------
     export class Relaciones extends GsuiteRelations {
         fecha: Date; // fecha de creacion
         uid: string; // uid del usuario 'acudiente' del 'estudiante'
@@ -368,30 +425,69 @@
             this.Estudiante = false;
             this.Acudiente = false;
         }
+        Rol(): roles {
+            for (const claim in this) {
+                if (this.hasOwnProperty(claim) && this[claim]) {
+                    // console.log(claim, this[claim]);
+                    switch (claim) {
+                        case 'Super':
+                            return 'Super';
+                            break;
+                        case 'Rector':
+                            return 'Rector';
+                            break;
+                        case 'Admin':
+                            return 'Admin';
+                            break;
+                        case 'Auxiliar':
+                            return 'Auxiliar';
+                            break;
+                        case 'Coordinador':
+                            return 'Coordinador';
+                            break;
+                        case 'Docente':
+                            return 'Docente';
+                            break;
+                        case 'Estudiante':
+                            return 'Estudiante';
+                            break;
+                        case 'Acudiente':
+                            return 'Acudiente';
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            return 'Estudiante';
+        }
     }
-    export class Usuario {
+    export class GescolarUser {
         // en la Base de datos guardar por rol como key principal
         public uid: string; // UID generado desde el Auth
         public rol: roles;
-        public creacion: Date;
-        public sede: string;
-        public activo: boolean;
         public nombre: string;
-        public fechaNacim: Date;
-        public documentoTipo: documentoTipo;
-        public documentoNum: string;
-        public telefonos: GsuitePhones[];
-        public direcciones: GsuiteAddresses[];
         public email: string;
+        public fechaNacim?: Date;
+        public creacion?: Date;
+        public sede?: string;
+        public activo?: boolean;
+        public documentoTipo?: documentoTipo;
+        public documentoNum?: string;
+        public telefonos?: GsuitePhones[];
+        public direcciones?: GsuiteAddresses[];
         public relaciones?: Relaciones[];
         token?: string; // token de autorización para enviar y recibir Push Notifications
         password?: string;
         photoURL?: string;
-        constructor(user: GsuiteUser | Usuario) {
+        constructor(user: GsuiteUser | FirebaseUser | GescolarUser) {
+            this.uid = '';
+            this.rol = 'Estudiante';
+            this.nombre = '';
+            this.email = '';
             if (user instanceof GsuiteUser) {
                 this.uid = user.id;
                 this.rol = user.organizations[0].title;
-                this.creacion = new Date();
                 this.sede = user.orgUnitPath;
                 this.activo = true;
                 this.nombre = user.name.givenName + ' ' + user.name.familyName;
@@ -401,7 +497,29 @@
                 this.telefonos = user.phones;
                 this.direcciones = user.addresses;
                 this.email = user.primaryEmail;
-            } else {
+            } else if (user instanceof FirebaseUser) {
+                const c = new Claims();
+                // const o = Object.getOwnPropertyNames(Claims.prototype);
+                // let i: keyof Claims;
+                Object.keys(user.customClaims).forEach(i => {
+                    if (typeof c[i as keyof Claims] !== 'undefined') {
+                        c[i as keyof Claims] = user.customClaims[i];
+                    }
+                });
+                /* for (const i of o) {
+                    if (c.hasOwnProperty(i)) {
+                        c[i as keyof Claims] = user.customClaims[i];
+                    }
+                } */
+                this.uid =  user.uid;
+                this.rol =  c.Rol();
+                this.creacion =  new Date(user.metadata.creationTime);
+                this.activo =  user.disabled;
+                this.nombre =  user.displayName;
+                this.telefonos =  [new GsuitePhones(user.phoneNumber)];
+                this.email =  user.email;
+                this.photoURL =  user.photoURL;
+            } else if (user instanceof GescolarUser) {
                 this.uid = user.uid;
                 this.rol = user.rol;
                 this.creacion = user.creacion;
@@ -421,11 +539,14 @@
         }
         get Edad() {
             const today = new Date();
-            const birthDate = new Date(this.fechaNacim);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const m = today.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
+            let age = 0;
+            if (this.fechaNacim) {
+                const birthDate = new Date(this.fechaNacim);
+                age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
             }
             return age;
         }
@@ -464,10 +585,10 @@
         }
     }
 // ---- Data Base ---------------
-    export class LocalDatabase {
+    /* export class LocalDatabase {
         public Matriculas: { [key: string]: Matricula };
-        public usuario: { [key: string]: Matricula };
+        public usuario: { [key: string]: GescolarUser };
         constructor() {
         }
-    }
+    } */
 // ------------------------------

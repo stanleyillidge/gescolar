@@ -7,7 +7,7 @@ const OAuth2 = google.auth.OAuth2;
 const calendar = google.calendar('v3');
 const TIME_ZONE = 'EST';
 // --- Importo los modelos de los datos ------
-  import { Usuario, Claims } from '../../src/app/models/data-models';
+  import { GescolarUser, Claims } from '../../src/app/models/data-models';
 // -------------------------------------------
 const googleCredentials = {
   "web":{
@@ -144,7 +144,7 @@ oAuth2Client2.setCredentials({
       return directory.users.insert({"resource":guser}).then((data:any) => {
         // console.log('Request successful',data);
         data.data.password = guser.password;
-        const firebaseUser = new Usuario(data.data);
+        const firebaseUser = new GescolarUser(data.data);
         // console.log('Usuario de firebasea ser creado',firebaseUser);
         // --- Creo el usuario en firebase ------
           return admin.auth().createUser({
@@ -239,7 +239,7 @@ oAuth2Client2.setCredentials({
         // console.log('Request successful',data);
         data.data.password = event.password;
         // console.log('Data para crear el Usuario de firebase',data.data);
-        const firebaseUser = new Usuario(data.data)
+        const firebaseUser = new GescolarUser(data.data)
         // console.log('Usuario de firebasea ser creado',firebaseUser);
         createFirebaseUser(firebaseUser)
         resolve(data)
@@ -252,7 +252,7 @@ oAuth2Client2.setCredentials({
     });
   }
 
-  function createFirebaseUser(user:Usuario){
+  function createFirebaseUser(user:GescolarUser){
     admin.auth().createUser({
       uid: user.uid,
       email: user.email,
@@ -271,7 +271,7 @@ oAuth2Client2.setCredentials({
     });
   }
 
-  function setClaims(user:Usuario){
+  function setClaims(user:GescolarUser){
     // console.log("Usuario a definir roles:", user);
     const claims = new Claims
     claims[user.rol] = true

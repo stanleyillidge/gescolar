@@ -12,12 +12,12 @@ import { Router } from '@angular/router';
 import { Platform, LoadingController, AlertController } from '@ionic/angular';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
-import { Usuario } from '../models/data-models';
+import { GescolarUser } from '../models/data-models';
 
 
 @Injectable()
 export class AuthService {
-    user: Usuario;
+    user: GescolarUser;
     userData: any; // Save logged in user data
     estaAtenticado = false;
     loading: HTMLIonLoadingElement;
@@ -48,7 +48,7 @@ export class AuthService {
         });
     }
     // Returns true when user is looged in and email is verified
-    get isLoggedIn(): Usuario {
+    get isLoggedIn(): GescolarUser {
         return this.user;
         // return (user !== null && user.emailVerified !== false) ? true : false;
     }

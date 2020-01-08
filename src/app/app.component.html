@@ -1,3 +1,16 @@
-<ion-app>
+<!-- <ion-app>
   <ion-router-outlet></ion-router-outlet>
+</ion-app> -->
+<ion-app>
+  <ion-menu contentId="content1" side="start">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Menu</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-button expand="full" (click)="authService.logout()">Logout</ion-button>
+    </ion-content>
+  </ion-menu>
+  <ion-router-outlet id="content1" main></ion-router-outlet>
 </ion-app>

@@ -431,8 +431,8 @@
             | 'work_mobile'
             | 'work_pager';
         customType?: string; // Si el valor de type es custom, esta propiedad contiene el tipo personalizado.
-        constructor(a: any) {
-            this.value = a.value;
+        constructor(a: any | null) {
+            this.value = ((a.value !== null) ? a.value : '');
             this.primary = true;
             this.type = 'main';
         }
@@ -638,6 +638,7 @@
         public rol: roles;
         public nombre: string;
         public email: string;
+        public claims?: Claims;
         public fechaNacim?: Date;
         public creacion?: Date;
         public sede?: string;
@@ -669,29 +670,24 @@
                 this.email = user.primaryEmail;
             } else if (user instanceof FirebaseUser) {
                 const c = new Claims();
-                // const o = Object.getOwnPropertyNames(Claims.prototype);
-                // let i: keyof Claims;
                 Object.keys(user.customClaims).forEach(i => {
                     if (typeof c[i as keyof Claims] !== 'undefined') {
                         c[i as keyof Claims] = user.customClaims[i];
                     }
                 });
-                /* for (const i of o) {
-                    if (c.hasOwnProperty(i)) {
-                        c[i as keyof Claims] = user.customClaims[i];
-                    }
-                } */
+                this.claims = c;
                 this.uid =  user.uid;
                 this.rol =  c.Rol();
                 this.creacion =  new Date(user.metadata.creationTime);
                 this.activo =  user.disabled;
                 this.nombre =  user.displayName;
-                this.telefonos =  [new GsuitePhones(user.phoneNumber)];
+                this.telefonos =  [new GsuitePhones({value: user.phoneNumber})];
                 this.email =  user.email;
                 this.photoURL =  user.photoURL;
             } else if (user instanceof GescolarUser) {
                 this.uid = user.uid;
                 this.rol = user.rol;
+                this.claims = user.claims;
                 this.creacion = user.creacion;
                 this.sede = user.sede;
                 this.activo = user.activo;
@@ -733,12 +729,12 @@
         }
     }
 // ---- Local DataBase ----------
-    export class LocalDatabase {
+    /* export class LocalDatabase {
         // public Matriculas: { [key: string]: Matricula };
         // public usuarios: { [key: string]: GescolarUser };
         public authUser: AuthUser | null;
         constructor(a: AuthUser | GescolarUser | Matricula) {
             this.authUser = ((a instanceof AuthUser) ? a : null);
         }
-    }
+    } */
 // ------------------------------

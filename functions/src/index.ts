@@ -205,21 +205,39 @@ oAuth2Client2.setCredentials({
     const guser = new GsuiteUser(user); // recupero la data
     console.log('Usuario de Gsuite',guser);
     const geuser = new GescolarUser(guser);
-    console.log('Usuario a ser creado',geuser);
     geuser.rol = 'Super';
+    let t = '+57';
+    if (geuser.telefonos) {
+      t = '+57'+String(geuser.telefonos[0].value);
+      geuser.telefonos[0].value = t;
+    }
+    console.log('Usuario a ser creado', t, geuser);
     // --- Creo el usuario en firebase ------
       admin.auth().createUser({
         uid: geuser.uid,
         email: geuser.email,
-        password: 'a123a456a'
+        emailVerified: false,
+        phoneNumber: t,
+        password: 'a123a456a',
+        displayName: geuser.nombre,
+        photoURL: user.thumbnailPhotoUrl,
+        disabled: false
       })
       .then(function(userRecord) {
-        // console.log('Successfully created new user:', userRecord.uid);
+        console.log('Successfully created new user:', userRecord);
         // --- Definio los permisos por Rol ------
-          const claims = new Claims
-          claims[geuser.rol] = true
+          const claims = new Claims;
+          claims[geuser.rol] = true;
+          // const fuser = new FirebaseUser(userRecord);
+          // fuser.customClaims = claims;
+          // fuser.photoURL = user.thumbnailPhotoUrl;
+          // console.log('Fuser', fuser);
+          // geuser = new GescolarUser(fuser);
+          geuser.photoURL = user.thumbnailPhotoUrl;
+          geuser.claims = claims;
+          // console.log('Geuser', geuser);
           admin.auth().setCustomUserClaims(geuser.uid, claims ).then(() => {
-            // console.log("Successfully updated Claims to user:",geuser);
+            console.log("Successfully updated Claims to user:",geuser);
             // --- Guardo el usuario en la base de Datos ----
             ref.child(geuser.rol).child(geuser.uid).update(geuser)
               .then(()=>{

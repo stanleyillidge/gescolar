@@ -15,6 +15,8 @@ import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { AuthUser, GescolarUser, FirebaseUser } from '../models/data-models';
 import { DataService2 } from './data-service';
 
+import { Storage } from '@ionic/storage';
+
 
 @Injectable()
 export class AuthService {
@@ -33,6 +35,7 @@ export class AuthService {
         public afAuth: AngularFireAuth, // Inject Firebase auth service
         public router: Router,
         public loadingController: LoadingController,
+        private storage: Storage,
         public ngZone: NgZone // NgZone service to remove outside scope warning
     ) { }
     estado() {
@@ -40,16 +43,9 @@ export class AuthService {
       const este = this;
       this.afAuth.auth.onAuthStateChanged(user => {
         if (user) {
+          this.ds.initDatabase(user.uid);
           console.log('Esta autenticado!', user.uid, user);
           este.router.navigate(['/home']);
-          this.ds.CloudFunctions('getFirebaseUser', user.uid).then(s => {
-            // s = JSON.parse(s);
-            console.log('user', s.data);
-            const fuser = new FirebaseUser(s.data);
-            console.log('Fuser', fuser);
-            const geuser = new GescolarUser(fuser);
-            console.log('GEuser', geuser);
-          }).catch(e => {});
         } else {
           console.log('No esta autenticado!');
           this.router.navigate(['/login']);

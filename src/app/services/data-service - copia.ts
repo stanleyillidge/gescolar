@@ -8,17 +8,19 @@ import { Router } from '@angular/router';
 import { LoadingController, AlertController, Platform, ToastController } from '@ionic/angular';
 // Ionic Storage
 import { Storage } from '@ionic/storage';
-import { ReplaySubject, BehaviorSubject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 // import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
-import { GescolarUser, FirebaseUser } from '../models/data-models';
 
 @Injectable()
 export class DataService2 {
-    // private _usuarios = new BehaviorSubject<GescolarUser[]>([]);
+    public ProductoObserver: ReplaySubject<any> = new ReplaySubject<any>();
+    public BodegaObserver: ReplaySubject<any> = new ReplaySubject<any>();
+    public InventarioObserver: ReplaySubject<any> = new ReplaySubject<any>();
+    public UsuariosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     database: any;
     plataforma: any = {desktop: Boolean, android: Boolean};
@@ -42,39 +44,49 @@ export class DataService2 {
         this.storage.clear(); // quitar cuando este en produccion
     }
     // ---- Database ----------------------------------------------
-        async initDatabase(uid: string) {
+        async initDatabase() {
             const este = this;
             if (this.plataforma.cordova) {
                 this.checkDir();
             }
-            await this.storage.get(uid).then(async (val) => {
+            // this.database = new LocalDatabase;
+            await this.storage.get('database').then(async (val) => {
                 if (val) {
                     let datax = val;
                     if (!this.IsJsonString(val)) {
                         datax = JSON.stringify(val);
                     }
+                    /* await this.cargaModelos(JSON.parse(datax)).then((r)=>{
+                        // console.log(r)
+                        este.database = r
+                        console.log('Si hay data',este.database);
+                        este.databaseEvents('Bodegas')
+                        // return true
+                    }) */
                 } else {
-                    console.log('El usuario', uid, 'no tiene datos almacenados localmente');
-                    // se obtiene la data completa del usuario que ingresa por primera vez
-                    este.getFullFirebaseUser(uid);
+                    console.log('No hay datos almacenados');
+                    /* this.decargaDatabase('bodegas').then(()=>{
+                        este.decargaDatabase('productos').then(()=>{
+                            este.decargaDatabase('usuarios').then(()=>{
+                                este.decargaDatabase('documentos').then(()=>{
+                                    este.decargaDatabase('listas').then(()=>{
+                                        este.decargaDatabase('inventario').then(()=>{
+                                            este.decargaDatabase('pagos').then(()=>{
+                                                este.storage.set('database', JSON.stringify(este.database)).then(()=>{
+                                                    console.log('Database:',este.database)
+                                                    return
+                                                })
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }) */
+                    // return false
                 }
                 return;
             });
-        }
-    // ---- Usuarios ----------------------------------------------
-        getFullFirebaseUser(uid: string) {
-            const este = this;
-            this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
-                // console.log('user', s.data);
-                const fuser = new FirebaseUser(s.data);
-                console.log('Fuser', fuser);
-                const geuser = new GescolarUser(new FirebaseUser(s.data));
-                console.log('Geuser que ingresa:', geuser);
-                este.storage.set(uid, JSON.stringify({authUser: geuser})).then(() => {
-                    console.log('Datos de usuario guardados localmente');
-                    return geuser;
-                });
-            }).catch(e => {});
         }
     // ---- Imagenes ----------------------------------------------
         public async download(producto: any) {// (i:any,index:any,item:any) {
@@ -117,17 +129,17 @@ export class DataService2 {
         }
         async checkDir() {
             const este = this;
-            return await this.file.checkDir(this.file.externalRootDirectory, 'GestionEscolarPlus').then(() => {
+            return await this.file.checkDir(this.file.externalRootDirectory, 'inventarios').then(() => {
                 console.log('El directorio si existe');
             }).catch(
                 // Directory does not exists, create a new one
-                err => este.file.createDir(este.file.externalRootDirectory, 'GestionEscolarPlus', false)
+                err => este.file.createDir(este.file.externalRootDirectory, 'inventarios', false)
                 .then(response => {
                     // alert('New folder created:  ' + response.fullPath);
                     console.log('New folder created:  ' + response.fullPath);
                 }).catch(err => {
-                    // alert('It was not possible to create the dir "GestionEscolarPlus". Err: ' + err.message);
-                    console.log('It was not possible to create the dir "GestionEscolarPlus". Err: ' + err.message);
+                    // alert('It was not possible to create the dir "inventarios". Err: ' + err.message);
+                    console.log('It was not possible to create the dir "inventarios". Err: ' + err.message);
                 })
             );
         }

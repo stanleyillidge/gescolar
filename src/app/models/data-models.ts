@@ -651,7 +651,7 @@
         token?: string; // token de autorización para enviar y recibir Push Notifications
         password?: string;
         photoURL?: string;
-        constructor(user: GsuiteUser | FirebaseUser | GescolarUser) {
+        constructor(user: GsuiteUser | FirebaseUser | any) {
             this.uid = '';
             this.rol = 'Estudiante';
             this.nombre = '';
@@ -684,7 +684,7 @@
                 this.telefonos =  [new GsuitePhones({value: user.phoneNumber})];
                 this.email =  user.email;
                 this.photoURL =  user.photoURL;
-            } else if (user instanceof GescolarUser) {
+            } else {
                 this.uid = user.uid;
                 this.rol = user.rol;
                 this.claims = user.claims;

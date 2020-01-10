@@ -39,7 +39,7 @@ export class DataService2 {
         this.plataforma.desktop = this.platform.is('desktop');
         this.plataforma.android = this.platform.is('android');
         this.plataforma.cordova = this.platform.is('cordova');
-        this.storage.clear(); // quitar cuando este en produccion
+        // this.storage.clear(); // quitar cuando este en produccion
     }
     // ---- Database ----------------------------------------------
         async initDatabase(uid: string) {
@@ -49,30 +49,37 @@ export class DataService2 {
             }
             await this.storage.get(uid).then(async (val) => {
                 if (val) {
-                    let datax = val;
+                    let datax = JSON.parse(val);
                     if (!this.IsJsonString(val)) {
-                        datax = JSON.stringify(val);
+                        datax = Object(JSON.stringify(val));
                     }
+                    console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
+                    this.database = datax;
+                    this.database.authUser = new GescolarUser(datax.authUser);
+                    console.log(datax);
+                    return;
                 } else {
-                    console.log('El usuario', uid, 'no tiene datos almacenados localmente');
+                    console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
                     // se obtiene la data completa del usuario que ingresa por primera vez
-                    este.getFullFirebaseUser(uid);
+                    este.getFullUser(uid);
+                    return;
                 }
-                return;
             });
         }
     // ---- Usuarios ----------------------------------------------
-        getFullFirebaseUser(uid: string) {
+        getFullUser(uid: string) {
             const este = this;
+            // firebase.database().ref(child)
             this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
-                // console.log('user', s.data);
-                const fuser = new FirebaseUser(s.data);
-                console.log('Fuser', fuser);
                 const geuser = new GescolarUser(new FirebaseUser(s.data));
-                console.log('Geuser que ingresa:', geuser);
-                este.storage.set(uid, JSON.stringify({authUser: geuser})).then(() => {
-                    console.log('Datos de usuario guardados localmente');
-                    return geuser;
+                firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
+                    console.log('Geuser que ingresa:', u.val());
+                    este.database = {authUser: new GescolarUser(u.val())};
+                    console.log('Database:', este.database);
+                    este.storage.set(uid, JSON.stringify(este.database)).then(() => {
+                        console.log('Datos de usuario guardados localmente');
+                        return u.val();
+                    });
                 });
             }).catch(e => {});
         }
@@ -125,13 +132,16 @@ export class DataService2 {
                 .then(response => {
                     // alert('New folder created:  ' + response.fullPath);
                     console.log('New folder created:  ' + response.fullPath);
-                }).catch(err => {
+                }).catch(error => {
                     // alert('It was not possible to create the dir "GestionEscolarPlus". Err: ' + err.message);
-                    console.log('It was not possible to create the dir "GestionEscolarPlus". Err: ' + err.message);
+                    console.log('It was not possible to create the dir "GestionEscolarPlus". Err: ' + error.message);
                 })
             );
         }
     // ---- Generales ---------------------------------------------
+        page(page) {
+            this.router.navigate(['/' + page]);
+        }
         get Database() {
             return this.database;
         }
@@ -156,7 +166,7 @@ export class DataService2 {
             const este = this;
             const loading = await this.loadingController.create({
                 // message: 'Trabajando...',
-                spinner:'dots',
+                spinner: 'dots',
                 translucent: true,
                 cssClass: 'backRed'
             });
@@ -186,7 +196,7 @@ export class DataService2 {
             return true;
         }
         capitalize(s) {
-            if (typeof s !== 'string') { return '' }
+            if (typeof s !== 'string') { return ''; }
             return s.charAt(0).toUpperCase() + s.slice(1);
         }
         async presentAlert(titulo, mensaje) {

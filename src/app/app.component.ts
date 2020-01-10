@@ -29,6 +29,9 @@ export class AppComponent {
       this.authService.estado();
     });
   }
+  page(page) {
+    this.router.navigate(['/' + page]);
+  }
   /* initializeApp() {
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();

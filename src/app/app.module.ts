@@ -11,8 +11,8 @@ import { AppComponent } from './app.component';
 
 import { DataService2 } from './services/data-service';
 
-import { AngularFireModule } from "@angular/fire";
-import { AngularFireAuthModule } from "@angular/fire/auth";
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import * as firebase from 'firebase/app';
@@ -28,22 +28,22 @@ import { AuthService } from './services/AuthService';
 
 // esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a Blaze (pago por uso)
 const firebaseConfig = {
-  apiKey: "AIzaSyCdCTYPL1-PPQb3rpOi5Ls_oGoMfPjvXG8",
-  authDomain: "g-escolar-plus-demo.firebaseapp.com",
-  databaseURL: "https://g-escolar-plus-demo.firebaseio.com",
-  projectId: "g-escolar-plus-demo",
-  storageBucket: "g-escolar-plus-demo.appspot.com",
-  messagingSenderId: "395322918531",
-  appId: "1:395322918531:web:aaf5e5a050a3743d2e7db6",
-  measurementId: "G-DM69H5H8BG"
+  apiKey: 'AIzaSyCdCTYPL1-PPQb3rpOi5Ls_oGoMfPjvXG8',
+  authDomain: 'g-escolar-plus-demo.firebaseapp.com',
+  databaseURL: 'https://g-escolar-plus-demo.firebaseio.com',
+  projectId: 'g-escolar-plus-demo',
+  storageBucket: 'g-escolar-plus-demo.appspot.com',
+  messagingSenderId: '395322918531',
+  appId: '1:395322918531:web:aaf5e5a050a3743d2e7db6',
+  measurementId: 'G-DM69H5H8BG'
 };
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
   imports: [
-    BrowserModule, 
-    IonicModule.forRoot(), 
+    BrowserModule,
+    IonicModule.forRoot(),
     AppRoutingModule,
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireAuthModule,
@@ -51,7 +51,8 @@ const firebaseConfig = {
     AngularFireDatabaseModule,
     IonicStorageModule.forRoot(),
     BrowserAnimationsModule,
-    ComponentsModule
+    ComponentsModule,
+    BrowserAnimationsModule
   ],
   providers: [
     StatusBar,

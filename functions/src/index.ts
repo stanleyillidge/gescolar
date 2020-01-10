@@ -106,9 +106,8 @@ oAuth2Client2.setCredentials({
   exports.getFirebaseUser = functions.https.onCall((uid, context) => {
     console.log('Data para consultar', uid);
     return admin.auth().getUser(uid).then(user => {
-      console.log('Usuario consultado', user);
-      // const rta = JSON.stringify(user);
-      return user
+      console.log('Usuario consultado en Auth', user);
+      return user;
     }).catch(error => {
       console.error('Error consultando user: ' + error.message);
       const CUSER_ERROR_RESPONSE = {

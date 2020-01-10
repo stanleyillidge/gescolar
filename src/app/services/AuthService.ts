@@ -43,9 +43,10 @@ export class AuthService {
       const este = this;
       this.afAuth.auth.onAuthStateChanged(user => {
         if (user) {
-          this.ds.initDatabase(user.uid);
-          console.log('Esta autenticado!', user.uid, user);
-          este.router.navigate(['/home']);
+          this.ds.initDatabase(user.uid).then(() => {
+            console.log('Esta autenticado!', user.uid, user);
+            este.router.navigate(['/home']);
+          });
         } else {
           console.log('No esta autenticado!');
           this.router.navigate(['/login']);

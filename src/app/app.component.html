@@ -9,6 +9,31 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
+      <ion-list lines="none">
+        <ion-item (click)="page('home')">
+          <ion-label>
+            Home
+          </ion-label>
+          <ion-icon name="home" size="large" slot="end"></ion-icon>
+        </ion-item>
+        <ion-item (click)="page('profile')">
+          <ion-label>
+            Profile
+          </ion-label>
+          <ion-icon name="person" size="large" slot="end"></ion-icon>
+        </ion-item>
+        <!-- <ion-item>
+          <ion-button slot="start">
+            Start Icon
+            <ion-icon name="home" slot="end"></ion-icon>
+          </ion-button>
+          <ion-label>Buttons with Icons</ion-label>
+          <ion-button slot="end">
+            <ion-icon name="star" slot="end"></ion-icon>
+            End Icon
+          </ion-button>
+        </ion-item> -->
+      </ion-list>
       <ion-button expand="full" (click)="authService.logout()">Logout</ion-button>
     </ion-content>
   </ion-menu>

@@ -5,6 +5,8 @@ import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Router } from '@angular/router';
 import { AuthService } from './services/AuthService';
+import * as firebase from 'firebase/app';
+import 'firebase/auth';
 
 @Component({
   selector: 'app-root',
@@ -28,6 +30,10 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.authService.estado();
     });
+  }
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
   page(page) {
     this.router.navigate(['/' + page]);

@@ -16,15 +16,18 @@ import { AuthUser, GescolarUser, FirebaseUser } from '../models/data-models';
 import { DataService2 } from './data-service';
 
 import { Storage } from '@ionic/storage';
+import { BehaviorSubject } from 'rxjs';
 
 
 @Injectable()
 export class AuthService {
-    user: AuthUser;
+    user: GescolarUser;
     userData: any; // Save logged in user data
     estaAtenticado = false;
     loading: HTMLIonLoadingElement;
     test = false;
+    private _usuario = new BehaviorSubject<GescolarUser[]>([]);
+    readonly usuario = this._usuario.asObservable();
 
     constructor(
         public ds: DataService2,
@@ -36,25 +39,60 @@ export class AuthService {
         public router: Router,
         public loadingController: LoadingController,
         private storage: Storage,
-        public ngZone: NgZone // NgZone service to remove outside scope warning
+        public zone: NgZone // NgZone service to remove outside scope warning
     ) { }
     estado() {
       // --- Vefico el estado de la autenticación ---
       const este = this;
-      this.afAuth.auth.onAuthStateChanged(user => {
-        if (user) {
-          this.ds.initDatabase(user.uid).then(() => {
-            console.log('Esta autenticado!', user.uid, user);
-            este.router.navigate(['/home']);
-          });
-        } else {
-          console.log('No esta autenticado!');
-          this.router.navigate(['/login']);
-        }
+      return new Promise((resolve, reject) => {
+        this.afAuth.auth.onAuthStateChanged(user => {
+          if (user) {
+            this.ds.initDatabase(user.uid).then((r: any) => {
+              console.log('rta', r);
+              console.log('Hola', this.ds.database);
+              if (r.rta) {
+                this._usuario.next(Object.assign({}, this.ds.database).usuario);
+                // este.zone.run(() => {
+                console.log('Esta autenticado!', user.uid, user);
+                resolve({rta: true});
+                // });
+              } else {
+                este.getFullUser(user.uid).then((s: any) => {
+                  console.log('Echo', s);
+                  resolve({rta: true});
+                });
+              }
+            });
+          } else {
+            console.log('No esta autenticado!');
+            resolve({rta: false});
+          }
+        });
       });
     }
+    // ---- Usuarios ----------------------------------------------
+      async getFullUser(uid: string) {
+        const este = this;
+        return new Promise((resolve, reject) => {
+          this.ds.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
+            const geuser = new GescolarUser(new FirebaseUser(s.data));
+            firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
+                console.log('Geuser que ingresa:', u.val());
+                // console.log(este.authService.usuario);
+                // este.authService.user = new GescolarUser(u.val());
+                este.ds.database = {authUser: new GescolarUser(u.val())};
+                console.log('Database:', este.ds.database);
+                este.storage.set(uid, JSON.stringify(este.ds.database)).then(() => {
+                  console.log('Datos de usuario guardados localmente');
+                  return u.val();
+                });
+            });
+          }).catch(e => {});
+        });
+      }
+    // -------------------------------------------------------------
     // Returns true when user is looged in and email is verified
-    get isLoggedIn(): AuthUser {
+    get isLoggedIn(): GescolarUser {
         return this.user;
         // return (user !== null && user.emailVerified !== false) ? true : false;
     }
@@ -89,6 +127,9 @@ export class AuthService {
           .then((response) => {
             this.test = true;
             console.log(response);
+            this.zone.run(() => {
+              this.router.navigate(['/home']);
+            });
           }).catch((error) => {
             console.log(error);
             alert('error:' + JSON.stringify(error));
@@ -101,10 +142,12 @@ export class AuthService {
                 .credential(accessToken);
         this.afAuth.auth.signInWithCredential(credential)
             .then((response) => {
-            // this.router.navigate(["/profile"]);
             console.log(response);
             this.test = true;
             this.loading.dismiss();
+            this.zone.run(() => {
+              this.router.navigate(['/home']);
+            });
         });
 
     }

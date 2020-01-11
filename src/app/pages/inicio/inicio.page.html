@@ -4,7 +4,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-avatar *ngIf="user" slot="end" (click)="ds.page('profile')">
+    <ion-avatar *ngIf="test === true" slot="end" (click)="ds.page('profile')">
       <img src={{user.photoURL}}>
     </ion-avatar>
   </ion-toolbar>
@@ -21,12 +21,4 @@
       <p>Now that your app has been created, you'll want to start building out features and components. Check out some of the resources below for next steps.</p>
     </ion-card-content>
   </ion-card>
-  <mat-form-field class="example-full-width">
-    <input type="text" placeholder="Pick one" aria-label="Number" matInput [formControl]="myControl" [matAutocomplete]="auto">
-    <mat-autocomplete #auto="matAutocomplete">
-      <mat-option *ngFor="let option of options" [value]="option">
-        {{option}}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
 </ion-content>

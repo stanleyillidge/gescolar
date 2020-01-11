@@ -15,6 +15,7 @@ import { WebView } from '@ionic-native/ionic-webview/ngx';
 // import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
 import { GescolarUser, FirebaseUser } from '../models/data-models';
+import { AuthService } from './AuthService';
 
 @Injectable()
 export class DataService2 {
@@ -33,7 +34,8 @@ export class DataService2 {
         private webview: WebView,
         private fileTransfer: FileTransfer,
         private file: File,
-        private storage: Storage
+        private storage: Storage,
+        // private authService: AuthService
     ) {
         const este = this;
         this.plataforma.desktop = this.platform.is('desktop');
@@ -44,44 +46,31 @@ export class DataService2 {
     // ---- Database ----------------------------------------------
         async initDatabase(uid: string) {
             const este = this;
-            if (this.plataforma.cordova) {
-                this.checkDir();
-            }
-            await this.storage.get(uid).then(async (val) => {
-                if (val) {
-                    let datax = JSON.parse(val);
-                    if (!this.IsJsonString(val)) {
-                        datax = Object(JSON.stringify(val));
-                    }
-                    console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
-                    this.database = datax;
-                    this.database.authUser = new GescolarUser(datax.authUser);
-                    console.log(datax);
-                    return;
-                } else {
-                    console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
-                    // se obtiene la data completa del usuario que ingresa por primera vez
-                    este.getFullUser(uid);
-                    return;
+            return new Promise((resolve, reject) => {
+                if (this.plataforma.cordova) {
+                    this.checkDir();
                 }
-            });
-        }
-    // ---- Usuarios ----------------------------------------------
-        getFullUser(uid: string) {
-            const este = this;
-            // firebase.database().ref(child)
-            this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
-                const geuser = new GescolarUser(new FirebaseUser(s.data));
-                firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
-                    console.log('Geuser que ingresa:', u.val());
-                    este.database = {authUser: new GescolarUser(u.val())};
-                    console.log('Database:', este.database);
-                    este.storage.set(uid, JSON.stringify(este.database)).then(() => {
-                        console.log('Datos de usuario guardados localmente');
-                        return u.val();
-                    });
+                this.storage.get(uid).then(async (val) => {
+                    if (val) {
+                        let datax = JSON.parse(val);
+                        if (!this.IsJsonString(val)) {
+                            datax = Object(JSON.stringify(val));
+                        }
+                        console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
+                        this.database = datax;
+                        this.database.authUser = new GescolarUser(datax.authUser);
+                        console.log(datax);
+                        resolve({rta: true});
+                    } else {
+                        console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
+                        reject({rta: false});
+                        // se obtiene la data completa del usuario que ingresa por primera vez
+                        /* await este.getFullUser(uid).then(() => {
+                            return;
+                        }); */
+                    }
                 });
-            }).catch(e => {});
+            });
         }
     // ---- Imagenes ----------------------------------------------
         public async download(producto: any) {// (i:any,index:any,item:any) {

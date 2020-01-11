@@ -100,6 +100,7 @@ export class AuthService {
     async login() {
         let params;
         console.log('cordova', this.platform.is('cordova'));
+        console.log('android', this.platform.is('android'));
         console.log('desktop', this.platform.is('desktop'));
         if (this.platform.is('cordova')) {
           params = {
@@ -116,7 +117,7 @@ export class AuthService {
             console.log(error);
             alert('error:' + JSON.stringify(error));
           });
-        } else if (this.platform.is('desktop')) {
+        } else if (this.platform.is('desktop') || this.platform.is('android')) {
           const provider = new firebase.auth.GoogleAuthProvider();
           provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
           provider.addScope('https://www.googleapis.com/auth/drive');

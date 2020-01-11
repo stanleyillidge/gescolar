@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Usuarios</ion-title>
+    <ion-buttons slot="start">
+      <!-- <ion-menu-button></ion-menu-button> -->
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-row>
+          <ion-col class="ion-padding menu1" size="3"
+            size-xs="12"
+            size-sm="12"
+            size-md="12"
+            size-lg="12">
+            <menu-arbol></menu-arbol>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col class="ion-padding menu2" size="3"
+            size-xs="12"
+            size-sm="12"
+            size-md="12"
+            size-lg="12">
+            <menu-arbol></menu-arbol>
+          </ion-col>
+        </ion-row>
+      </ion-col>
+      <ion-col class="ion-no-padding" size="12"
+                size-xs="12"
+                size-sm="12"
+                size-md="12"
+                size-lg="9">
+        <ion-grid class="ion-no-padding">
+          <ion-row class="ion-no-padding">
+            <ion-col size="12"
+            size-xs="12"
+            size-sm="6"
+            size-md="4"
+            size-lg="3"
+            *ngFor="let item of [].constructor(50); let i = index" [attr.data-index]="i">
+              <ion-card color="dark">
+                <ion-card-header>
+                  <ion-card-subtitle>Awesome Subtitle {{i}}</ion-card-subtitle>
+                  <ion-card-title>Awesome Title</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Awesome content
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<ion-fab class="menu3" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button (click)="presentActionSheet()">
+    <ion-icon name="arrow-dropleft"></ion-icon>
+  </ion-fab-button>
+</ion-fab>

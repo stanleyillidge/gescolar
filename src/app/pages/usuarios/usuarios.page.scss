@@ -1,0 +1,11 @@
+.menu3{
+    display: none;
+}
+@media (max-width: 991px) { // vista web
+    .menu2{
+        display: none;
+    }
+    .menu3{
+        display: block;
+    }
+}

@@ -203,6 +203,7 @@ export class MenuArbolComponent {
   todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
     this.checklistSelection.toggle(node);
     this.checkAllParentsSelection(node);
+    console.log(this.treeControl);
   }
 
   /* Checks all the parents when a leaf node is selected/unselected */
@@ -211,6 +212,7 @@ export class MenuArbolComponent {
     while (parent) {
       this.checkRootNodeSelection(parent);
       parent = this.getParentNode(parent);
+      console.log(node, parent);
     }
   }
 

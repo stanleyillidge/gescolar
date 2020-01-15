@@ -17,6 +17,7 @@ import { DataService2 } from './data-service';
 
 import { Storage } from '@ionic/storage';
 import { BehaviorSubject } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 
 @Injectable()
@@ -89,6 +90,9 @@ export class AuthService {
             });
           }).catch(e => {});
         });
+      }
+      getUser(): Promise<firebase.User> {
+        return this.afAuth.authState.pipe(first()).toPromise();
       }
     // -------------------------------------------------------------
     // Returns true when user is looged in and email is verified

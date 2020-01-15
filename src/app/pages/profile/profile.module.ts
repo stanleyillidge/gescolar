@@ -8,9 +8,9 @@ import { ProfilePageRoutingModule } from './profile-routing.module';
 
 import { ProfilePage } from './profile.page';
 
-import { MatCardModule } from '@angular/material/card';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { DemoMaterialModule } from 'src/app/material-module';
+import { ComponentsModule } from 'src/app/components/components.module';
 
 @NgModule({
   imports: [
@@ -20,7 +20,7 @@ import { DemoMaterialModule } from 'src/app/material-module';
     ProfilePageRoutingModule,
     FlexLayoutModule,
     DemoMaterialModule,
-    MatCardModule
+    ComponentsModule
   ],
   declarations: [ProfilePage]
 })

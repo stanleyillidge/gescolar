@@ -1,9 +1,42 @@
-.position-relative {
-	position: relative;
+.avatar-img{
+    border-radius: 50%;
+}
+.example-headers-align .mat-expansion-panel-header-title,
+.example-headers-align .mat-expansion-panel-header-description {
+  flex-basis: 0;
 }
 
-.add-contact {
-	position: absolute;
-    right: 17px;
-    top: 57px;
+.example-headers-align .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+mat-form-field {
+  margin-right: 12px;
+}
+.user-data {
+    // margin: 1em 0 0 0;
+}
+.panel-description {
+    margin: 0;
+}
+@media (max-width: 791px) { // vista web
+    .panel-description {
+        font-size: 0.9em;
+    }
+}
+@media (max-width: 591px) { // vista web
+    .panel-description {
+        font-size: 0.8em;
+    }
+}
+@media (max-width: 491px) { // vista movil
+    .panel-description {
+        color: transparent;
+        font-size: 0.1px;
+    }
+    .mat-expansion-panel-header-description, .mat-expansion-panel-header-title {
+        flex-grow: 3;
+        margin: 0;
+    }
 }

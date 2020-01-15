@@ -9,36 +9,259 @@
 </ion-header>
 
 <ion-content>
-  <div fxLayout="row wrap">
-    <!-- Card column -->
-    <div fxFlex.gt-lg="25" fxFlex.gt-md="50" fxFlex.gt-xs="100" fxFlex="100">
-      <mat-card>
-        <img mat-card-image src="../../../assets/images/background/profile-bg.jpg" alt="Photo of a Shiba Inu">
-        <!-- <mat-card-content>
-          <div class="pro-img">
-              <img src="../../../assets/images/users/4.jpg" width="100" alt="user" class="img-circle">
-          </div>
-          <h3 class="m-b-0">Angela Dominic</h3>
-          <h6 class="m-t-0 ">Web Designer &amp; Developer</h6>
-          <mat-card-actions>
-              <button mat-raised-button color="warn">Follow</button>
-          </mat-card-actions>
-          <div fxLayout="row" fxLayoutWrap="wrap" class="m-t-30">
-              <div fxFlex.gt-sm="33.33%" fxFlex.gt-xs="33.33%" fxFlex="100">
-                  <h3 class="m-0 font-light">1099</h3>
-                  <small>Articles</small>
-              </div>
-              <div fxFlex.gt-sm="33.33%" fxFlex.gt-xs="33.33%" fxFlex="100">
-                  <h3 class="m-0 font-light">23,469</h3>
-                  <small>Followers</small>
-              </div>
-              <div fxFlex.gt-sm="33.33%" fxFlex.gt-xs="33.33%" fxFlex="100">
-                  <h3 class="m-0 font-light">6035</h3>
-                  <small>Likes</small>
-              </div>
-          </div>
-        </mat-card-content> -->
-      </mat-card>
-    </div>
-  </div>
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <ion-row>
+          <ion-col class="ion-padding menu1" size="4"
+            size-xs="12"
+            size-sm="12"
+            size-md="12"
+            size-lg="12">
+            <mat-card class="example-card">
+              <mat-card-header>
+                <div *ngIf="test === true" mat-card-avatar>
+                <!-- <ion-avatar *ngIf="test === true"> -->
+                  <img class="avatar-img" src={{user.photoURL}}>
+                <!-- </ion-avatar> -->
+                </div>
+                <mat-card-title>Shiba Inu</mat-card-title>
+                <mat-card-subtitle>Dog Breed</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p>
+                  The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
+                  A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
+                  bred for hunting.
+                </p>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button>LIKE</button>
+                <button mat-button>SHARE</button>
+              </mat-card-actions>
+            </mat-card>
+          </ion-col>
+        </ion-row>
+      </ion-col>
+      <ion-col class="ion-no-padding" size="12"
+        size-xs="12"
+        size-sm="12"
+        size-md="12"
+        size-lg="8">
+        <ion-grid>
+          <ion-row>
+            <ion-col class="ion-padding user-data"
+            size="12"
+            size-xs="12"
+            size-sm="12"
+            size-md="12"
+            size-lg="12" >
+              <mat-accordion class="example-headers-align">
+                <mat-expansion-panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Informacion basica
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Type your name and age</p>
+                      <mat-icon>perm_identity</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <mat-form-field>
+                    <input matInput placeholder="First name">
+                  </mat-form-field>
+              
+                  <mat-form-field>
+                    <input matInput type="number" min="1" placeholder="Age">
+                  </mat-form-field>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="primary" (click)="nextStep()">Next</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+                <mat-expansion-panel [expanded]="step === 1" (opened)="setStep(1)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Acudientes
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Type the country name</p>
+                      <mat-icon>supervisor_account</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <mat-form-field>
+                    <input matInput placeholder="Country">
+                  </mat-form-field>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">Next</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+
+                <mat-expansion-panel [expanded]="step === 2" (opened)="setStep(2)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Academia
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Type the country name</p>
+                      <mat-icon>book</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <mat-form-field>
+                    <input matInput placeholder="Country">
+                  </mat-form-field>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">Next</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+                <mat-expansion-panel [expanded]="step === 3" (opened)="setStep(3)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Disciplina
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Inform the date you wish to travel</p>
+                      <mat-icon>recent_actors</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <mat-form-field>
+                    <input matInput placeholder="Date" [matDatepicker]="picker" (focus)="picker.open()" readonly>
+                  </mat-form-field>
+                  <mat-datepicker #picker></mat-datepicker>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">End</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+                <mat-expansion-panel [expanded]="step === 4" (opened)="setStep(4)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Orientacion escolar
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Inform the date you wish to travel</p>
+                      <mat-icon>tag_faces</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <p>I'm visible because I am open</p>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">End</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+                <mat-expansion-panel [expanded]="step === 5" (opened)="setStep(5)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Enfermeria
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Inform the date you wish to travel</p>
+                      <mat-icon>healing</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <p>I'm visible because I am open</p>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">End</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+                <mat-expansion-panel [expanded]="step === 6" (opened)="setStep(6)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Transporte
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Inform the date you wish to travel</p>
+                      <mat-icon>map</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <p>I'm visible because I am open</p>
+
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">End</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+                <mat-expansion-panel [expanded]="step === 7" (opened)="setStep(7)" hideToggle>
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      Pagos
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      <p class="panel-description">Inform the date you wish to travel</p>
+                      <mat-icon>monetization_on</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+              
+                  <p>I'm visible because I am open</p>
+              
+                  <!-- <mat-action-row>
+                    <button mat-button color="warn" (click)="prevStep()">Previous</button>
+                    <button mat-button color="primary" (click)="nextStep()">End</button>
+                  </mat-action-row> -->
+                </mat-expansion-panel>
+              
+              </mat-accordion>
+              <!-- <ion-card color="dark">
+                <ion-card-header>
+                  <ion-card-subtitle>Componente datos basicos</ion-card-subtitle>
+                  <ion-card-title>Awesome Title</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Awesome content
+                </ion-card-content>
+              </ion-card>
+              <ion-card color="dark">
+                <ion-card-header>
+                  <ion-card-subtitle>Componente Acudientes</ion-card-subtitle>
+                  <ion-card-title>Awesome Title</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Awesome content
+                </ion-card-content>
+              </ion-card>
+              <ion-card color="dark">
+                <ion-card-header>
+                  <ion-card-subtitle>Componente Academico</ion-card-subtitle>
+                  <ion-card-title>Awesome Title</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Awesome content
+                </ion-card-content>
+              </ion-card>
+              <ion-card color="dark">
+                <ion-card-header>
+                  <ion-card-subtitle>Componente Disciplinario</ion-card-subtitle>
+                  <ion-card-title>Awesome Title</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  Awesome content
+                </ion-card-content>
+              </ion-card> -->
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

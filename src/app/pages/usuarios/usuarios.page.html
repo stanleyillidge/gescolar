@@ -45,7 +45,7 @@
             size-md="4"
             size-lg="3"
             *ngFor="let item of [].constructor(50); let i = index" [attr.data-index]="i">
-              <ion-card color="dark">
+              <ion-card color="dark" (click)="viewUser('profile',i,true)">
                 <ion-card-header>
                   <ion-card-subtitle>Awesome Subtitle {{i}}</ion-card-subtitle>
                   <ion-card-title>Awesome Title</ion-card-title>

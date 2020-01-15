@@ -28,7 +28,7 @@ export class AppComponent {
     this.platform.ready().then(() => {
       this.splashScreen.hide();
       this.statusBar.styleDefault();
-      this.authService.estado();
+      // this.authService.estado();
     });
   }
   logout() {

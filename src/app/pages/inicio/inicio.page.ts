@@ -14,7 +14,7 @@ import { DataService2 } from 'src/app/services/data-service';
 export class InicioPage implements OnInit {
   loading: HTMLIonLoadingElement;
   test = false;
-  user: GescolarUser;
+  user: firebase.User;
   constructor(
     public zone: NgZone,
     public ds: DataService2,
@@ -26,22 +26,12 @@ export class InicioPage implements OnInit {
     c.Acudiente = true;
     console.log(c.Rol());
   }
+  async ionViewWillEnter() {
+    this.user = await this.authService.getUser();
+    console.log(this.user);
+    this.test = true;
+  }
   ngOnInit() {
   }
-  inicio() {
-    if (typeof this.ds.database === 'undefined') {
-      console.log(this.ds.database);
-      this.authService.estado().then(() => {
-        console.log('Hola', this.ds.database);
-        this.user = new GescolarUser(this.ds.database.authUser);
-        console.log(this.user);
-        this.test = true;
-      });
-    } else {
-      console.log('Hola', this.ds.database);
-      this.user = new GescolarUser(this.ds.database.authUser);
-      console.log(this.user);
-      this.test = true;
-    }
-  }
+  async inicio() {}
 }

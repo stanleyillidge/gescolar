@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/AuthService';
 
 @Component({
   selector: 'app-usuarios',
@@ -9,9 +11,18 @@ import { ActionSheetController } from '@ionic/angular';
 export class UsuariosPage implements OnInit {
 
   constructor(
+    public router: Router,
+    public authService: AuthService,
     public actionSheetController: ActionSheetController
   ) { }
-
+  async ionViewDidEnter() {
+    const user: firebase.User = await this.authService.getUser();
+    console.log(user);
+  }
+  viewUser(page: string, i: number, edit: boolean) {
+    console.log(page, i, edit);
+    this.router.navigate(['/' + page, { id: i }]);
+  }
   ngOnInit() {
   }
   async presentActionSheet() {

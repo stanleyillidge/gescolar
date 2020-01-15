@@ -18,6 +18,10 @@ const routes: Routes = [
   {
     path: 'usuarios',
     loadChildren: () => import('./pages/usuarios/usuarios.module').then( m => m.UsuariosPageModule)
+  },
+  {
+    path: 'inst-profile',
+    loadChildren: () => import('./pages/inst-profile/inst-profile.module').then( m => m.InstProfilePageModule)
   }
 ];
 @NgModule({

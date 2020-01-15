@@ -2,6 +2,7 @@ import { Component, AfterViewInit, ViewChild, ElementRef, OnInit } from '@angula
 import anime from 'animejs/lib/anime.es';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/AuthService';
+import { MenuController } from '@ionic/angular';
 // import anime from 'animejs/lib/anime.es';
 
 @Component({
@@ -12,6 +13,9 @@ import { AuthService } from 'src/app/services/AuthService';
 export class LoginPage implements OnInit, AfterViewInit {
   @ViewChild('box', {static: false}) box: ElementRef;
   ngOnInit(): void {
+    this.menuCtrl.enable(false).then((r) => {
+      console.log(r);
+    });
     this.ngAfterViewInit();
     // throw new Error('Method not implemented.');
   }
@@ -26,10 +30,20 @@ export class LoginPage implements OnInit, AfterViewInit {
   }
   constructor(
     private router: Router,
+    public menuCtrl: MenuController,
     private authService: AuthService
   ) {
     // console.log('constr')
     // this.callAnime()
+  }
+  // ionViewDidEnter() {
+    
+  // }
+
+  ionViewDidLeave() {
+    this.menuCtrl.enable(true).then((r) => {
+      console.log(r);
+    });
   }
   callAnime() {
     anime.timeline({loop: false})

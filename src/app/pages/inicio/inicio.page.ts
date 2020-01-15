@@ -1,6 +1,6 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-import { Platform, LoadingController } from '@ionic/angular';
+import { Platform, LoadingController, MenuController } from '@ionic/angular';
 import * as firebase from 'firebase/app';
 import { AuthService } from 'src/app/services/AuthService';
 import { Claims, GescolarUser } from 'src/app/models/data-models';
@@ -18,6 +18,7 @@ export class InicioPage implements OnInit {
   constructor(
     public zone: NgZone,
     public ds: DataService2,
+    public menuCtrl: MenuController,
     public loadingController: LoadingController,
     private authService: AuthService
   ) {
@@ -27,6 +28,9 @@ export class InicioPage implements OnInit {
     console.log(c.Rol());
   }
   async ionViewWillEnter() {
+    this.menuCtrl.enable(true).then((r) => {
+      console.log(r);
+    });
     this.user = await this.authService.getUser();
     console.log(this.user);
     this.test = true;

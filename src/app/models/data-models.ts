@@ -1,7 +1,7 @@
 // ---- Basicos -----------------
     export class Institucion {
         public key: string;
-        public calendario: 'calendarioA' | 'calendarioB' | 'calendarioC';
+        public calendario: 'calendarioA' | 'calendarioB';
         public razonSocial: string;
         public rut: string;
         public nit: string;

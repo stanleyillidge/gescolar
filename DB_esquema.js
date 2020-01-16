@@ -1,10 +1,10 @@
 // --- Institucional ------------
     "institucion"= {
-        "calendario":["calendarioA","calendarioB","calendarioC"], // Tipo de calendario segun MEN (A,B,C)
+        "calendario":["calendarioA","calendarioB"], // Tipo de calendario segun MEN (A,B)
         "razonSocial": "String", // Nombre de la institución educativa
         "rut": "String", // URL del rut en Storage
         "nit":"string",
-        "escudo": "String", // URL de la imagen del escudo en Storage
+        "logo": "String", // URL de la imagen del escudo en Storage
         "dane": "Number",
         "resolucionAprobacion":"String", // URL del documento en Storage
         "generoAtendIDo":["mixto","masculino","femenino"],

@@ -7,13 +7,19 @@ import { IonicModule } from '@ionic/angular';
 import { InstProfilePageRoutingModule } from './inst-profile-routing.module';
 
 import { InstProfilePage } from './inst-profile.page';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { DemoMaterialModule } from 'src/app/material-module';
+import { ComponentsModule } from 'src/app/components/components.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    InstProfilePageRoutingModule
+    InstProfilePageRoutingModule,
+    FlexLayoutModule,
+    DemoMaterialModule,
+    ComponentsModule
   ],
   declarations: [InstProfilePage]
 })

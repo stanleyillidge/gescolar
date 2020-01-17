@@ -70,9 +70,42 @@ mat-form-field {
         width: 30ch
     }
 }
+@media (max-width: 890px) { // vista web
+    .example-full-width {
+        width: 25ch
+    }
+}
 @media (max-width: 791px) { // vista web
     .panel-description {
         font-size: 0.9em;
+    }
+    .example-full-width {
+        width: 23ch
+    }
+}
+@media (max-width: 767px) { // vista web
+    .example-full-width {
+        width: 35ch
+    }
+}
+@media (max-width: 750px) { // vista web
+    .example-full-width {
+        width: 30ch
+    }
+}
+@media (max-width: 679px) { // vista web
+    .example-full-width {
+        width: 28ch
+    }
+}
+@media (max-width: 679px) { // vista web
+    .example-full-width {
+        width: 26ch
+    }
+}
+@media (max-width: 630px) { // vista web
+    .example-full-width {
+        width: 24ch
     }
 }
 @media (max-width: 591px) { // vista web

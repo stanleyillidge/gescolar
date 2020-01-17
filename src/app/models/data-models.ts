@@ -47,8 +47,8 @@
             direccion: string;
             telefono: number;
             coordenadas: {
-            latitud: number;
-            longitud: number;
+                latitud: number;
+                longitud: number;
             };
         };
         public dane: string;
@@ -63,23 +63,23 @@
             this.key = '';
             this.nombre = '';
             this.geolocalizacion = {
-            pais: '',
-            departamento: '',
-            municipio: '',
-            direccion: '',
-            telefono: 0,
-            coordenadas: {
-                latitud: 0,
-                longitud: 0
-            }
+                pais: '',
+                departamento: '',
+                municipio: '',
+                direccion: '',
+                telefono: 0,
+                coordenadas: {
+                    latitud: 0,
+                    longitud: 0
+                }
             };
             this.dane = '';
             this.jornadas = {
-            mañana: false,
-            tarde: false,
-            nocturna: false,
-            sabatina: false,
-            unica: false
+                mañana: false,
+                tarde: false,
+                nocturna: false,
+                sabatina: false,
+                unica: false
             };
         }
     }

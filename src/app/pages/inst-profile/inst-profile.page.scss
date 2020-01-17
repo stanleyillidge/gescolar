@@ -1,3 +1,13 @@
+.sede {
+    width: fit-content;
+    display: inline-flex;
+}
+.sede-example-card {
+    width: fit-content;
+}
+.example-full-width {
+    width: 27ch
+}
 .mat-card-avatar {
     height: auto;
     width: -webkit-fill-available;
@@ -35,6 +45,31 @@ mat-form-field {
 .panel-description {
     margin: 0;
 }
+@media (max-width: 1250px) { // vista web
+    .example-full-width {
+        width: 24ch
+    }
+}
+@media (max-width: 1180px) { // vista web
+    .example-full-width {
+        width: 22ch
+    }
+}
+@media (max-width: 1100px) { // vista web
+    .example-full-width {
+        width: 20ch
+    }
+}
+@media (max-width: 1040px) { // vista web
+    .example-full-width {
+        width: 18ch
+    }
+}
+@media (max-width: 990px) { // vista web
+    .example-full-width {
+        width: 30ch
+    }
+}
 @media (max-width: 791px) { // vista web
     .panel-description {
         font-size: 0.9em;
@@ -43,6 +78,18 @@ mat-form-field {
 @media (max-width: 591px) { // vista web
     .panel-description {
         font-size: 0.8em;
+    }
+}
+@media (max-width: 576px) { // vista movil
+    .sede {
+        width: 100%;
+        display: inline;
+    }
+    .sede-example-card {
+        width: 100%;
+    }
+    .example-full-width {
+        width: -webkit-fill-available;
     }
 }
 @media (max-width: 491px) { // vista movil

@@ -132,6 +132,7 @@ export class InstProfilePage implements OnInit {
     addSedeJornada(sedeIndex: number, opt: any) {
       this.sedeJornadas(sedeIndex).removeAt(sedeIndex);
       this.sedeJornadas(sedeIndex).push(this.newJornada(sedeIndex, opt));
+      // console.log(this.myFormGroup);
     }
     removeSedeJornada(sedeIndex: number, jornadaIndex: number) {
       this.sedeJornadas(sedeIndex).removeAt(jornadaIndex);

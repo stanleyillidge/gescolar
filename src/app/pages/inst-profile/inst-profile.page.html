@@ -190,101 +190,98 @@
                     </form>
                   </div> -->
                   <form [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
- 
-                    <div formArrayName="sedes">
-                   
-                      <div *ngFor="let sede of sedes().controls; let sedeIndex=index">
-                   
-                        <div [formGroupName]="sedeIndex">
+                    <ion-grid formArrayName="sedes">
+                      <ion-row>
+                        <ion-col class="sede" *ngFor="let sede of sedes().controls; let sedeIndex=index"
+                          size="12"
+                          size-xs="12"
+                          size-sm="6"
+                          size-md="4"
+                          size-lg="4">
+                            <div [formGroupName]="sedeIndex">
+                              <mat-card class="sede-example-card">
+                                <mat-card-header>
+                                  <mat-card-title>Sede</mat-card-title>
+                                  <mat-card-subtitle *ngIf="myFormGroup.value.sedes[sedeIndex]">{{myFormGroup.value.sedes[sedeIndex].Nombre}}</mat-card-subtitle>
+                                </mat-card-header>
+                                <mat-card-content>
+                                  <div *ngFor="let form_elem of sedeTemplate">
+                                    <div [ngSwitch]="form_elem.type">
+                                      <div *ngSwitchCase="'text'">
+                                        <mat-form-field class="example-full-width">
+                                          <input matInput formControlName="{{form_elem.label}}" placeholder="{{form_elem.label}}">
+                                        </mat-form-field>
+                                      </div>
+                                      <div *ngSwitchCase="'textArea'">
+                                        <mat-form-field class="fulltext">
+                                          <textarea matInput placeholder="{{form_elem.label}}"></textarea>
+                                        </mat-form-field>
+                                      </div>
+                                      <div *ngSwitchCase="'number'">
+                                        <mat-form-field class="example-full-width">
+                                          <input matInput type="number" formControlName="{{form_elem.label}}" placeholder="{{form_elem.label}}">
+                                        </mat-form-field>
+                                      </div>
+                                      <div *ngSwitchCase="'select'">
+                                        <mat-form-field class="example-full-width">
+                                          <mat-select formControlName="{{form_elem.label}}">
+                                            <mat-option *ngFor="let opt of form_elem.options" [value]="opt">
+                                              {{opt}}
+                                            </mat-option>
+                                          </mat-select>
+                                        </mat-form-field>
+                                      </div>
+                                      <div *ngSwitchCase="'selectMult'">
+                                        <mat-form-field class="example-full-width">
+                                          <mat-label>Jornadas</mat-label>
+                                          <mat-select placeholder="Jornadas" [formControl]="jornadas" multiple>
+                                            <mat-select-trigger>
+                                              {{jornadas.value ? jornadas.value[0] : ''}}
+                                              <span *ngIf="jornadas.value?.length > 1" class="example-additional-selection">
+                                                (+{{jornadas.value.length - 1}} {{jornadas.value?.length === 2 ? 'mas' : 'mas'}})
+                                              </span>
+                                            </mat-select-trigger>
+                                            <mat-option (click)="addSedeJornada(sedeIndex, opt)" *ngFor="let opt of form_elem.options" [value]="opt">{{opt}}</mat-option>
+                                          </mat-select>
+                                        </mat-form-field>
+                                      </div>
+                                    </div>  
+                                  </div>
+                                  <div formArrayName="skills">
                           
-                          <div *ngFor="let form_elem of sedeTemplate">
-                            <div [ngSwitch]="form_elem.type">
-                              <div *ngSwitchCase="'text'">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput formControlName="{{form_elem.label}}" placeholder="{{form_elem.label}}">
-                                </mat-form-field>
-                              </div>
-                              <div *ngSwitchCase="'textArea'">
-                                <mat-form-field class="fulltext">
-                                  <textarea matInput placeholder="{{form_elem.label}}"></textarea>
-                                </mat-form-field>
-                              </div>
-                              <div *ngSwitchCase="'number'">
-                                <mat-form-field class="example-full-width">
-                                  <input matInput type="number" formControlName="{{form_elem.label}}" placeholder="{{form_elem.label}}">
-                                </mat-form-field>
-                              </div>
-                              <div *ngSwitchCase="'select'">
-                                <mat-form-field>
-                                  <mat-select formControlName="{{form_elem.label}}">
-                                    <mat-option *ngFor="let opt of form_elem.options" [value]="opt">
-                                      {{opt}}
-                                    </mat-option>
-                                  </mat-select>
-                                </mat-form-field>
-                              </div>
-                              <div *ngSwitchCase="'selectMult'">
-                                <mat-form-field>
-                                  <mat-label>Jornadas</mat-label>
-                                  <mat-select placeholder="Jornadas" [formControl]="jornadas" multiple>
-                                    <mat-select-trigger>
-                                      {{jornadas.value ? jornadas.value[0] : ''}}
-                                      <span *ngIf="jornadas.value?.length > 1" class="example-additional-selection">
-                                        (+{{jornadas.value.length - 1}} {{jornadas.value?.length === 2 ? 'mas' : 'mas'}})
-                                      </span>
-                                    </mat-select-trigger>
-                                    <mat-option (click)="addSedeJornada(sedeIndex, opt)" *ngFor="let opt of form_elem.options" [value]="opt">{{opt}}</mat-option>
-                                  </mat-select>
-                                </mat-form-field>
-                              </div>
-                            </div>  
-                          </div>
-                   
-                          <button (click)="removeSede(sedeIndex)">Remove</button>
-                   
-                   
-                          <div formArrayName="skills">
-                   
-                            <div *ngFor="let skill of sedeSkills(sedeIndex).controls; let skillIndex=index">
-                   
-                   
-                   
-                              <div [formGroupName]="skillIndex">
-                                {{skillIndex}}
-                                Skill :
-                                <input type="text" formControlName="skill">
-                                Exp:
-                                <input type="text" formControlName="exp">
-                   
-                                <button (click)="removeSedeSkill(sedeIndex,skillIndex)">Remove</button>
-                   
-                              </div>
-                   
+                                    <div *ngFor="let skill of sedeSkills(sedeIndex).controls; let skillIndex=index">
+                          
+                                      <div [formGroupName]="skillIndex">
+                                        {{skillIndex}}
+                                        Skill :
+                                        <input type="text" formControlName="skill">
+                                        Exp:
+                                        <input type="text" formControlName="exp">
+                          
+                                        <button (click)="removeSedeSkill(sedeIndex,skillIndex)">Remove</button>
+                          
+                                      </div>
+                          
+                                    </div>
+                                    <button type="button" (click)="addSedeSkill(sedeIndex)">Add Skill</button>
+                                  </div>
+                                </mat-card-content>
+                                <mat-card-actions>
+                                  <button mat-button (click)="removeSede(sedeIndex)">Remove</button>
+                                </mat-card-actions>
+                              </mat-card>
                             </div>
-                            <button type="button" (click)="addSedeSkill(sedeIndex)">Add Skill</button>
-                          </div>
-                   
-                   
-                        </div>
-                   
-                      </div>
-                    </div>
-                   
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
                     <p>
-                      <button type="submit">Submit</button>
+                      <button mat-button type="submit">Submit</button>
                     </p>
-                   
                   </form>
-                   
-                   
-                  <p>
-                    <button type="button" (click)="addSede()">Add sede</button>
-                  </p>
-                   
                   {{this.myFormGroup.value | json}}
               
                   <mat-action-row>
-                    <button mat-button color="primary" (click)="otro()">Next</button>
+                    <button mat-button color="primary" (click)="addSede()">Add sede</button>
                   </mat-action-row>
                 </mat-expansion-panel>
 

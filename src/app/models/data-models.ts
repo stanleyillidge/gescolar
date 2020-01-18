@@ -41,7 +41,7 @@
         public key: string;
         public nombre: string;
         public geolocalizacion: {
-            pais: string;
+            // pais: string;
             departamento: string;
             municipio: string;
             direccion: string;
@@ -63,7 +63,7 @@
             this.key = '';
             this.nombre = '';
             this.geolocalizacion = {
-                pais: '',
+                // pais: '',
                 departamento: '',
                 municipio: '',
                 direccion: '',

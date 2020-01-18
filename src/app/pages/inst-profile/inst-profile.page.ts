@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Institucion } from 'src/app/models/data-models';
+import colombia from 'src/app/models/colombia.json';
 import { FormControl, FormGroup, FormBuilder, FormArray } from '@angular/forms';
 
 export interface Selector {
@@ -38,15 +39,20 @@ const sede_template = [
     label: 'Telefono'
   },
   {
-    type: 'selectMult',
+    type: 'jornada',
     label: 'jornadas',
     options: Jornadas
   },
-  // {
-  //   type: 'select',
-  //   label: 'Jornadas',
-  //   options: ['Jane Eyre', 'Pride and Prejudice', 'Wuthering Heights']
-  // }
+  {
+    type: 'departamento',
+    label: 'departamento',
+    options: colombia
+  },
+  {
+    type: 'municipio',
+    label: 'municipio',
+    options: colombia
+  }
 ];
 
 @Component({
@@ -64,7 +70,12 @@ export class InstProfilePage implements OnInit {
   generoSelect: string;
   nivelSelect: string;
   nivelsEns = new FormControl();
+  nombre: any;
   jornadas: any = [];
+  departamento: any = [];
+  municipio: any = [];
+  municipiot: any = [];
+  mIndex: any = [];
 
   calendarios: Selector[] = [
     {value: 'calendarioA', viewValue: 'Calendario A'},
@@ -93,10 +104,11 @@ export class InstProfilePage implements OnInit {
   ) {
     // console.log(this.plataforma.is('android'));
     // console.log(this.plataforma.is('desktop'));
+    // console.log(colombia);
   }
   ngOnInit() {
     this.myFormGroup = this.formBuilder.group({
-      sedes: this.formBuilder.array([]) ,
+      sedes: this.formBuilder.array([]),
     });
   }
   sedes(): FormArray {
@@ -106,15 +118,26 @@ export class InstProfilePage implements OnInit {
     return this.formBuilder.group({
       Nombre: '',
       Dane: '',
+      departamento: this.formBuilder.array([]),
+      municipio: this.formBuilder.array([]),
       Direccion: '',
       Telefono: '',
-      jornadas: this.formBuilder.array([]),
+      jornadas: this.formBuilder.array([{
+        mañana: false,
+        tarde: false,
+        nocturna: false,
+        sabatina: false,
+        unica: false,
+      }]),
       skills: this.formBuilder.array([])
     });
   }
   addSede() {
     this.sedes().push(this.newSede());
     this.jornadas[this.myFormGroup.value.sedes.length - 1] = new FormControl();
+    this.departamento[this.myFormGroup.value.sedes.length - 1] = new FormControl();
+    this.municipio[this.myFormGroup.value.sedes.length - 1] = new FormControl();
+    this.municipiot[this.myFormGroup.value.sedes.length - 1] = false;
     // this.jornadas.push(new FormControl());
     console.log(this.myFormGroup, this.jtemp, this.jornadas);
   }
@@ -125,6 +148,8 @@ export class InstProfilePage implements OnInit {
   borra(sedeIndex: number) {
     delete this.jtemp[sedeIndex];
     delete this.jornadas[sedeIndex];
+    delete this.departamento[sedeIndex];
+    delete this.municipio[sedeIndex];
     // this.jornadas.splice(0, sedeIndex);
     console.log(this.jtemp, this.jornadas);
   }
@@ -132,25 +157,18 @@ export class InstProfilePage implements OnInit {
     sedeJornadas(sedeIndex: number): FormArray {
       return this.sedes().at(sedeIndex).get('jornadas') as FormArray;
     }
-    newJornada(sedeIndex: number, opt: any): FormGroup {
-      if (!this.jtemp[sedeIndex]) {
-        // this.jtemp[sedeIndex] = [];
-        this.jtemp[sedeIndex] = {
-          mañana: false,
-          tarde: false,
-          nocturna: false,
-          sabatina: false,
-          unica: false,
-        };
-      }
-      this.jtemp[sedeIndex][opt] = !this.jtemp[sedeIndex][opt];
-      return this.formBuilder.group(this.jtemp[sedeIndex]);
-    }
     addSedeJornada(sedeIndex: number, opt: any) {
+      this.myFormGroup.value.sedes[sedeIndex].jornadas[0][opt] = !this.myFormGroup.value.sedes[sedeIndex].jornadas[0][opt];
       console.log(sedeIndex, opt);
-      this.sedeJornadas(sedeIndex).removeAt(0);
-      this.sedeJornadas(sedeIndex).push(this.newJornada(sedeIndex, opt));
       console.log(this.jtemp, this.myFormGroup);
+    }
+    addSedeDepartamento(sedeIndex: number, opt: any) {
+      this.myFormGroup.value.sedes[sedeIndex].departamento = opt.departamento;
+      this.municipiot[sedeIndex] = true;
+      this.mIndex[sedeIndex] = opt.id;
+    }
+    addSedemunicipio(sedeIndex: number, opt: any) {
+      this.myFormGroup.value.sedes[sedeIndex].municipio = opt;
     }
     removeSedeJornada(sedeIndex: number, jornadaIndex: number) {
       this.sedeJornadas(sedeIndex).removeAt(jornadaIndex);

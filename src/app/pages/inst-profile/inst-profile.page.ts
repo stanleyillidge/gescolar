@@ -64,7 +64,7 @@ export class InstProfilePage implements OnInit {
   generoSelect: string;
   nivelSelect: string;
   nivelsEns = new FormControl();
-  jornadas = new FormControl();
+  jornadas: any = [];
 
   calendarios: Selector[] = [
     {value: 'calendarioA', viewValue: 'Calendario A'},
@@ -114,9 +114,19 @@ export class InstProfilePage implements OnInit {
   }
   addSede() {
     this.sedes().push(this.newSede());
+    this.jornadas[this.myFormGroup.value.sedes.length - 1] = new FormControl();
+    // this.jornadas.push(new FormControl());
+    console.log(this.myFormGroup, this.jtemp, this.jornadas);
   }
   removeSede(sedeIndex: number) {
     this.sedes().removeAt(sedeIndex);
+    this.borra(sedeIndex);
+  }
+  borra(sedeIndex: number) {
+    delete this.jtemp[sedeIndex];
+    delete this.jornadas[sedeIndex];
+    // this.jornadas.splice(0, sedeIndex);
+    console.log(this.jtemp, this.jornadas);
   }
   // --- Jornadas ------------
     sedeJornadas(sedeIndex: number): FormArray {
@@ -124,18 +134,28 @@ export class InstProfilePage implements OnInit {
     }
     newJornada(sedeIndex: number, opt: any): FormGroup {
       if (!this.jtemp[sedeIndex]) {
-        this.jtemp[sedeIndex] = j;
+        // this.jtemp[sedeIndex] = [];
+        this.jtemp[sedeIndex] = {
+          mañana: false,
+          tarde: false,
+          nocturna: false,
+          sabatina: false,
+          unica: false,
+        };
       }
       this.jtemp[sedeIndex][opt] = !this.jtemp[sedeIndex][opt];
       return this.formBuilder.group(this.jtemp[sedeIndex]);
     }
     addSedeJornada(sedeIndex: number, opt: any) {
-      this.sedeJornadas(sedeIndex).removeAt(sedeIndex);
+      console.log(sedeIndex, opt);
+      this.sedeJornadas(sedeIndex).removeAt(0);
       this.sedeJornadas(sedeIndex).push(this.newJornada(sedeIndex, opt));
-      // console.log(this.myFormGroup);
+      console.log(this.jtemp, this.myFormGroup);
     }
     removeSedeJornada(sedeIndex: number, jornadaIndex: number) {
       this.sedeJornadas(sedeIndex).removeAt(jornadaIndex);
+      this.borra(sedeIndex);
+      // [2].value[""0""]
     }
   // -----------------------
   // --- Skills ------------
@@ -162,8 +182,10 @@ export class InstProfilePage implements OnInit {
     // });
     // this.myFormGroup = new FormGroup(group);
   }
-  onSubmit() {
-    console.log(this.myFormGroup.value);
+  onSubmit(i: number) {
+    // console.log(this.myFormGroup.value.sedes[i]);
+    console.log(this.myFormGroup);
+    console.log(this.jtemp, this.jornadas);
   }
   onFile(e) {
     const este = this;

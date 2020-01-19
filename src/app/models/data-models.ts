@@ -1,14 +1,14 @@
 // ---- Basicos -----------------
     export class Institucion {
-        public key: string;
+        public key?: string;
         public calendario: 'calendarioA' | 'calendarioB';
         public razonSocial: string;
         public rut: string;
         public nit: string;
-        public escudo: string; // url hacia la img
+        public escudo?: string; // url hacia la img
         public dane: string;
-        public resolucionAprobacion: string; // url hacia el doc
-        public generoAtendIDo: 'mixto' | 'masculino' | 'femenino';
+        public resolucionAprobacion?: string; // url hacia el doc
+        public generoAtendido: 'mixto' | 'masculino' | 'femenino';
         public nivelEnseñanza: {
             Preescolar: boolean;
             BasicaPrimaria: boolean;
@@ -26,19 +26,19 @@
             this.escudo = '';
             this.dane = '';
             this.resolucionAprobacion = '';
-            this.generoAtendIDo = 'mixto';
+            this.generoAtendido = 'mixto';
             this.nivelEnseñanza = {
-            Preescolar: false,
-            BasicaPrimaria: false,
-            BasicaSecundaria: false,
-            EducacionBasicaAdultos: false,
-            EducacionMedia: false,
-            EducacionMediaAdultos: false
+                Preescolar: false,
+                BasicaPrimaria: false,
+                BasicaSecundaria: false,
+                EducacionBasicaAdultos: false,
+                EducacionMedia: false,
+                EducacionMediaAdultos: false
             };
         }
     }
     export class Sedes {
-        public key: string;
+        public key?: string;
         public nombre: string;
         public geolocalizacion: {
             // pais: string;
@@ -46,7 +46,7 @@
             municipio: string;
             direccion: string;
             telefono: number;
-            coordenadas: {
+            coordenadas?: {
                 latitud: number;
                 longitud: number;
             };

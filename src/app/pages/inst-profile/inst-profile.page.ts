@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Institucion } from 'src/app/models/data-models';
+import { Institucion, Sedes } from 'src/app/models/data-models';
 import colombia from 'src/app/models/colombia.json';
 import { FormControl, FormGroup, FormBuilder, FormArray } from '@angular/forms';
 
@@ -66,11 +66,17 @@ export class InstProfilePage implements OnInit {
   imagen: File | Blob;
   institucion: Institucion;
 
-  calendarioSelect: string;
-  generoSelect: string;
-  nivelSelect: string;
+  calendarioSelect: 'calendarioA' | 'calendarioB';
+  generoSelect: 'mixto' | 'masculino' | 'femenino';
+  nivelSelect: any;
   nivelsEns = new FormControl();
   nombre: any;
+  razonSocial: any;
+  mision: any;
+  rut: any;
+  nit: any;
+  dane: any;
+
   jornadas: any = [];
   departamento: any = [];
   municipio: any = [];
@@ -86,12 +92,14 @@ export class InstProfilePage implements OnInit {
     {value: 'masculino', viewValue: 'Masculino'},
     {value: 'femenino', viewValue: 'Femenino'},
   ];
-  nivelsEnList: string[] = ['Preescolar',
-  'Basica Primaria',
-  'Basica Secundaria',
-  'Educacion media',
-  'Educacion basica para adultos',
-  'Educacion media para adultos'];
+  nivelsEnList: Selector[] = [
+    {value: 'Preescolar', viewValue: 'Preescolar'},
+    {value: 'BasicaPrimaria', viewValue: 'Basica Primaria'},
+    {value: 'BasicaSecundaria', viewValue: 'Basica Secundaria'},
+    {value: 'EducacionMedia', viewValue: 'Educacion media'},
+    {value: 'EducacionBasicaAdultos', viewValue: 'Educacion basica para adultos'},
+    {value: 'EducacionMediaAdultos', viewValue: 'Educacion media para adultos'}
+  ];
 
   myFormGroup: FormGroup;
   sedeTemplate = sede_template;
@@ -153,7 +161,7 @@ export class InstProfilePage implements OnInit {
     // this.jornadas.splice(0, sedeIndex);
     console.log(this.jtemp, this.jornadas);
   }
-  // --- Jornadas ------------
+  // -----------------------
     sedeJornadas(sedeIndex: number): FormArray {
       return this.sedes().at(sedeIndex).get('jornadas') as FormArray;
     }
@@ -169,6 +177,22 @@ export class InstProfilePage implements OnInit {
     }
     addSedemunicipio(sedeIndex: number, opt: any) {
       this.myFormGroup.value.sedes[sedeIndex].municipio = opt;
+    }
+    addNivelEns() {
+      this.nivelSelect = {
+        Preescolar: false,
+        BasicaPrimaria: false,
+        BasicaSecundaria: false,
+        EducacionMedia: false,
+        EducacionBasicaAdultos: false,
+        EducacionMediaAdultos: false
+      };
+      for (const i in this.nivelsEns.value) {
+        if (this.nivelsEns.value.hasOwnProperty(i)) {
+          this.nivelSelect[this.nivelsEns.value[i]] = !this.nivelSelect[this.nivelsEns.value[i]];
+        }
+      }
+      // console.log(this.nivelSelect, this.nivelsEns.value);
     }
     removeSedeJornada(sedeIndex: number, jornadaIndex: number) {
       this.sedeJornadas(sedeIndex).removeAt(jornadaIndex);
@@ -201,9 +225,43 @@ export class InstProfilePage implements OnInit {
     // this.myFormGroup = new FormGroup(group);
   }
   onSubmit(i: number) {
-    // console.log(this.myFormGroup.value.sedes[i]);
-    console.log(this.myFormGroup);
-    console.log(this.jtemp, this.jornadas);
+    let institucion = new Institucion();
+    let sedes = [];
+    institucion = {
+      // key: '',
+      // escudo: '',
+      // resolucionAprobacion: '',
+      calendario: this.calendarioSelect,
+      razonSocial: this.razonSocial,
+      rut: this.rut,
+      nit: this.nit,
+      dane: this.dane,
+      generoAtendido: this.generoSelect,
+      nivelEnseñanza: this.nivelSelect
+    };
+    let s = new Sedes();
+    this.myFormGroup.value.sedes.forEach(sede => {
+      console.log(sede);
+      s = {
+        nombre: sede.Nombre,
+        geolocalizacion: {
+          departamento: sede.departamento,
+          municipio: sede.municipio,
+          direccion: sede.Direccion,
+          telefono: sede.Telefono
+        },
+        dane: sede.Dane,
+        jornadas: {
+          mañana: sede.jornadas[0].mañana,
+          tarde: sede.jornadas[0].tarde,
+          nocturna: sede.jornadas[0].nocturna,
+          sabatina: sede.jornadas[0].sabatina,
+          unica: sede.jornadas[0].unica
+        }
+      };
+      sedes.push(s);
+    });
+    console.log(institucion, sedes);
   }
   onFile(e) {
     const este = this;

@@ -3,6 +3,8 @@ import { Platform } from '@ionic/angular';
 import { Institucion, Sedes } from 'src/app/models/data-models';
 import colombia from 'src/app/models/colombia.json';
 import { FormControl, FormGroup, FormBuilder, FormArray } from '@angular/forms';
+import { DataService2 } from 'src/app/services/data-service';
+import { AuthService } from 'src/app/services/AuthService';
 
 export interface Selector {
   value: string;
@@ -106,46 +108,102 @@ export class InstProfilePage implements OnInit {
 
   jtemp: any = {};
 
+  user: any;
+
   constructor(
     private plataforma: Platform,
+    public ds: DataService2,
+    public auth: AuthService,
     private formBuilder: FormBuilder
   ) {
     // console.log(this.plataforma.is('android'));
     // console.log(this.plataforma.is('desktop'));
     // console.log(colombia);
   }
-  ngOnInit() {
+  async ngOnInit() {
+    const este = this;
     this.myFormGroup = this.formBuilder.group({
       sedes: this.formBuilder.array([]),
     });
+    this.user = await this.auth.getUser();
+    if (!this.ds.database.institucion) {
+      this.ds.initDatabase(this.user.uid).then(() => {
+        // console.log(este.ds.database);
+        this.ds.loadDatabase('institucion').then((a) => {
+          console.log(este.ds.database.institucion);
+          const key = Object.keys(este.ds.database.institucion);
+          este.Path = ((este.ds.database.institucion[key[0]].escudo) ? este.ds.database.institucion[key[0]].escudo : este.Path);
+          este.nombre = este.ds.database.institucion[key[0]].nombre;
+          este.calendarioSelect = este.ds.database.institucion[key[0]].calendario;
+          este.razonSocial = este.ds.database.institucion[key[0]].razonSocial;
+          este.mision = este.ds.database.institucion[key[0]].mision;
+          este.rut = este.ds.database.institucion[key[0]].rut;
+          este.nit = este.ds.database.institucion[key[0]].nit;
+          este.dane = este.ds.database.institucion[key[0]].dane;
+          este.generoSelect = este.ds.database.institucion[key[0]].generoAtendido;
+          const obj = este.ds.database.institucion[key[0]].nivelEnseñanza;
+          const keys = [];
+          for (const i in obj) {
+            if (obj.hasOwnProperty(i)) {
+              if (obj[i]) {
+                keys.push(i);
+              }
+            }
+          }
+          este.nivelsEns.setValue(keys);
+          console.log('nivelEnseñanza', keys, este.nivelsEns.value);
+        }).catch((e) => { console.log(e); });
+        this.ds.loadDatabase('sedes').then((a) => {
+          console.log(este.ds.database.sedes);
+          for (const i in este.ds.database.sedes) {
+            if (este.ds.database.sedes.hasOwnProperty(i)) {
+              // const element = este.ds.database.sedes[i];
+              este.addSede(este.ds.database.sedes[i]);
+            }
+          }
+        }).catch((e) => { console.log(e); });
+      });
+    }
   }
   sedes(): FormArray {
     return this.myFormGroup.get('sedes') as FormArray;
   }
-  newSede(): FormGroup {
+  newSede(sede?: Sedes): FormGroup {
+    console.log(sede);
     return this.formBuilder.group({
-      Nombre: '',
-      Dane: '',
+      key: ((sede) ? sede.key : this.ds.newKey),
+      Nombre: ((sede) ? sede.nombre : ''),
+      Dane: ((sede) ? sede.dane : ''),
       departamento: this.formBuilder.array([]),
       municipio: this.formBuilder.array([]),
-      Direccion: '',
-      Telefono: '',
+      Direccion: ((sede) ? sede.direccion : ''),
+      Telefono: ((sede) ? sede.telefono : ''),
       jornadas: this.formBuilder.array([{
-        mañana: false,
-        tarde: false,
-        nocturna: false,
-        sabatina: false,
-        unica: false,
+        mañana: ((sede) ? sede.jornadas.mañana : false),
+        tarde: ((sede) ? sede.jornadas.tarde : false),
+        nocturna: ((sede) ? sede.jornadas.nocturna : false),
+        sabatina: ((sede) ? sede.jornadas.sabatina : false),
+        unica: ((sede) ? sede.jornadas.unica : false),
       }]),
       skills: this.formBuilder.array([])
     });
   }
-  addSede() {
-    this.sedes().push(this.newSede());
-    this.jornadas[this.myFormGroup.value.sedes.length - 1] = new FormControl();
-    this.departamento[this.myFormGroup.value.sedes.length - 1] = new FormControl();
-    this.municipio[this.myFormGroup.value.sedes.length - 1] = new FormControl();
-    this.municipiot[this.myFormGroup.value.sedes.length - 1] = false;
+  addSede(sede?: Sedes) {
+    this.sedes().push(this.newSede(sede));
+    const key = this.myFormGroup.value.sedes.length - 1;
+    const obj = this.myFormGroup.value.sedes[key].jornadas[0];
+    const keys = [];
+    for (const i in obj) {
+      if (obj.hasOwnProperty(i)) {
+        if (obj[i]) {
+          keys.push(i);
+        }
+      }
+    }
+    this.jornadas[key] = new FormControl(keys);
+    this.departamento[key] = new FormControl(this.myFormGroup.value.sedes[key].departamento);
+    this.municipio[key] = new FormControl(this.myFormGroup.value.sedes[key].municipio);
+    this.municipiot[key] = false;
     // this.jornadas.push(new FormControl());
     console.log(this.myFormGroup, this.jtemp, this.jornadas);
   }
@@ -179,6 +237,7 @@ export class InstProfilePage implements OnInit {
       this.myFormGroup.value.sedes[sedeIndex].municipio = opt;
     }
     addNivelEns() {
+      console.log(this.nivelsEns);
       this.nivelSelect = {
         Preescolar: false,
         BasicaPrimaria: false,
@@ -227,10 +286,14 @@ export class InstProfilePage implements OnInit {
   onSubmit(i: number) {
     let institucion = new Institucion();
     let sedes = [];
+    const key = Object.keys(this.ds.database.institucion);
+    this.addNivelEns();
     institucion = {
-      // key: '',
-      // escudo: '',
-      // resolucionAprobacion: '',
+      key: ((key) ? key[0] : ''),
+      escudo: '',
+      resolucionAprobacion: '',
+      nombre: this.nombre,
+      mision: this.mision,
       calendario: this.calendarioSelect,
       razonSocial: this.razonSocial,
       rut: this.rut,
@@ -239,17 +302,17 @@ export class InstProfilePage implements OnInit {
       generoAtendido: this.generoSelect,
       nivelEnseñanza: this.nivelSelect
     };
+    console.log(institucion);
     let s = new Sedes();
     this.myFormGroup.value.sedes.forEach(sede => {
       console.log(sede);
       s = {
+        key: sede.key,
         nombre: sede.Nombre,
-        geolocalizacion: {
-          departamento: sede.departamento,
-          municipio: sede.municipio,
-          direccion: sede.Direccion,
-          telefono: sede.Telefono
-        },
+        departamento: sede.departamento,
+        municipio: sede.municipio,
+        direccion: sede.Direccion,
+        telefono: sede.Telefono,
         dane: sede.Dane,
         jornadas: {
           mañana: sede.jornadas[0].mañana,
@@ -262,15 +325,22 @@ export class InstProfilePage implements OnInit {
       sedes.push(s);
     });
     console.log(institucion, sedes);
+    this.ds.infInstitucional(institucion, sedes).then((a) => {
+      console.log(a);
+    })
+    .catch((e) => {
+      console.log(e);
+    });
   }
   onFile(e) {
     const este = this;
-    this.imagen =  e.target.files[0] as File;
+    this.imagen =  e.target.files[0] as Blob;
+    this.ds.updateImg({nombre: 'logo', ubicacion: 'logo'}, this.imagen);
 
     const reader = new FileReader();
 
     reader.onload = function(e) {
-      const src: any = e.target.result;
+      const src: any = reader.result;
       este.Path = src;
     };
     reader.readAsDataURL(e.target.files[0]);

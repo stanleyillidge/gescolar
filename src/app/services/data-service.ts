@@ -14,16 +14,21 @@ import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 // import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
-import { GescolarUser, FirebaseUser } from '../models/data-models';
+import { GescolarUser, FirebaseUser, Institucion, Sedes } from '../models/data-models';
 import { AuthService } from './AuthService';
 
 @Injectable()
 export class DataService2 {
     // private _usuarios = new BehaviorSubject<GescolarUser[]>([]);
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
-    database: any;
+    database: any = {};
+    uid: string;
     plataforma: any = {desktop: Boolean, android: Boolean};
     looper = 0;
+    // modelos = {
+    //     institucion: new Institucion(),
+    //     sedes: new Sedes()
+    // };
     constructor(
         public platform: Platform,
         public alertController: AlertController,
@@ -46,6 +51,7 @@ export class DataService2 {
     // ---- Database ----------------------------------------------
         async initDatabase(uid: string) {
             const este = this;
+            this.uid = uid;
             return new Promise((resolve, reject) => {
                 if (this.plataforma.cordova) {
                     this.checkDir();
@@ -58,21 +64,165 @@ export class DataService2 {
                         }
                         console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
                         this.database = datax;
-                        this.database.authUser = new GescolarUser(datax.authUser);
-                        console.log(datax);
+                        // this.database.authUser = new GescolarUser(datax.authUser);
+                        // console.log(datax);
                         resolve({rta: true});
                     } else {
                         console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
-                        reject({rta: false});
                         // se obtiene la data completa del usuario que ingresa por primera vez
-                        /* await este.getFullUser(uid).then(() => {
-                            return;
-                        }); */
+                        await este.getFullUser(uid).then((u) => {
+                            this.database.authUser = new GescolarUser(u);
+                            este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
+                                resolve({rta: true});
+                            });
+                        });
+                        // reject({rta: false});
                     }
                 });
             });
         }
+        async getFullUser(uid: string) {
+            const este = this;
+            return new Promise((resolve, reject) => {
+              this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
+                const geuser = new GescolarUser(new FirebaseUser(s.data));
+                firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
+                    console.log('Geuser que ingresa:', u.val());
+                    // console.log(este.authService.usuario);
+                    // este.authService.user = new GescolarUser(u.val());
+                    este.database = {authUser: new GescolarUser(u.val())};
+                    console.log('Database:', este.database);
+                    este.storage.set(uid, JSON.stringify(este.database)).then(() => {
+                      console.log('Datos de usuario guardados localmente');
+                      return u.val();
+                    });
+                });
+              }).catch(e => {});
+            });
+        }
+        loadDatabase(child: string) {
+            const este = this;
+            return new Promise((resolve, reject) => {
+                firebase.database().ref(child).once('value', (db) => {
+                    console.log(db.val());
+                    if (db.val()) {
+                        este.database[child] = {};
+                        const obj = db.val();
+                        const keys = Object.keys(obj);
+                        keys.forEach(key => {
+                            console.log(obj[key], key);
+                            switch (child) {
+                                case 'institucion':
+                                    este.database[child][key] = new Institucion(obj[key]);
+                                    break;
+                                case 'sedes':
+                                    este.database[child][key] = new Sedes(obj[key]);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                        este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
+                            resolve(este.database);
+                        });
+                    } else {
+                        reject('No hay datos');
+                    }
+                }).catch((e) => { reject(e); });
+            });
+        }
+    // ---- Institucionales ---------------------------------------
+        infInstitucional(institucion: Institucion, sedes: Sedes[]) {
+            const este = this;
+            return new Promise((resolve, reject) => {
+                if (!this.database.institucion) {
+                    if (!institucion.key) {
+                        institucion.key = firebase.database().ref().push().key;
+                    }
+                    this.database.institucion[institucion.key] = institucion;
+                }
+                if (this.database.logo) { institucion.escudo = this.database.logo; }
+                institucion = new Institucion(institucion);
+                const key = Object.keys(este.database.institucion);
+                console.log('Data a ser guardada', this.database, institucion);
+                firebase.database().ref('institucion')
+                .child(this.database.institucion[key[0]].key).update(institucion).then(() => {
+                    // console.log('institucion actualizada correctamente');
+                }).catch((e) => {
+                    console.log('Error actualizando institución', e, institucion);
+                    const error = ['Error actualizando institución', e, institucion];
+                    reject(error);
+                });
+                if (!this.database.sedes) {
+                    this.database.sedes = {};
+                }
+                sedes.forEach(sede => {
+                    // if (!sede.key) {
+                    //     sede.key = firebase.database().ref().push().key;
+                    // }
+                    this.database.sedes[sede.key] = sede;
+                });
+                firebase.database().ref('sedes').update(this.database.sedes).then(() => {
+                    // console.log('La sede', sede, 'actualizada correctamente');
+                    este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
+                        resolve('institucion actualizada correctamente');
+                    });
+                }).catch((e) => {
+                    console.log('Error actualizando sede', e, this.database.sedes);
+                    const error = ['Error actualizando sede', e, this.database.sedes];
+                    reject(error);
+                });
+            });
+        }
     // ---- Imagenes ----------------------------------------------
+        async updateImg(data: any, archivo: Blob | ArrayBuffer | Uint8Array) {
+            const este = this;
+            const loading = await this.loadingController.create({
+                message: 'Guardando archivo...'
+            });
+            await loading.present();
+            const nombre = data.nombre + '.' + archivo['type'].substr('image/'.length);
+            console.log('archivo', nombre, archivo);
+            const imagenes = firebase.storage().ref(data.ubicacion).child(nombre);
+            const metadata = {
+                contentType: archivo['type']
+            };
+            await imagenes.put(archivo, metadata).then(async (snapshot) => {
+                await imagenes.getDownloadURL().then(async (url) => {
+                    este.database.logo = url;
+                    console.log('Archivo almacenado:', url);
+                    loading.dismiss();
+                // ---- Guardo localmente ----------------------
+                    /* este.storage.set('database', JSON.stringify(este.database)).then(() => {
+                        loading.dismiss();
+                    }); */
+                // ---------------------------------------------
+                    return;
+                }).catch((error) => {
+                    // A full list of error codes is available at
+                    // https://firebase.google.com/docs/storage/web/handle-errors
+                    switch (error.code) {
+                        case 'storage/object-not-found':
+                            console.log('storage/object-not-found')
+                            // File doesn't exist
+                            break;
+                        case 'storage/unauthorized':
+                            console.log('storage/unauthorized')
+                            // User doesn't have permission to access the object
+                            break;
+                        case 'storage/canceled':
+                            console.log('storage/canceled')
+                            // User canceled the upload
+                            break;
+                        case 'storage/unknown':
+                            console.log('storage/unknown')
+                            // Unknown error occurred, inspect the server response
+                            break;
+                    }
+                    return;
+                });
+            });
+        }
         public async download(producto: any) {// (i:any,index:any,item:any) {
             const este = this;
             // console.log(c + name + '.png',producto)
@@ -131,13 +281,16 @@ export class DataService2 {
         page(page) {
             this.router.navigate(['/' + page]);
         }
+        get newKey() {
+            return firebase.database().ref().push().key;
+        }
         get Database() {
             return this.database;
         }
         iteraModelo(modelo: any, data: any) {
-            // console.log(modelo,data)
+            // console.log(modelo, data);
             Object.keys(modelo).forEach(i => {
-                // console.log('campo',i)
+                // console.log('campo', i);
                 if (typeof data[i] !== 'undefined') {
                     modelo[i] = data[i];
                 }

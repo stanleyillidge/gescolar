@@ -2,7 +2,16 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 admin.initializeApp(functions.config().firebase);
 const ref = admin.database().ref();
-const {google} = require('googleapis');
+// --- Images --------------------------------
+import * as _ from 'lodash';
+import * as fs from 'fs-extra';
+const sharp = require('sharp');
+import { tmpdir } from 'os';
+import { join, dirname } from 'path';
+// // const {Storage} = require('@google-cloud/storage');
+// // const gcs = new Storage();
+// --- Google --------------------------------
+const { google } = require('googleapis');
 const OAuth2 = google.auth.OAuth2; 
 const calendar = google.calendar('v3');
 const TIME_ZONE = 'EST';
@@ -556,5 +565,59 @@ oAuth2Client2.setCredentials({
       console.log('Error listing users:', error);
       response.send("Error eliminando usuarios! "+error);
     });
+  });
+// -------------------------------------------
+// --- Imagenes ------------------------------
+  export const generaThumbs = functions.storage.object().onFinalize(async function (object:any){
+      const bucket = admin.storage().bucket(object.bucket); // gcs.bucket(object.bucket);
+      const filePath: any = object.name;
+      const fileName = filePath.split('/').pop();
+      const bucketDir = dirname(filePath);
+
+      // console.log('filePath', filePath);
+      // console.log('fileName', fileName);
+      // console.log('bucketDir', bucketDir);
+
+      const workingDir = join(tmpdir(), 'thumbs');
+      const tmpFilePath = join(workingDir, 'source.png');
+
+      if (fileName.includes('thumb@') || !object.contentType.includes('image')) {
+          console.log('exiting function');
+          return false;
+      }
+
+      // 1. Ensure thumbnail dir exists
+      await fs.ensureDir(workingDir);
+
+      // 2. Download Source File
+      await bucket.file(filePath).download({
+          destination: tmpFilePath
+      });
+
+      // 3. Resize the images and define an array of upload promises
+      const sizes = [64, 128, 256];
+
+      const uploadPromises = sizes.map(async size => {
+          const thumbName = `thumb@${size}_${fileName}`;
+          const thumbPath = join(workingDir, thumbName);
+
+          // Resize source image
+          await sharp(tmpFilePath)
+              .resize(size, size)
+              .toFile(thumbPath);
+
+          const newBucketDir = bucketDir + '/thumbnails/';
+          
+          // Upload to GCS
+          return bucket.upload(thumbPath, {
+              destination: join(newBucketDir, thumbName)
+          });
+      });
+
+      // 4. Run the upload operations
+      await Promise.all(uploadPromises);
+
+      // 5. Cleanup remove the tmp/thumbs from the filesystem
+      return fs.remove(workingDir);
   });
 // -------------------------------------------

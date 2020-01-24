@@ -1,13 +1,15 @@
-// ---- Basicos -----------------
+// ---- Institucionales ---------
     export class Institucion {
-        public key?: string;
+        public key: string;
+        public nombre: string;
+        public mision: string;
         public calendario: 'calendarioA' | 'calendarioB';
         public razonSocial: string;
         public rut: string;
         public nit: string;
         public escudo?: string; // url hacia la img
         public dane: string;
-        public resolucionAprobacion?: string; // url hacia el doc
+        public resolucionAprobacion: string; // url hacia el doc
         public generoAtendido: 'mixto' | 'masculino' | 'femenino';
         public nivelEnseñanza: {
             Preescolar: boolean;
@@ -17,39 +19,38 @@
             EducacionMedia: boolean;
             EducacionMediaAdultos: boolean;
         };
-        constructor() {
-            this.key = '';
+        constructor(a?: any) {
+            this.key = ((a) ? ((a.key) ? a.key : '') : '');
+            this.nombre = ((a) ? ((a.nombre) ? a.nombre : '') : '');
+            this.mision = ((a) ? ((a.mision) ? a.mision : '') : '');
             this.calendario = 'calendarioA';
-            this.razonSocial = '';
-            this.rut = '';
-            this.nit = '';
-            this.escudo = '';
-            this.dane = '';
-            this.resolucionAprobacion = '';
+            this.razonSocial = ((a) ? ((a.razonSocial) ? a.razonSocial : '') : '');
+            this.rut = ((a) ? ((a.rut) ? a.rut : '') : '');
+            this.nit = ((a) ? ((a.nit) ? a.nit : '') : '');
+            this.escudo = ((a) ? ((a.escudo) ? a.escudo : '') : '');
+            this.dane = ((a) ? ((a.dane) ? a.dane : '') : '');
+            this.resolucionAprobacion = ((a) ? ((a.resolucionAprobacion) ? a.resolucionAprobacion : '') : '');
             this.generoAtendido = 'mixto';
             this.nivelEnseñanza = {
-                Preescolar: false,
-                BasicaPrimaria: false,
-                BasicaSecundaria: false,
-                EducacionBasicaAdultos: false,
-                EducacionMedia: false,
-                EducacionMediaAdultos: false
+                Preescolar: ((a) ? a.nivelEnseñanza.Preescolar : false),
+                BasicaPrimaria: ((a) ? a.nivelEnseñanza.BasicaPrimaria : false),
+                BasicaSecundaria: ((a) ? a.nivelEnseñanza.BasicaSecundaria : false),
+                EducacionBasicaAdultos: ((a) ? a.nivelEnseñanza.EducacionBasicaAdultos : false),
+                EducacionMedia: ((a) ? a.nivelEnseñanza.EducacionMedia : false),
+                EducacionMediaAdultos: ((a) ? a.nivelEnseñanza.EducacionMediaAdultos : false)
             };
         }
     }
     export class Sedes {
         public key?: string;
         public nombre: string;
-        public geolocalizacion: {
-            // pais: string;
-            departamento: string;
-            municipio: string;
-            direccion: string;
-            telefono: number;
-            coordenadas?: {
-                latitud: number;
-                longitud: number;
-            };
+        public departamento: string;
+        public municipio: string;
+        public direccion: string;
+        public telefono: number;
+        public coordenadas?: {
+            latitud: number;
+            longitud: number;
         };
         public dane: string;
         public jornadas: {
@@ -59,27 +60,24 @@
             sabatina: boolean;
             unica: boolean;
         };
-        constructor() {
-            this.key = '';
-            this.nombre = '';
-            this.geolocalizacion = {
-                // pais: '',
-                departamento: '',
-                municipio: '',
-                direccion: '',
-                telefono: 0,
-                coordenadas: {
-                    latitud: 0,
-                    longitud: 0
-                }
+        constructor(a?: any) {
+            this.key = ((a) ? ((a.key) ? a.key : '') : '');
+            this.nombre = ((a) ? ((a.nombre) ? a.nombre : '') : '');
+            this.departamento = ((a) ? ((a.departamento) ? a.departamento : '') : '');
+            this.municipio = ((a) ? ((a.municipio) ? a.municipio : '') : '');
+            this.direccion = ((a) ? ((a.direccion) ? a.direccion : '') : '');
+            this.telefono = 0;
+            this.coordenadas = {
+                latitud: 0,
+                longitud: 0
             };
-            this.dane = '';
+            this.dane = ((a) ? ((a.dane) ? a.dane : '') : '');
             this.jornadas = {
-                mañana: false,
-                tarde: false,
-                nocturna: false,
-                sabatina: false,
-                unica: false
+                mañana: ((a) ? a.jornadas.mañana : false),
+                tarde: ((a) ? a.jornadas.tarde : false),
+                nocturna: ((a) ? a.jornadas.nocturna : false),
+                sabatina: ((a) ? a.jornadas.sabatina : false),
+                unica: ((a) ? a.jornadas.unica : false)
             };
         }
     }
@@ -729,12 +727,12 @@
         }
     }
 // ---- Local DataBase ----------
-    /* export class LocalDatabase {
+    export class LocalDatabase {
         // public Matriculas: { [key: string]: Matricula };
         // public usuarios: { [key: string]: GescolarUser };
         public authUser: AuthUser | null;
         constructor(a: AuthUser | GescolarUser | Matricula) {
             this.authUser = ((a instanceof AuthUser) ? a : null);
         }
-    } */
+    }
 // ------------------------------

@@ -174,8 +174,8 @@ export class InstProfilePage implements OnInit {
       key: ((sede) ? sede.key : this.ds.newKey),
       Nombre: ((sede) ? sede.nombre : ''),
       Dane: ((sede) ? sede.dane : ''),
-      departamento: this.formBuilder.array([]),
-      municipio: this.formBuilder.array([]),
+      departamento: ((sede) ? sede.departamento : this.formBuilder.array([])),
+      municipio: ((sede) ? sede.municipio : this.formBuilder.array([])),
       Direccion: ((sede) ? sede.direccion : ''),
       Telefono: ((sede) ? sede.telefono : ''),
       jornadas: this.formBuilder.array([{
@@ -189,23 +189,41 @@ export class InstProfilePage implements OnInit {
     });
   }
   addSede(sede?: Sedes) {
-    this.sedes().push(this.newSede(sede));
-    const key = this.myFormGroup.value.sedes.length - 1;
-    const obj = this.myFormGroup.value.sedes[key].jornadas[0];
-    const keys = [];
-    for (const i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        if (obj[i]) {
-          keys.push(i);
+      this.sedes().push(this.newSede(sede));
+      const key = this.myFormGroup.value.sedes.length - 1;
+      this.municipiot[key] = false;
+      this.departamento[key] = new FormControl();
+      this.municipio[key] = new FormControl();
+    // ---- jornadas ---------------
+      const obj = this.myFormGroup.value.sedes[key].jornadas[0];
+      const keys = [];
+      for (const i in obj) {
+        if (obj.hasOwnProperty(i)) {
+          if (obj[i]) {
+            keys.push(i);
+          }
         }
       }
-    }
-    this.jornadas[key] = new FormControl(keys);
-    this.departamento[key] = new FormControl(this.myFormGroup.value.sedes[key].departamento);
-    this.municipio[key] = new FormControl(this.myFormGroup.value.sedes[key].municipio);
-    this.municipiot[key] = false;
-    // this.jornadas.push(new FormControl());
-    console.log(this.myFormGroup, this.jtemp, this.jornadas);
+      this.jornadas[key] = new FormControl(keys);
+    // ---- departamento -----------
+      if (sede) {
+        if (sede.departamento) {
+          this.departamento[key] = new FormControl(sede.departamento);
+          const index = colombia.findIndex(a => a.departamento === sede.departamento);
+          console.log(sede.departamento, index);
+          this.addSedeDepartamento(key, colombia[index]);
+          // this.departamento[key].setValue(sede.departamento);
+          this.myFormGroup.value.sedes[key].departamento = sede.departamento;
+          if (sede.municipio) {
+            // this.municipio[key].setValue(sede.municipio);
+            this.municipio[key] = new FormControl(sede.municipio);
+            this.myFormGroup.value.sedes[key].municipio = sede.municipio;
+          }
+        }
+      }
+    // ------------------------------
+      // this.jornadas.push(new FormControl());
+      console.log(this.myFormGroup, this.jtemp, this.jornadas);
   }
   removeSede(sedeIndex: number) {
     this.sedes().removeAt(sedeIndex);
@@ -302,10 +320,10 @@ export class InstProfilePage implements OnInit {
       generoAtendido: this.generoSelect,
       nivelEnseñanza: this.nivelSelect
     };
-    console.log(institucion);
+    // console.log(institucion);
     let s = new Sedes();
     this.myFormGroup.value.sedes.forEach(sede => {
-      console.log(sede);
+      // console.log(sede);
       s = {
         key: sede.key,
         nombre: sede.Nombre,
@@ -324,7 +342,7 @@ export class InstProfilePage implements OnInit {
       };
       sedes.push(s);
     });
-    console.log(institucion, sedes);
+    console.log(this.myFormGroup, institucion, sedes);
     this.ds.infInstitucional(institucion, sedes).then((a) => {
       console.log(a);
     })

@@ -226,16 +226,19 @@ export class InstProfilePage implements OnInit {
       console.log(this.myFormGroup, this.jtemp, this.jornadas);
   }
   removeSede(sedeIndex: number) {
-    this.sedes().removeAt(sedeIndex);
     this.borra(sedeIndex);
+    this.sedes().removeAt(sedeIndex);
   }
   borra(sedeIndex: number) {
+    console.log(sedeIndex, this.myFormGroup);
+    const key = this.myFormGroup.value.sedes[sedeIndex].key;
+    delete this.ds.database.sedes[key];
     delete this.jtemp[sedeIndex];
     delete this.jornadas[sedeIndex];
     delete this.departamento[sedeIndex];
     delete this.municipio[sedeIndex];
     // this.jornadas.splice(0, sedeIndex);
-    console.log(this.jtemp, this.jornadas);
+    console.log(this.ds.database, this.myFormGroup, this.jtemp, this.jornadas);
   }
   // -----------------------
     sedeJornadas(sedeIndex: number): FormArray {

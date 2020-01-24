@@ -162,7 +162,7 @@ export class DataService2 {
                     // }
                     this.database.sedes[sede.key] = sede;
                 });
-                firebase.database().ref('sedes').update(this.database.sedes).then(() => {
+                firebase.database().ref('sedes').set(this.database.sedes).then(() => {
                     // console.log('La sede', sede, 'actualizada correctamente');
                     este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
                         resolve('institucion actualizada correctamente');

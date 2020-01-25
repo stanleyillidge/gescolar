@@ -66,7 +66,7 @@
             this.departamento = ((a) ? ((a.departamento) ? a.departamento : '') : '');
             this.municipio = ((a) ? ((a.municipio) ? a.municipio : '') : '');
             this.direccion = ((a) ? ((a.direccion) ? a.direccion : '') : '');
-            this.telefono = 0;
+            this.telefono = ((a) ? ((a.telefono) ? a.telefono : '') : '');
             this.coordenadas = {
                 latitud: 0,
                 longitud: 0

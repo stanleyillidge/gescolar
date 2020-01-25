@@ -23,6 +23,7 @@ export class DataService2 {
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     database: any = {};
     uid: string;
+    user: firebase.User;
     plataforma: any = {desktop: Boolean, android: Boolean};
     looper = 0;
     // modelos = {
@@ -40,13 +41,14 @@ export class DataService2 {
         private fileTransfer: FileTransfer,
         private file: File,
         private storage: Storage,
-        // private authService: AuthService
+        private authService: AuthService
     ) {
         const este = this;
+        // this.storage.clear(); // quitar cuando este en produccion
+        this.getAuthUser();
         this.plataforma.desktop = this.platform.is('desktop');
         this.plataforma.android = this.platform.is('android');
         this.plataforma.cordova = this.platform.is('cordova');
-        // this.storage.clear(); // quitar cuando este en produccion
     }
     // ---- Database ----------------------------------------------
         async initDatabase(uid: string) {
@@ -70,8 +72,8 @@ export class DataService2 {
                     } else {
                         console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
                         // se obtiene la data completa del usuario que ingresa por primera vez
-                        await este.getFullUser(uid).then((u) => {
-                            this.database.authUser = new GescolarUser(u);
+                        este.getFullUser(uid).then((u) => {
+                            este.database.authUser = new GescolarUser(u);
                             este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
                                 resolve({rta: true});
                             });
@@ -81,23 +83,31 @@ export class DataService2 {
                 });
             });
         }
-        async getFullUser(uid: string) {
+        getDatabase(child?: string) {
             const este = this;
             return new Promise((resolve, reject) => {
-              this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
-                const geuser = new GescolarUser(new FirebaseUser(s.data));
-                firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
-                    console.log('Geuser que ingresa:', u.val());
-                    // console.log(este.authService.usuario);
-                    // este.authService.user = new GescolarUser(u.val());
-                    este.database = {authUser: new GescolarUser(u.val())};
-                    console.log('Database:', este.database);
-                    este.storage.set(uid, JSON.stringify(este.database)).then(() => {
-                      console.log('Datos de usuario guardados localmente');
-                      return u.val();
+                if (Object.entries(this.database).length === 0 && this.database.constructor === Object) {
+                    // si la base de datos esta vacia verificamos en el alamacenamiento local
+                    this.initDatabase(this.user.uid).catch((e) => {
+                        console.log(e);
+                        this.presentAlert('Error', e);
+                        reject(false);
                     });
-                });
-              }).catch(e => {});
+                }
+                console.log('De haber una solicitud especifica, la verifico');
+                if (child) {
+                    if (!this.database[child]) {
+                        this.loadDatabase(child).then((a) => {
+                            if (a) {
+                                resolve(true);
+                            } else { resolve(false); }
+                        }).catch((e) => {
+                            console.log(e);
+                            this.presentAlert('Error', e);
+                            reject(false);
+                        });
+                    } else { resolve(true); }
+                }
             });
         }
         loadDatabase(child: string) {
@@ -123,10 +133,11 @@ export class DataService2 {
                             }
                         });
                         este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
-                            resolve(este.database);
+                            resolve(true);
                         });
                     } else {
-                        reject('No hay datos');
+                        console.log('No hay datos');
+                        resolve(false);
                     }
                 }).catch((e) => { reject(e); });
             });
@@ -144,7 +155,6 @@ export class DataService2 {
                 if (this.database.logo) { institucion.escudo = this.database.logo; }
                 institucion = new Institucion(institucion);
                 const key = Object.keys(este.database.institucion);
-                console.log('Data a ser guardada', this.database, institucion);
                 firebase.database().ref('institucion')
                 .child(this.database.institucion[key[0]].key).update(institucion).then(() => {
                     // console.log('institucion actualizada correctamente');
@@ -162,6 +172,7 @@ export class DataService2 {
                     // }
                     this.database.sedes[sede.key] = sede;
                 });
+                console.log('Data a ser guardada', this.database, institucion);
                 firebase.database().ref('sedes').set(this.database.sedes).then(() => {
                     // console.log('La sede', sede, 'actualizada correctamente');
                     este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
@@ -203,19 +214,19 @@ export class DataService2 {
                     // https://firebase.google.com/docs/storage/web/handle-errors
                     switch (error.code) {
                         case 'storage/object-not-found':
-                            console.log('storage/object-not-found')
+                            console.log('storage/object-not-found');
                             // File doesn't exist
                             break;
                         case 'storage/unauthorized':
-                            console.log('storage/unauthorized')
+                            console.log('storage/unauthorized');
                             // User doesn't have permission to access the object
                             break;
                         case 'storage/canceled':
-                            console.log('storage/canceled')
+                            console.log('storage/canceled');
                             // User canceled the upload
                             break;
                         case 'storage/unknown':
-                            console.log('storage/unknown')
+                            console.log('storage/unknown');
                             // Unknown error occurred, inspect the server response
                             break;
                     }
@@ -281,11 +292,34 @@ export class DataService2 {
         page(page) {
             this.router.navigate(['/' + page]);
         }
+        async getAuthUser() {
+            this.user = await this.authService.getUser();
+        }
+        getFullUser(uid: string) {
+            const este = this;
+            return new Promise((resolve, reject) => {
+                this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
+                    const geuser = new GescolarUser(new FirebaseUser(s.data));
+                    firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
+                        console.log('Geuser que ingresa:', u.val());
+                        // console.log(este.authService.usuario);
+                        // este.authService.user = new GescolarUser(u.val());
+                        este.database = {authUser: new GescolarUser(u.val())};
+                        console.log('Database:', este.database);
+                        este.storage.set(uid, JSON.stringify(este.database)).then(() => {
+                            console.log('Datos de usuario guardados localmente');
+                            resolve(u.val());
+                        });
+                    });
+                }).catch((e) => {
+                    console.log(e);
+                    este.presentAlert('Error', e);
+                    reject(false);
+                });
+            });
+        }
         get newKey() {
             return firebase.database().ref().push().key;
-        }
-        get Database() {
-            return this.database;
         }
         iteraModelo(modelo: any, data: any) {
             // console.log(modelo, data);

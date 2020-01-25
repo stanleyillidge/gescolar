@@ -20,7 +20,7 @@
             size-sm="12"
             size-md="12"
             size-lg="12">
-            <mat-card class="example-card">
+            <mat-card *ngIf=instOn class="example-card">
               <mat-card-header>
                 <mat-card-title>
                   {{nombre}}
@@ -70,7 +70,7 @@
             size-sm="12"
             size-md="12"
             size-lg="12" >
-              <mat-accordion class="accordion example-headers-align">
+              <mat-accordion *ngIf=instOn class="accordion example-headers-align">
                 <mat-expansion-panel style="margin-bottom: 1em;" [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
                   
                   <mat-expansion-panel-header>
@@ -129,7 +129,7 @@
                 </mat-expansion-panel>
               </mat-accordion>
 
-              <mat-accordion class="accordion example-headers-align">
+              <mat-accordion *ngIf=sedesOn class="accordion example-headers-align">
                 <mat-expansion-panel [expanded]="step === 1" (opened)="setStep(1)" hideToggle>
                   <mat-expansion-panel-header>
                     <mat-panel-title>
@@ -220,24 +220,6 @@
                                             </div>
                                           </div>
                                         </div>  
-                                      </div>
-                                      <div formArrayName="skills">
-                              
-                                        <div *ngFor="let skill of sedeSkills(sedeIndex).controls; let skillIndex=index">
-                              
-                                          <div [formGroupName]="skillIndex">
-                                            {{skillIndex}}
-                                            Skill :
-                                            <input type="text" formControlName="skill">
-                                            Exp:
-                                            <input type="text" formControlName="exp">
-                              
-                                            <button (click)="removeSedeSkill(sedeIndex,skillIndex)">Remove</button>
-                              
-                                          </div>
-                              
-                                        </div>
-                                        <button mat-button type="button" (click)="addSedeSkill(sedeIndex)">Add Skill</button>
                                       </div>
                                     </mat-card-content>
                                     <mat-card-actions>

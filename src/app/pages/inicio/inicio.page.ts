@@ -22,10 +22,6 @@ export class InicioPage implements OnInit {
     public loadingController: LoadingController,
     private authService: AuthService
   ) {
-    this.inicio();
-    const c = new Claims();
-    c.Acudiente = true;
-    console.log(c.Rol());
   }
   async ionViewWillEnter() {
     this.menuCtrl.enable(true).then((r) => {

@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AuthService } from './services/AuthService';
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
+// import { DataService2 } from './services/data-service';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,8 @@ export class AppComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private router: Router,
-    public authService: AuthService
+    public authService: AuthService,
+    // public ds: DataService2
   ) {
     this.initializeApp();
   }
@@ -29,6 +31,13 @@ export class AppComponent {
       this.splashScreen.hide();
       this.statusBar.styleDefault();
       // this.authService.estado();
+      // this.authService.authState.subscribe(state => {
+      //   if (state) {
+      //     this.router.navigate(['home']);
+      //   } else {
+      //     this.router.navigate(['login']);
+      //   }
+      // });
     });
   }
   logout() {

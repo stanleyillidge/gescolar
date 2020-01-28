@@ -14,7 +14,7 @@ import { DataService2 } from 'src/app/services/data-service';
 export class InicioPage implements OnInit {
   loading: HTMLIonLoadingElement;
   test = false;
-  user: firebase.User;
+  user: GescolarUser;
   constructor(
     public zone: NgZone,
     public ds: DataService2,
@@ -27,9 +27,15 @@ export class InicioPage implements OnInit {
     this.menuCtrl.enable(true).then((r) => {
       console.log(r);
     });
-    this.user = await this.authService.getUser();
-    console.log(this.user);
+    this.user = this.ds.isLoggedIn;
     this.test = true;
+    console.log(this.user);
+    // this.ds.getAuthUser().then((u) => {
+    //   this.user = new GescolarUser(u); // await this.authService.getUser();
+    //   console.log(this.user);
+    //   this.test = true;
+    //   this.ds.initDatabase(this.user.uid);
+    // });
   }
   ngOnInit() {
   }

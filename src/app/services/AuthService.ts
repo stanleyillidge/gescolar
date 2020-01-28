@@ -13,7 +13,7 @@ import { Platform, LoadingController, AlertController } from '@ionic/angular';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
 import { AuthUser, GescolarUser, FirebaseUser } from '../models/data-models';
-// import { DataService2 } from './data-service';
+import { DataService2 } from './data-service';
 
 import { Storage } from '@ionic/storage';
 import { BehaviorSubject } from 'rxjs';
@@ -26,13 +26,13 @@ export class AuthService {
     userData: any; // Save logged in user data
     estaAtenticado = false;
     loading: HTMLIonLoadingElement;
-    database: any;
     test = false;
-    private _usuario = new BehaviorSubject<GescolarUser[]>([]);
-    readonly usuario = this._usuario.asObservable();
+    authState = new BehaviorSubject(false);
+    // private _usuario = new BehaviorSubject<GescolarUser[]>([]);
+    // readonly usuario = this._usuario.asObservable();
 
     constructor(
-        // public ds: DataService2,
+        public ds: DataService2,
         private platform: Platform,
         private google: GooglePlus,
         public alertController: AlertController,
@@ -44,23 +44,25 @@ export class AuthService {
         public zone: NgZone // NgZone service to remove outside scope warning
     ) { }
     // ---- Usuarios ----------------------------------------------
-      async getFullUser(uid: string) {
+      getFullUser(uid: string) {
         const este = this;
         return new Promise((resolve, reject) => {
           this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
             const geuser = new GescolarUser(new FirebaseUser(s.data));
             firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
-                console.log('Geuser que ingresa:', u.val());
-                // console.log(este.authService.usuario);
-                // este.authService.user = new GescolarUser(u.val());
-                este.database = {authUser: new GescolarUser(u.val())};
-                console.log('Database:', este.database);
-                este.storage.set(uid, JSON.stringify(este.database)).then(() => {
-                  console.log('Datos de usuario guardados localmente');
-                  return u.val();
-                });
+              // console.log('Geuser que ingresa:', u.val());
+              este.user = new GescolarUser(u.val());
+              // console.log('Usuario:', este.user);
+              este.storage.set('user', JSON.stringify(este.user)).then(() => {
+                  console.log('Datos de usuario guardados localmente', este.user);
+                  resolve(u.val());
+              });
             });
-          }).catch(e => {});
+          }).catch((e) => {
+            console.log(e);
+            este.presentAlert('Error', e);
+            reject(false);
+          });
         });
       }
       getUser(): Promise<firebase.User> {
@@ -72,46 +74,62 @@ export class AuthService {
         return this.user;
         // return (user !== null && user.emailVerified !== false) ? true : false;
     }
+    isAuthenticated() {
+      return this.authState.value;
+    }
+    ifLoggedIn() {
+      this.storage.get('user').then((response) => {
+        if (response) {
+          this.authState.next(true);
+        }
+      });
+    }
     // Sign in with G-suite Acount
     async login() {
-        let params;
-        console.log('cordova', this.platform.is('cordova'));
-        console.log('android', this.platform.is('android'));
-        console.log('desktop', this.platform.is('desktop'));
-        if (this.platform.is('cordova')) {
-          params = {
-            webClientId: '395322918531-1qitkhfhp0ki8hv4msra3cp5dc8p7o1o.apps.googleusercontent.com',
-            offline: true,
-            scopes: 'profile email',
+      let params;
+      const este = this;
+      console.log('cordova', this.platform.is('cordova'));
+      console.log('android', this.platform.is('android'));
+      console.log('desktop', this.platform.is('desktop'));
+      if (this.platform.is('cordova')) {
+        params = {
+          webClientId: '395322918531-1qitkhfhp0ki8hv4msra3cp5dc8p7o1o.apps.googleusercontent.com',
+          offline: true,
+          scopes: 'profile email',
+          hd: 'lreginaldofischione.edu.co'
+        };
+        this.google.login(params)
+        .then((response) => {
+          const { idToken, accessToken } = response;
+          this.onLoginSuccess(idToken, accessToken);
+        }).catch((error) => {
+          console.log(error);
+          alert('error:' + JSON.stringify(error));
+        });
+      } else if (this.platform.is('desktop') || this.platform.is('android')) {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+        provider.addScope('https://www.googleapis.com/auth/drive');
+        provider.setCustomParameters({
             hd: 'lreginaldofischione.edu.co'
-          };
-          this.google.login(params)
-          .then((response) => {
-            const { idToken, accessToken } = response;
-            this.onLoginSuccess(idToken, accessToken);
-          }).catch((error) => {
-            console.log(error);
-            alert('error:' + JSON.stringify(error));
-          });
-        } else if (this.platform.is('desktop') || this.platform.is('android')) {
-          const provider = new firebase.auth.GoogleAuthProvider();
-          provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
-          provider.addScope('https://www.googleapis.com/auth/drive');
-          provider.setCustomParameters({
-              hd: 'lreginaldofischione.edu.co'
-          }),
-          this.afAuth.auth.signInWithPopup(provider)
-          .then((response) => {
-            this.test = true;
-            console.log(response);
-            this.zone.run(() => {
-              this.router.navigate(['/home']);
+        }),
+        this.afAuth.auth.signInWithPopup(provider)
+        .then((response) => {
+          this.test = true;
+          console.log(response);
+          this.getFullUser(response.user.uid).then(() => {
+            este.ds.initDatabase(response.user.uid).then(() => {
+              este.zone.run(() => {
+                este.router.navigate(['/home']);
+                este.authState.next(true);
+              });
             });
-          }).catch((error) => {
-            console.log(error);
-            alert('error:' + JSON.stringify(error));
           });
-        }
+        }).catch((error) => {
+          console.log(error);
+          alert('error:' + JSON.stringify(error));
+        });
+      }
     }
     onLoginSuccess(accessToken, accessSecret) {
         const credential = accessSecret ? firebase.auth.GoogleAuthProvider

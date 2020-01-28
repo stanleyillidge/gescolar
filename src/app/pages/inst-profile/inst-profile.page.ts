@@ -121,6 +121,25 @@ export class InstProfilePage implements OnInit {
     // console.log(this.plataforma.is('android'));
     // console.log(this.plataforma.is('desktop'));
     // console.log(colombia);
+    if (!this.ds.database.institucion) {
+      this.ds.loadDatabase('institucion');
+    }
+    if (!this.ds.database.sedes) {
+      this.ds.loadDatabase('sedes');
+    }
+    const este = this;
+    if (this.ds.observer) {
+      if (this.ds.observer['institucion']) {
+        this.ds.observer['institucion'].subscribe((newData) => {
+          este.ngOnInit();
+        });
+      }
+      if (this.ds.observer['sedes']) {
+        this.ds.observer['sedes'].subscribe((newData) => {
+          este.ngOnInit();
+        });
+      }
+    }
   }
   async ngOnInit() {
     const este = this;
@@ -133,41 +152,50 @@ export class InstProfilePage implements OnInit {
       sedes: this.formBuilder.array([]),
     });
     // verifico la existencia de los datos necesarios localmente o en internet si no estan locales
-    // si estan en ninguno de los medios, muestro el formulario vacio
+    // si no estan en ninguno de los medios, muestro el formulario vacio
     if (!this.ds.database.institucion) {
+      // console.log('No estan almacenados localmente, lo descargaré');
       this.ds.getDatabase('institucion').then((a) => {
         if (a) {este.showInstitucion(); } else { este.instOn = true; }
       });
       this.ds.getDatabase('sedes').then((a) => {
         if (a) {este.showSedes(); } else { este.sedesOn = true; }
       });
+    } else {
+      // console.log('Si estan almacenados localmente');
+      este.showInstitucion();
+      este.showSedes();
     }
   }
   showInstitucion() {
     const este = this;
     console.log(este.ds.database.institucion);
-    const key = Object.keys(este.ds.database.institucion);
-    este.Path = ((este.ds.database.institucion[key[0]].escudo) ? este.ds.database.institucion[key[0]].escudo : este.Path);
-    este.nombre = este.ds.database.institucion[key[0]].nombre;
-    este.calendarioSelect = este.ds.database.institucion[key[0]].calendario;
-    este.razonSocial = este.ds.database.institucion[key[0]].razonSocial;
-    este.mision = este.ds.database.institucion[key[0]].mision;
-    este.rut = este.ds.database.institucion[key[0]].rut;
-    este.nit = este.ds.database.institucion[key[0]].nit;
-    este.dane = este.ds.database.institucion[key[0]].dane;
-    este.generoSelect = este.ds.database.institucion[key[0]].generoAtendido;
-    const obj = este.ds.database.institucion[key[0]].nivelEnseñanza;
-    const keys = [];
-    for (const i in obj) {
-      if (obj.hasOwnProperty(i)) {
-        if (obj[i]) {
-          keys.push(i);
+    if (Object.entries(este.ds.database.institucion).length === 0 && este.ds.database.institucion.constructor === Object) {
+      este.instOn = true;
+    } else {
+      const key = Object.keys(este.ds.database.institucion);
+      este.Path = ((este.ds.database.institucion[key[0]].escudo) ? este.ds.database.institucion[key[0]].escudo : este.Path);
+      este.nombre = este.ds.database.institucion[key[0]].nombre;
+      este.calendarioSelect = este.ds.database.institucion[key[0]].calendario;
+      este.razonSocial = este.ds.database.institucion[key[0]].razonSocial;
+      este.mision = este.ds.database.institucion[key[0]].mision;
+      este.rut = este.ds.database.institucion[key[0]].rut;
+      este.nit = este.ds.database.institucion[key[0]].nit;
+      este.dane = este.ds.database.institucion[key[0]].dane;
+      este.generoSelect = este.ds.database.institucion[key[0]].generoAtendido;
+      const obj = este.ds.database.institucion[key[0]].nivelEnseñanza;
+      const keys = [];
+      for (const i in obj) {
+        if (obj.hasOwnProperty(i)) {
+          if (obj[i]) {
+            keys.push(i);
+          }
         }
       }
+      este.nivelsEns.setValue(keys);
+      console.log('nivelEnseñanza', keys, este.nivelsEns.value);
+      este.instOn = true;
     }
-    este.nivelsEns.setValue(keys);
-    console.log('nivelEnseñanza', keys, este.nivelsEns.value);
-    este.instOn = true;
   }
   showSedes() {
     const este = this;
@@ -299,13 +327,15 @@ export class InstProfilePage implements OnInit {
     // this.myFormGroup = new FormGroup(group);
   }
   onSubmit(i: number) {
+    console.log(this.ds.database, this.myFormGroup);
     let institucion = new Institucion();
     let sedes = [];
     const key = Object.keys(this.ds.database.institucion);
     this.addNivelEns();
+    // '/assets/images/logo0.png'
     institucion = {
       key: ((key) ? key[0] : ''),
-      escudo: '',
+      escudo: ((this.Path !== '/assets/images/logo0.png') ? this.Path : ''),
       resolucionAprobacion: '',
       nombre: this.nombre,
       mision: this.mision,
@@ -347,7 +377,7 @@ export class InstProfilePage implements OnInit {
       }; */
       sedes.push(s);
     });
-    console.log(this.myFormGroup, institucion, sedes);
+    console.log(institucion, sedes);
     this.ds.infInstitucional(institucion, sedes).then((a) => {
       console.log(a);
     })

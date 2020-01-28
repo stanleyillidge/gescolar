@@ -14,16 +14,17 @@ import { File } from '@ionic-native/file/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 // import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
-import { GescolarUser, FirebaseUser, Institucion, Sedes } from '../models/data-models';
+import { GescolarUser, FirebaseUser, Institucion, Sedes, LocalDatabase, AuthUser } from '../models/data-models';
 import { AuthService } from './AuthService';
 
 @Injectable()
 export class DataService2 {
     // private _usuarios = new BehaviorSubject<GescolarUser[]>([]);
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
-    database: any = {};
+    database: LocalDatabase = {};
+    observer: { [key: string]: ReplaySubject<any> } = {};
     uid: string;
-    user: firebase.User;
+    user: GescolarUser; // firebase.User;
     plataforma: any = {desktop: Boolean, android: Boolean};
     looper = 0;
     // modelos = {
@@ -41,7 +42,7 @@ export class DataService2 {
         private fileTransfer: FileTransfer,
         private file: File,
         private storage: Storage,
-        private authService: AuthService
+        // private authService: AuthService
     ) {
         const este = this;
         // this.storage.clear(); // quitar cuando este en produccion
@@ -58,28 +59,46 @@ export class DataService2 {
                 if (this.plataforma.cordova) {
                     this.checkDir();
                 }
-                this.storage.get(uid).then(async (val) => {
-                    if (val) {
-                        let datax = JSON.parse(val);
-                        if (!this.IsJsonString(val)) {
-                            datax = Object(JSON.stringify(val));
-                        }
-                        console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
-                        this.database = datax;
-                        // this.database.authUser = new GescolarUser(datax.authUser);
-                        // console.log(datax);
-                        resolve({rta: true});
-                    } else {
-                        console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
-                        // se obtiene la data completa del usuario que ingresa por primera vez
-                        este.getFullUser(uid).then((u) => {
-                            este.database.authUser = new GescolarUser(u);
-                            este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
+                this.storage.get('user').then(async (u) => {
+                    this.user = new GescolarUser(u);
+                    this.storage.get(uid).then(async (val) => {
+                        if (val) {
+                            let datax = JSON.parse(val);
+                            if (!this.IsJsonString(val)) {
+                                datax = Object(JSON.stringify(val));
+                            }
+                            console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
+                            this.database = datax;
+                            this.database.authUser = new AuthUser(datax.authUser);
+                            if (!this.database.authUser.historial) {
+                                console.log('No tiene historial');
+                                this.database.authUser.historial = [{inicio: new Date()}];
+                            } else {
+                                console.log('Si tiene historial');
+                                this.database.authUser.historial.push({inicio: new Date()});
+                            }
+                            // this.loadDatabase('institucion');
+                            // this.loadDatabase('sedes');
+                            console.log(este.database);
+                            resolve({rta: true});
+                        } else {
+                            console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
+                            // se obtiene la data completa del usuario que ingresa por primera vez
+                            este.database.authUser =  new AuthUser(this.user);
+                            if (!this.database.authUser.historial) {
+                                console.log('No tiene historial');
+                                this.database.authUser.historial = [{inicio: new Date()}];
+                            } else {
+                                console.log('Si tiene historial');
+                                this.database.authUser.historial.push({inicio: new Date()});
+                            }
+                            console.log(este.database);
+                            este.storage.set(uid, JSON.stringify(este.database)).then(() => {
                                 resolve({rta: true});
                             });
-                        });
-                        // reject({rta: false});
-                    }
+                            // reject({rta: false});
+                        }
+                    });
                 });
             });
         }
@@ -121,18 +140,12 @@ export class DataService2 {
                         const keys = Object.keys(obj);
                         keys.forEach(key => {
                             console.log(obj[key], key);
-                            switch (child) {
-                                case 'institucion':
-                                    este.database[child][key] = new Institucion(obj[key]);
-                                    break;
-                                case 'sedes':
-                                    este.database[child][key] = new Sedes(obj[key]);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            este.database[child][key] = este.modelo(child, obj[key]);
                         });
-                        este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
+                        este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
+                            console.log('Child', child, ' fue guardado localmente');
+                            este.databaseEvents('institucion');
+                            este.databaseEvents('sedes');
                             resolve(true);
                         });
                     } else {
@@ -142,6 +155,55 @@ export class DataService2 {
                 }).catch((e) => { reject(e); });
             });
         }
+        databaseEvents(campo: string) {
+            const este = this;
+            const child = campo.toLowerCase();
+            firebase.database().ref(child).limitToLast(1).on('child_added', (added) => {
+                este.eventos(added.val(), added.key, 'added', campo);
+            });
+            firebase.database().ref(child).on('child_changed', (change) => {
+                este.eventos(change.val(), change.key, 'change', campo);
+            });
+            firebase.database().ref(child).on('child_removed', (removed) => {
+                console.log('Evento', 'remover', campo);
+                delete este.database[campo][removed.key];
+                este.creaObserver(campo);
+            });
+        }
+        eventos(data: any, key, tipo: string, campo: string) {
+            const este = this;
+            // console.log('Evento', tipo, campo, key, este.database[campo], data);
+            este.database[campo][key] = este.modelo(campo, data);
+            // console.log('Database a guardar1', este.database);
+            este.creaObserver(campo);
+        }
+        creaObserver(campo: string) {
+            const este = this;
+            if (!este.observer) {
+                este.observer = {};
+                este.observer[campo] = new ReplaySubject<any>();
+            } else if (!(este.observer[campo] instanceof ReplaySubject)) {
+                console.log('Se creó el observer');
+                este.observer[campo] = new ReplaySubject<any>();
+            }
+            este.observer[campo].next(este.database);
+            este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
+                console.log('Child', campo, ' fue guardado localmente');
+                console.log('Database', este.database);
+            });
+        }
+        modelo(a: string, data: any) {
+            switch (a) {
+                case 'institucion':
+                    return new Institucion(data);
+                    break;
+                case 'sedes':
+                    return new Sedes(data);
+                    break;
+                default:
+                    break;
+            }
+        }
     // ---- Institucionales ---------------------------------------
         infInstitucional(institucion: Institucion, sedes: Sedes[]) {
             const este = this;
@@ -150,10 +212,10 @@ export class DataService2 {
                     if (!institucion.key) {
                         institucion.key = firebase.database().ref().push().key;
                     }
-                    this.database.institucion[institucion.key] = institucion;
                 }
                 if (this.database.logo) { institucion.escudo = this.database.logo; }
                 institucion = new Institucion(institucion);
+                this.database.institucion[institucion.key] = institucion;
                 const key = Object.keys(este.database.institucion);
                 firebase.database().ref('institucion')
                 .child(this.database.institucion[key[0]].key).update(institucion).then(() => {
@@ -175,7 +237,7 @@ export class DataService2 {
                 console.log('Data a ser guardada', this.database, institucion);
                 firebase.database().ref('sedes').set(this.database.sedes).then(() => {
                     // console.log('La sede', sede, 'actualizada correctamente');
-                    este.storage.set(este.uid, JSON.stringify(este.database)).then(() => {
+                    este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
                         resolve('institucion actualizada correctamente');
                     });
                 }).catch((e) => {
@@ -204,7 +266,7 @@ export class DataService2 {
                     console.log('Archivo almacenado:', url);
                     loading.dismiss();
                 // ---- Guardo localmente ----------------------
-                    /* este.storage.set('database', JSON.stringify(este.database)).then(() => {
+                    /* este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
                         loading.dismiss();
                     }); */
                 // ---------------------------------------------
@@ -292,8 +354,20 @@ export class DataService2 {
         page(page) {
             this.router.navigate(['/' + page]);
         }
-        async getAuthUser() {
-            this.user = await this.authService.getUser();
+        get isLoggedIn(): GescolarUser {
+            return this.user;
+            // return (user !== null && user.emailVerified !== false) ? true : false;
+        }
+        getAuthUser() {
+            return new Promise((resolve, reject) => {
+                this.storage.get('user').then(async (u) => {
+                    if (u) {
+                        console.log(JSON.parse(u));
+                        this.user = new GescolarUser(JSON.parse(u));
+                        resolve(this.user);
+                    }
+                });
+            });
         }
         getFullUser(uid: string) {
             const este = this;
@@ -303,8 +377,8 @@ export class DataService2 {
                     firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
                         console.log('Geuser que ingresa:', u.val());
                         // console.log(este.authService.usuario);
-                        // este.authService.user = new GescolarUser(u.val());
-                        este.database = {authUser: new GescolarUser(u.val())};
+                        este.database.authUser = new GescolarUser(u.val());
+                        // este.database.authUser.historial.push({inicio: new Date()}); // ojo guardar en internet tambien
                         console.log('Database:', este.database);
                         este.storage.set(uid, JSON.stringify(este.database)).then(() => {
                             console.log('Datos de usuario guardados localmente');
@@ -333,7 +407,7 @@ export class DataService2 {
         }
         getKeyByValue(objects, value, key) {
             for (const i in objects) {
-                if (objects[i][key] == value) {
+                if (objects[i][key] === value) {
                     return objects[i].key;
                 }
             }

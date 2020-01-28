@@ -716,22 +716,30 @@
         }
     }
 // ---- AuthUser ----------------
-    export class AuthUser {
-        public data: GescolarUser;
+    export class Historial {
         inicio: Date;
         fin?: Date;
-        // private historial: {};
-        constructor(a: GescolarUser) {
-            this.data = a;
-            this.inicio = new Date();
+        constructor(a: any) {
+            this.inicio = a.inicio;
+            this.fin = a.fin;
+        }
+    }
+    export class AuthUser extends GescolarUser {
+        public historial?: [Historial];
+        constructor(a: any) {
+            super(a);
+            this.historial = ((a.historial) ? a.historial : null);
         }
     }
 // ---- Local DataBase ----------
     export class LocalDatabase {
         // public Matriculas: { [key: string]: Matricula };
         // public usuarios: { [key: string]: GescolarUser };
-        public authUser: AuthUser | null;
-        constructor(a: AuthUser | GescolarUser | Matricula) {
+        public authUser?: AuthUser | null;
+        public logo?: string;
+        public institucion?: { [key: string]: Institucion };
+        public sedes?: { [key: string]: Sedes };
+        constructor(a: any) {
             this.authUser = ((a instanceof AuthUser) ? a : null);
         }
     }

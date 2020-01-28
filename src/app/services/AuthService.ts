@@ -68,22 +68,22 @@ export class AuthService {
       getUser(): Promise<firebase.User> {
         return this.afAuth.authState.pipe(first()).toPromise();
       }
-    // -------------------------------------------------------------
-    // Returns true when user is looged in and email is verified
-    get isLoggedIn(): GescolarUser {
+      // Returns true when user is looged in and email is verified
+      get isLoggedIn(): GescolarUser {
         return this.user;
         // return (user !== null && user.emailVerified !== false) ? true : false;
-    }
-    isAuthenticated() {
-      return this.authState.value;
-    }
-    ifLoggedIn() {
-      this.storage.get('user').then((response) => {
-        if (response) {
-          this.authState.next(true);
-        }
-      });
-    }
+      }
+      isAuthenticated() {
+        return this.authState.value;
+      }
+      ifLoggedIn() {
+        this.storage.get('user').then((response) => {
+          if (response) {
+            this.authState.next(true);
+          }
+        });
+      }
+    // -------------------------------------------------------------
     // Sign in with G-suite Acount
     async login() {
       let params;
@@ -106,7 +106,7 @@ export class AuthService {
           console.log(error);
           alert('error:' + JSON.stringify(error));
         });
-      } else if (this.platform.is('desktop') || this.platform.is('android')) {
+      } else if (this.platform.is('desktop')) {
         const provider = new firebase.auth.GoogleAuthProvider();
         provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
         provider.addScope('https://www.googleapis.com/auth/drive');
@@ -114,6 +114,27 @@ export class AuthService {
             hd: 'lreginaldofischione.edu.co'
         }),
         this.afAuth.auth.signInWithPopup(provider)
+        /* .then(() => {
+          return this.afAuth.auth.getRedirectResult().then( result => {
+            // This gives you a Google Access Token.
+            // You can use it to access the Google API.
+            const token = result.credential['accessToken'];
+            // The signed-in user info.
+            const user = result.user;
+            console.log(token, user);
+            este.getFullUser(user.uid).then(() => {
+              este.ds.initDatabase(user.uid).then(() => {
+                este.zone.run(() => {
+                  este.router.navigate(['/home']);
+                  este.authState.next(true);
+                });
+              });
+            });
+          }).catch((error) => {
+            // Handle Errors here.
+            este.presentAlert('Error', error.message);
+          });
+        }); */
         .then((response) => {
           this.test = true;
           console.log(response);
@@ -132,19 +153,34 @@ export class AuthService {
       }
     }
     onLoginSuccess(accessToken, accessSecret) {
-        const credential = accessSecret ? firebase.auth.GoogleAuthProvider
-            .credential(accessToken, accessSecret) : firebase.auth.GoogleAuthProvider
-                .credential(accessToken);
-        this.afAuth.auth.signInWithCredential(credential)
-            .then((response) => {
-            console.log(response);
-            this.test = true;
-            this.loading.dismiss();
-            this.zone.run(() => {
-              this.router.navigate(['/home']);
+      const este = this;
+      const credential = accessSecret ? firebase.auth.GoogleAuthProvider
+          .credential(accessToken, accessSecret) : firebase.auth.GoogleAuthProvider
+              .credential(accessToken);
+      this.afAuth.auth.signInWithCredential(credential)
+        .then((response) => {
+        console.log(response);
+        this.test = true;
+        this.storage.get('user').then((u) => {
+          if (u) {
+            este.ds.initDatabase(response.user.uid).then(() => {
+              este.zone.run(() => {
+                este.router.navigate(['home/inicio']);
+                este.authState.next(true);
+              });
             });
+          } else {
+            this.getFullUser(response.user.uid).then(() => {
+              este.ds.initDatabase(response.user.uid).then(() => {
+                este.zone.run(() => {
+                  este.router.navigate(['home/inicio']);
+                  este.authState.next(true);
+                });
+              });
+            });
+          }
         });
-
+      });
     }
     onLoginError(err) {
         console.log(err);

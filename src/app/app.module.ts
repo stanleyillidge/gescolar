@@ -20,6 +20,8 @@ import * as firebase from 'firebase/app';
 import { IonicStorageModule } from '@ionic/storage';
 import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
+import { ImageResizer } from '@ionic-native/image-resizer/ngx';
+import { Camera } from '@ionic-native/camera/ngx';
 import { WebView } from '@ionic-native/ionic-webview/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
@@ -66,6 +68,8 @@ const firebaseConfig = {
     AngularFireAuthGuard,
     FileTransfer,
     File,
+    Camera,
+    ImageResizer,
     WebView,
     GooglePlus
   ],

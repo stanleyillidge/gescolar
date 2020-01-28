@@ -148,7 +148,7 @@
                           size-sm="6"
                           size-md="4"
                           size-lg="4">
-                            <form [formGroup]="myFormGroup" (ngSubmit)="onSubmit(sedeIndex)">
+                            <form [formGroup]="myFormGroup" (ngSubmit)="onSubmit()">
                               <div formArrayName="sedes">
                                 <div [formGroupName]="sedeIndex">
                                   <mat-card class="sede-example-card">

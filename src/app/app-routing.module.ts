@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 // import { AuthGuard } from './services/auth-guard.service';
 import { AngularFireAuthGuard, hasCustomClaim, redirectUnauthorizedTo, redirectLoggedInTo } from '@angular/fire/auth-guard';
 
-const adminOnly = () => hasCustomClaim('Super');
+const adminOnly = () => hasCustomClaim('Admin');
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
 const redirectLoggedInToItems = () => redirectLoggedInTo(['items']);
 const belongsToAccount = (next) => hasCustomClaim(`account-${next.params.id}`);

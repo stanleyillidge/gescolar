@@ -5,6 +5,7 @@ import { SlidesComponent } from './slides/slides.component';
 import { StartButtonComponent } from './start-button/start-button.component';
 import { MenuArbolComponent } from './menu-arbol/menu-arbol.component';
 import { DemoMaterialModule } from '../material-module';
+import { UserAvatarComponent } from './user-avatar/user-avatar.component';
 
 
 
@@ -12,12 +13,14 @@ import { DemoMaterialModule } from '../material-module';
   declarations: [
     SlidesComponent,
     StartButtonComponent,
-    MenuArbolComponent
+    MenuArbolComponent,
+    UserAvatarComponent
   ],
   exports: [
     SlidesComponent,
     StartButtonComponent,
-    MenuArbolComponent
+    MenuArbolComponent,
+    UserAvatarComponent
   ],
   imports: [
     IonicModule,

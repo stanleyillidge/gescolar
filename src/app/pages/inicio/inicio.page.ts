@@ -21,24 +21,17 @@ export class InicioPage implements OnInit {
     public menuCtrl: MenuController,
     public loadingController: LoadingController,
     private authService: AuthService
-  ) {
-  }
-  async ionViewWillEnter() {
-    this.menuCtrl.enable(true).then((r) => {
-      console.log(r);
-    });
-    this.ds.initObservers();
-    this.user = this.ds.getUser;
-    this.test = true;
-    console.log(this.user);
-    // this.ds.getAuthUser().then((u) => {
-    //   this.user = new GescolarUser(u); // await this.authService.getUser();
-    //   console.log(this.user);
-    //   this.test = true;
-    //   this.ds.initDatabase(this.user.uid);
-    // });
-  }
+  ) {}
   ngOnInit() {
+    setTimeout(() => {
+      this.menuCtrl.enable(true).then((r) => {
+        console.log(r);
+      });
+      this.ds.initObservers();
+      this.user = this.ds.getUser;
+      this.test = true;
+      console.log(this.user);
+    }, 300);
   }
   async inicio() {}
 }

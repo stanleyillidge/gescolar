@@ -66,14 +66,14 @@ export class DataService2 {
                             if (!this.IsJsonString(val)) {
                                 datax = Object(JSON.stringify(val));
                             }
-                            console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
+                            // console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
                             this.database = datax;
                             this.database.authUser = new AuthUser(datax.authUser);
                             if (!this.database.authUser.historial) {
-                                console.log('No tiene historial');
+                                // console.log('No tiene historial');
                                 this.database.authUser.historial = [{inicio: new Date()}];
                             } else {
-                                console.log('Si tiene historial');
+                                // console.log('Si tiene historial');
                                 this.database.authUser.historial.push({inicio: new Date()});
                             }
                             // inicializo los nodos
@@ -81,14 +81,14 @@ export class DataService2 {
                             console.log(este.database);
                             resolve({rta: true});
                         } else {
-                            console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
+                            // console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
                             // se obtiene la data completa del usuario que ingresa por primera vez
                             este.database.authUser =  new AuthUser(this.user);
                             if (!this.database.authUser.historial) {
-                                console.log('No tiene historial');
+                                // console.log('No tiene historial');
                                 this.database.authUser.historial = [{inicio: new Date()}];
                             } else {
-                                console.log('Si tiene historial');
+                                // console.log('Si tiene historial');
                                 this.database.authUser.historial.push({inicio: new Date()});
                             }
                             console.log(este.database);
@@ -112,7 +112,7 @@ export class DataService2 {
                         reject(false);
                     });
                 }
-                console.log('De haber una solicitud especifica, la verifico');
+                // console.log('De haber una solicitud especifica, la verifico');
                 if (child) {
                     if (!this.database[child]) {
                         this.loadDatabase(child).then((a) => {
@@ -132,17 +132,17 @@ export class DataService2 {
             const este = this;
             return new Promise((resolve, reject) => {
                 firebase.database().ref(child).once('value', (db) => {
-                    console.log(db.val());
+                    // console.log(db.val());
                     if (db.val()) {
                         este.database[child] = {};
                         const obj = db.val();
                         const keys = Object.keys(obj);
                         keys.forEach(key => {
-                            console.log(obj[key], key);
+                            // console.log(obj[key], key);
                             este.database[child][key] = este.modelo(child, obj[key]);
                         });
                         este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
-                            console.log('Child', child, ' fue guardado localmente');
+                            // console.log('Child', child, ' fue guardado localmente');
                             este.databaseEvents('institucion');
                             este.databaseEvents('sedes');
                             resolve(true);
@@ -172,15 +172,16 @@ export class DataService2 {
         }
         eventos(data: any, key: string, tipo: string, campo: string) {
             const este = this;
-            // console.log('Evento', tipo, campo, key, este.database[campo], data);
+            console.log('Evento', tipo, campo, key, este.database[campo], data);
             if (!este.database[campo]) { este.database[campo] = {}; }
+            // if (!este.database[campo][key]) { este.modelo(campo, data); }
             este.database[campo][key] = este.modelo(campo, data);
             // console.log('Database a guardar1', este.database);
             este.creaObserver(campo);
             este.observer[campo].next(este.database);
             este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
-                console.log('Child', campo, ' fue guardado localmente');
-                console.log('Database', este.database);
+                // console.log('Child', campo, ' fue guardado localmente');
+                // console.log('Database', este.database);
             });
         }
         creaObserver(campo: string) {
@@ -189,7 +190,7 @@ export class DataService2 {
                 este.observer = {};
                 este.observer[campo] = new ReplaySubject<any>();
             } else if (!(este.observer[campo] instanceof ReplaySubject)) {
-                console.log('Se creó el observer');
+                // console.log('Se creó el observer');
                 este.observer[campo] = new ReplaySubject<any>();
             }
         }
@@ -261,7 +262,7 @@ export class DataService2 {
             });
             await loading.present();
             const nombre = data.nombre + '.' + archivo['type'].substr('image/'.length);
-            console.log('archivo', nombre, archivo);
+            // console.log('archivo', nombre, archivo);
             const imagenes = firebase.storage().ref(data.ubicacion).child(nombre);
             const metadata = {
                 contentType: archivo['type']
@@ -269,7 +270,7 @@ export class DataService2 {
             await imagenes.put(archivo, metadata).then(async (snapshot) => {
                 await imagenes.getDownloadURL().then(async (url) => {
                     este.database.logo = url;
-                    console.log('Archivo almacenado:', url);
+                    console.log('Archivo almacenado:', nombre, archivo, url);
                     loading.dismiss();
                 // ---- Guardo localmente ----------------------
                     /* este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
@@ -368,7 +369,7 @@ export class DataService2 {
             return new Promise((resolve, reject) => {
                 this.storage.get('user').then(async (u) => {
                     if (u) {
-                        console.log(JSON.parse(u));
+                        // console.log(JSON.parse(u));
                         this.user = new GescolarUser(JSON.parse(u));
                         resolve(this.user);
                     }
@@ -381,12 +382,12 @@ export class DataService2 {
                 this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
                     const geuser = new GescolarUser(new FirebaseUser(s.data));
                     firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
-                        console.log('Geuser que ingresa:', u.val());
+                        // console.log('Geuser que ingresa:', u.val());
                         este.database.authUser = new GescolarUser(u.val());
                         // este.database.authUser.historial.push({inicio: new Date()}); // ojo guardar en internet tambien
-                        console.log('Database:', este.database);
+                        // console.log('Database:', este.database);
                         este.storage.set(uid, JSON.stringify(este.database)).then(() => {
-                            console.log('Datos de usuario guardados localmente');
+                            // console.log('Datos de usuario guardados localmente');
                             resolve(u.val());
                         });
                     });
@@ -430,7 +431,7 @@ export class DataService2 {
             return await CloudFunction(data).then((rta) => {
                 // Read result of the Cloud Function.
                 // s = JSON.parse(s);
-                console.log('Respuesta de ' + funcion + ':', rta);
+                // console.log('Respuesta de ' + funcion + ':', rta);
                 loading.dismiss();
                 return rta;
             }).catch((error) => {

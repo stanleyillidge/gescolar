@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnInit, OnDestroy } from '@angular/core';
 import anime from 'animejs/lib/anime.es';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/AuthService';
@@ -10,7 +10,7 @@ import { MenuController } from '@ionic/angular';
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit, AfterViewInit {
+export class LoginPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('box', {static: false}) box: ElementRef;
   ngOnInit(): void {
     this.menuCtrl.enable(false).then((r) => {
@@ -32,15 +32,8 @@ export class LoginPage implements OnInit, AfterViewInit {
     private router: Router,
     public menuCtrl: MenuController,
     private authService: AuthService
-  ) {
-    // console.log('constr')
-    // this.callAnime()
-  }
-  // ionViewDidEnter() {
-    
-  // }
-
-  ionViewDidLeave() {
+  ) {}
+  ngOnDestroy() {
     this.menuCtrl.enable(true).then((r) => {
       console.log(r);
     });

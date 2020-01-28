@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 // import { HomeGuard } from '../guards/home.guard';
 // import { UserDataResolver } from '../resolvers/user-data.resolver';
 import { HomePage } from './home.page';
+import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 
 const routes: Routes = [
   {
@@ -18,8 +19,8 @@ const routes: Routes = [
         children: [
           {
             path: '',
-            loadChildren: () =>
-              import('../pages/inicio/inicio.module').then(m => m.InicioPageModule)
+            loadChildren: () => import('../pages/inicio/inicio.module').then(m => m.InicioPageModule),
+            canActivate: [AngularFireAuthGuard]
           }
         ]
       },
@@ -31,7 +32,8 @@ const routes: Routes = [
             loadChildren: () =>
               import('../pages/page2/page2.module').then(
                 m => m.Page2PageModule
-              )
+              ),
+              canActivate: [AngularFireAuthGuard]
           }
         ]
       },
@@ -43,7 +45,8 @@ const routes: Routes = [
             loadChildren: () =>
               import('../pages/page3/page3.module').then(
                 m => m.Page3PageModule
-              )
+              ),
+              canActivate: [AngularFireAuthGuard]
           }
         ]
       },
@@ -55,7 +58,8 @@ const routes: Routes = [
             loadChildren: () =>
               import('../pages/page4/page4.module').then(
                 m => m.Page4PageModule
-              )
+              ),
+              canActivate: [AngularFireAuthGuard]
           }
         ]
       },

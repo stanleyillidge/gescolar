@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AuthService } from './services/AuthService';
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
+import { Storage } from '@ionic/storage';
 // import { DataService2 } from './services/data-service';
 
 @Component({
@@ -21,6 +22,7 @@ export class AppComponent {
     private statusBar: StatusBar,
     private router: Router,
     public authService: AuthService,
+    private storage: Storage,
     // public ds: DataService2
   ) {
     this.initializeApp();
@@ -31,13 +33,20 @@ export class AppComponent {
       this.splashScreen.hide();
       this.statusBar.styleDefault();
       // this.authService.estado();
-      // this.authService.authState.subscribe(state => {
-      //   if (state) {
-      //     this.router.navigate(['home']);
-      //   } else {
-      //     this.router.navigate(['login']);
-      //   }
-      // });
+      this.authService.afAuth.authState.subscribe(state => {
+        console.log(state);
+        if (state) {
+          this.router.navigate(['/home']);
+        } else {
+          this.storage.get('user').then((response) => {
+            if (response) {
+              this.router.navigate(['/login']);
+            } else {
+              this.router.navigate(['']);
+            }
+          });
+        }
+      });
     });
   }
   logout() {

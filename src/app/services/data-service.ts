@@ -15,13 +15,13 @@ import { WebView } from '@ionic-native/ionic-webview/ngx';
 // import { LocalDatabase } from '../models/data-models';
 import { dismiss } from '@ionic/core/dist/types/utils/overlays';
 import { GescolarUser, FirebaseUser, Institucion, Sedes, LocalDatabase, AuthUser } from '../models/data-models';
-import { AuthService } from './AuthService';
 
 @Injectable()
 export class DataService2 {
     // private _usuarios = new BehaviorSubject<GescolarUser[]>([]);
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
     database: LocalDatabase = {};
+    nodos: string[] = ['institucion', 'sedes'];
     observer: { [key: string]: ReplaySubject<any> } = {};
     uid: string;
     user: GescolarUser; // firebase.User;
@@ -41,8 +41,7 @@ export class DataService2 {
         private webview: WebView,
         private fileTransfer: FileTransfer,
         private file: File,
-        private storage: Storage,
-        // private authService: AuthService
+        private storage: Storage
     ) {
         const este = this;
         // this.storage.clear(); // quitar cuando este en produccion
@@ -77,8 +76,8 @@ export class DataService2 {
                                 console.log('Si tiene historial');
                                 this.database.authUser.historial.push({inicio: new Date()});
                             }
-                            // this.loadDatabase('institucion');
-                            // this.loadDatabase('sedes');
+                            // inicializo los nodos
+                            this.initObservers();
                             console.log(este.database);
                             resolve({rta: true});
                         } else {
@@ -168,14 +167,21 @@ export class DataService2 {
                 console.log('Evento', 'remover', campo);
                 delete este.database[campo][removed.key];
                 este.creaObserver(campo);
+                este.observer[campo].next(este.database);
             });
         }
-        eventos(data: any, key, tipo: string, campo: string) {
+        eventos(data: any, key: string, tipo: string, campo: string) {
             const este = this;
             // console.log('Evento', tipo, campo, key, este.database[campo], data);
+            if (!este.database[campo]) { este.database[campo] = {}; }
             este.database[campo][key] = este.modelo(campo, data);
             // console.log('Database a guardar1', este.database);
             este.creaObserver(campo);
+            este.observer[campo].next(este.database);
+            este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
+                console.log('Child', campo, ' fue guardado localmente');
+                console.log('Database', este.database);
+            });
         }
         creaObserver(campo: string) {
             const este = this;
@@ -186,10 +192,10 @@ export class DataService2 {
                 console.log('Se creó el observer');
                 este.observer[campo] = new ReplaySubject<any>();
             }
-            este.observer[campo].next(este.database);
-            este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
-                console.log('Child', campo, ' fue guardado localmente');
-                console.log('Database', este.database);
+        }
+        initObservers() {
+            this.nodos.forEach(campo => {
+                this.creaObserver(campo);
             });
         }
         modelo(a: string, data: any) {
@@ -354,7 +360,7 @@ export class DataService2 {
         page(page) {
             this.router.navigate(['/' + page]);
         }
-        get isLoggedIn(): GescolarUser {
+        get getUser(): GescolarUser {
             return this.user;
             // return (user !== null && user.emailVerified !== false) ? true : false;
         }
@@ -376,7 +382,6 @@ export class DataService2 {
                     const geuser = new GescolarUser(new FirebaseUser(s.data));
                     firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
                         console.log('Geuser que ingresa:', u.val());
-                        // console.log(este.authService.usuario);
                         este.database.authUser = new GescolarUser(u.val());
                         // este.database.authUser.historial.push({inicio: new Date()}); // ojo guardar en internet tambien
                         console.log('Database:', este.database);

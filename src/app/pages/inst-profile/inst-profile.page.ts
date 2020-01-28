@@ -118,17 +118,23 @@ export class InstProfilePage implements OnInit {
     public auth: AuthService,
     private formBuilder: FormBuilder
   ) {
+    const este = this;
     // console.log(this.plataforma.is('android'));
     // console.log(this.plataforma.is('desktop'));
     // console.log(colombia);
+    this.ds.observer['institucion'].subscribe((newData) => {
+      este.ngOnInit();
+    });
+    this.ds.observer['sedes'].subscribe((newData) => {
+      este.ngOnInit();
+    });
     if (!this.ds.database.institucion) {
       this.ds.loadDatabase('institucion');
     }
     if (!this.ds.database.sedes) {
       this.ds.loadDatabase('sedes');
     }
-    const este = this;
-    if (this.ds.observer) {
+    /* if (this.ds.observer) {
       if (this.ds.observer['institucion']) {
         this.ds.observer['institucion'].subscribe((newData) => {
           este.ngOnInit();
@@ -139,12 +145,10 @@ export class InstProfilePage implements OnInit {
           este.ngOnInit();
         });
       }
-    }
+    } */
   }
   async ngOnInit() {
     const este = this;
-    this.instOn = false;
-    this.sedesOn = false;
     // this.user = await this.auth.getUser();
     console.log(este.ds.database);
     // creo el formulario vacio, para armarlo segun sea el caso

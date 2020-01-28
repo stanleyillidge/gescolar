@@ -27,7 +27,8 @@ export class InicioPage implements OnInit {
     this.menuCtrl.enable(true).then((r) => {
       console.log(r);
     });
-    this.user = this.ds.isLoggedIn;
+    this.ds.initObservers();
+    this.user = this.ds.getUser;
     this.test = true;
     console.log(this.user);
     // this.ds.getAuthUser().then((u) => {

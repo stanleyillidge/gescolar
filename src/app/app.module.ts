@@ -25,6 +25,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 import { ComponentsModule } from './components/components.module';
 import { AuthService } from './services/AuthService';
+import { AuthGuard } from './services/auth-guard.service';
+import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 
 // esta cuenta esta ligada al correo stanley.illidge@lreginaldofischione.edu.co y la eleve a Blaze (pago por uso)
 const firebaseConfig = {
@@ -60,6 +62,8 @@ const firebaseConfig = {
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     DataService2,
     AuthService,
+    AuthGuard,
+    AngularFireAuthGuard,
     FileTransfer,
     File,
     WebView,

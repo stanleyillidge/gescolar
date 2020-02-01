@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { Platform, LoadingController, AlertController } from '@ionic/angular';
 import { GooglePlus } from '@ionic-native/google-plus/ngx';
 
-import { AuthUser, GescolarUser, FirebaseUser } from '../models/data-models';
+import { AuthUser, GescolarUser, FirebaseFullUser, FirebaseUser, FirebaseClaims, Claims } from '../models/data-models';
 import { DataService2 } from './data-service';
 
 import { Storage } from '@ionic/storage';
@@ -44,24 +44,18 @@ export class AuthService {
         public zone: NgZone // NgZone service to remove outside scope warning
     ) { }
     // ---- Usuarios ----------------------------------------------
-      getFullUser(uid: string) {
+      getFullUser(user: any) {
         const este = this;
         return new Promise((resolve, reject) => {
-          this.CloudFunctions('getFirebaseUser', uid).then((s: any) => {
-            const geuser = new GescolarUser(new FirebaseUser(s.data));
-            firebase.database().ref(geuser.rol).child(geuser.uid).once('value', u => {
-              // console.log('Geuser que ingresa:', u.val());
-              este.user = new GescolarUser(u.val());
-              // console.log('Usuario:', este.user);
-              este.storage.set('user', JSON.stringify(este.user)).then(() => {
-                  console.log('Datos de usuario guardados localmente', este.user);
-                  resolve(u.val());
-              });
+          // console.log(user);
+          firebase.database().ref(user.rol).child(user.uid).once('value', u => {
+            // console.log('Geuser que ingresa:', u.val());
+            este.user = new GescolarUser(u.val());
+            // console.log('Usuario:', este.user);
+            este.storage.set('user', JSON.stringify(este.user)).then(() => {
+                console.log('Datos de usuario guardados localmente', este.user);
+                resolve(u.val());
             });
-          }).catch((e) => {
-            console.log(e);
-            este.presentAlert('Error', e);
-            reject(false);
           });
         });
       }
@@ -137,20 +131,40 @@ export class AuthService {
         }); */
         .then((response) => {
           this.test = true;
-          console.log(response);
-          this.getFullUser(response.user.uid).then(() => {
-            este.ds.initDatabase(response.user.uid).then(() => {
-              este.zone.run(() => {
-                este.router.navigate(['/home']);
-                este.authState.next(true);
-              });
-            });
-          });
+          // console.log(response);
+          this.onLoginSuccessWeb(response.user);
         }).catch((error) => {
-          console.log(error);
+          console.error(error);
           alert('error:' + JSON.stringify(error));
         });
       }
+    }
+    onLoginSuccessWeb(user: firebase.User) {
+      const este = this;
+      user.getIdTokenResult().then((r) => {
+        const a = new FirebaseUser(user);
+        a.customClaims = new Claims(r.claims); // new FirebaseClaims(r.claims);
+        a['rol'] = a.customClaims.Rol();
+        // console.log('Database:', este.ds.database);
+        este.getFullUser(a).then((u) => {
+          // console.log('Database:', este.ds.database);
+          este.ds.initDatabase(user.uid).then(() => {
+            este.zone.run(() => {
+              este.router.navigate(['home/inicio']);
+              este.authState.next(true);
+            });
+          });
+        });
+      });
+    }
+    onOffline(user: firebase.User) {
+      const este = this;
+      este.ds.initDatabase(user.uid).then(() => {
+        este.zone.run(() => {
+          este.router.navigate(['home/inicio']);
+          este.authState.next(true);
+        });
+      });
     }
     onLoginSuccess(accessToken, accessSecret) {
       const este = this;
@@ -216,7 +230,7 @@ export class AuthService {
           loading.dismiss();
           return rta;
       }).catch((error) => {
-          console.log('Usuario error: ', error);
+          console.error('Usuario error: ', error);
           const titulo = 'Error';
           const mensaje = error.message;
           loading.dismiss();

@@ -59,14 +59,15 @@ export class DataService2 {
                     this.checkDir();
                 }
                 this.storage.get('user').then(async (u) => {
-                    this.user = new GescolarUser(u);
+                    this.user = new GescolarUser(JSON.parse(u));
+                    console.log('Database:', este.database);
                     this.storage.get(uid).then(async (val) => {
                         if (val) {
                             let datax = JSON.parse(val);
                             if (!this.IsJsonString(val)) {
                                 datax = Object(JSON.stringify(val));
                             }
-                            // console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
+                            console.log('El usuario', uid, 'SI tiene datos almacenados localmente', datax);
                             this.database = datax;
                             this.database.authUser = new AuthUser(datax.authUser);
                             if (!this.database.authUser.historial) {
@@ -115,7 +116,7 @@ export class DataService2 {
                 // console.log('De haber una solicitud especifica, la verifico');
                 if (child) {
                     if (!this.database[child]) {
-                        this.loadDatabase(child).then((a) => {
+                        this.loadDatabaseChild(child).then((a) => {
                             if (a) {
                                 resolve(true);
                             } else { resolve(false); }
@@ -128,7 +129,7 @@ export class DataService2 {
                 }
             });
         }
-        loadDatabase(child: string) {
+        loadDatabaseChild(child: string) {
             const este = this;
             return new Promise((resolve, reject) => {
                 firebase.database().ref(child).once('value', (db) => {
@@ -141,10 +142,10 @@ export class DataService2 {
                             // console.log(obj[key], key);
                             este.database[child][key] = este.modelo(child, obj[key]);
                         });
-                        este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
-                            // console.log('Child', child, ' fue guardado localmente');
-                            este.databaseEvents('institucion');
-                            este.databaseEvents('sedes');
+                        este.storage.set(este.user.uid, JSON.stringify(este.database)).then(() => {
+                            console.log('Child', child, ' fue guardado localmente', este.database);
+                            este.creaObserver(child);
+                            este.databaseEvents(child);
                             resolve(true);
                         });
                     } else {
@@ -174,15 +175,10 @@ export class DataService2 {
             const este = this;
             console.log('Evento', tipo, campo, key, este.database[campo], data);
             if (!este.database[campo]) { este.database[campo] = {}; }
-            // if (!este.database[campo][key]) { este.modelo(campo, data); }
             este.database[campo][key] = este.modelo(campo, data);
             // console.log('Database a guardar1', este.database);
-            este.creaObserver(campo);
             este.observer[campo].next(este.database);
-            este.storage.set(este.database.authUser.uid, JSON.stringify(este.database)).then(() => {
-                // console.log('Child', campo, ' fue guardado localmente');
-                // console.log('Database', este.database);
-            });
+            return este.storage.set(este.database.authUser.uid, JSON.stringify(este.database));
         }
         creaObserver(campo: string) {
             const este = this;
@@ -362,8 +358,9 @@ export class DataService2 {
             this.router.navigate(['/' + page]);
         }
         get getUser(): GescolarUser {
+            this.database.authUser =  new AuthUser(this.user);
+            this.storage.set(this.user.uid, JSON.stringify(this.database));
             return this.user;
-            // return (user !== null && user.emailVerified !== false) ? true : false;
         }
         getAuthUser() {
             return new Promise((resolve, reject) => {

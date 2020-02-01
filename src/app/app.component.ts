@@ -8,7 +8,8 @@ import { AuthService } from './services/AuthService';
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import { Storage } from '@ionic/storage';
-// import { DataService2 } from './services/data-service';
+import { GescolarUser, FirebaseUser, FirebaseClaims } from './models/data-models';
+import { DataService2 } from './services/data-service';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,8 @@ import { Storage } from '@ionic/storage';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
+  firstTime: false;
+  goPage: string;
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
@@ -23,7 +26,7 @@ export class AppComponent {
     private router: Router,
     public authService: AuthService,
     private storage: Storage,
-    // public ds: DataService2
+    public ds: DataService2
   ) {
     this.initializeApp();
   }
@@ -31,30 +34,43 @@ export class AppComponent {
   initializeApp() {
     this.platform.ready().then(() => {
       this.splashScreen.hide();
-      this.statusBar.styleDefault();
+      this.statusBar.backgroundColorByHexString('#f4f5f8'); // .styleDefault(); // .styleLightContent();
       // this.authService.estado();
-      this.authService.afAuth.authState.subscribe(state => {
-        console.log(state);
-        if (state) {
-          this.router.navigate(['/home']);
+      const este = this;
+      this.storage.get('user').then((response) => {
+        if (response) {
+          this.goPage = 'login';
         } else {
-          this.storage.get('user').then((response) => {
-            if (response) {
-              this.router.navigate(['/login']);
+          this.goPage = '';
+        }
+      });
+      this.authService.afAuth.authState.subscribe(state => {
+        // console.log(state);
+        if (state) {
+          firebase.database().ref('.info/connected').on('value', (snap) => {
+            console.log(snap.val());
+            if (snap.val() === true) {
+              console.log('Estoy Online');
+              // console.log('Database:' + este.ds.database);
+              este.authService.onLoginSuccessWeb(state);
             } else {
-              this.router.navigate(['']);
+              console.log('Estoy Offline');
+              // console.log('Database: ' + este.ds.database);
+              este.authService.onOffline(state);
             }
           });
+        } else {
+          this.router.navigate([this.goPage]);
         }
       });
     });
   }
   logout() {
     this.authService.logout();
-    this.router.navigate(['/login']);
+    this.router.navigate(['login']);
   }
   page(page) {
-    this.router.navigate(['/' + page]);
+    this.router.navigate([page]);
   }
   /* initializeApp() {
     this.platform.ready().then(() => {

@@ -527,50 +527,20 @@
             this.uid = a.uid;
         }
     }
-    export class FirebaseUser {
-        public customClaims: any;
-        public disabled: boolean;
+    export class ProviderData {
         public displayName: string;
         public email: string;
-        public emailVerified: boolean;
-        public metadata: UserMetadata;
-        public passwordHash: string;
-        public passwordSalt: string;
         public phoneNumber: string;
         public photoURL: string;
-        public providerData: UserInfo;
-        public tenantId: string | null;
-        public tokensValidAfterTime: string;
+        public providerId: string;
         public uid: string;
         constructor(a: any) {
-            this.customClaims = a.customClaims;
-            this.disabled = a.disabled;
-            this.displayName = a.displayName;
-            this.email = a.email;
-            this.emailVerified = a.emailVerified;
-            this.metadata = a.metadata;
-            this.passwordHash = a.passwordHash;
-            this.passwordSalt = a.passwordSalt;
-            this.phoneNumber = a.phoneNumber;
-            this.photoURL = a.photoURL;
-            this.providerData = a.providerData;
-            this.tenantId = a.tenantId;
-            this.tokensValidAfterTime = a.tokensValidAfterTime;
-            this.uid = a.uid;
-        }
-    }
-// ---- GescolarUser ------------
-    export class Relaciones extends GsuiteRelations {
-        fecha: Date; // fecha de creacion
-        uid: string; // uid del usuario 'acudiente' del 'estudiante'
-        activo: boolean; // true, si es esta activo en la institución
-        acudiente: boolean; // define si el acudiente
-        constructor(a: any) {
-            super(a);
-            this.fecha = new Date();
-            this.uid = a.uid;
-            this.activo = a.activo;
-            this.acudiente = true;
+            this.displayName = a[0].displayName;
+            this.email = a[0].email;
+            this.phoneNumber = a[0].phoneNumber;
+            this.photoURL = a[0].photoURL;
+            this.providerId = a[0].providerId;
+            this.uid = a[0].uid;
         }
     }
     export class Claims {
@@ -583,15 +553,15 @@
         public Docente: boolean;
         public Estudiante: boolean;
         public Acudiente: boolean;
-        constructor() {
-            this.Super = false;
-            this.Rector = false;
-            this.Admin = false;
-            this.Auxiliar = false;
-            this.Coordinador = false;
-            this.Docente = false;
-            this.Estudiante = false;
-            this.Acudiente = false;
+        constructor(a?: any) {
+            this.Super = ((a) ? a.Super : false);
+            this.Rector = ((a) ? a.Rector : false);
+            this.Admin = ((a) ? a.Admin : false);
+            this.Auxiliar = ((a) ? a.Auxiliar : false);
+            this.Coordinador = ((a) ? a.Coordinador : false);
+            this.Docente = ((a) ? a.Docente : false);
+            this.Estudiante = ((a) ? a.Estudiante : false);
+            this.Acudiente = ((a) ? a.Acudiente : false);
         }
         Rol(): roles {
             for (const claim in this) {
@@ -628,6 +598,105 @@
                 }
             }
             return 'Estudiante';
+        }
+    }
+    export class FirebaseClaims extends Claims {
+        public name: string;
+        public picture: string;
+        public iss: string;
+        public aud: string;
+        public auth_time: number;
+        public user_id: string;
+        public sub: string;
+        public iat: number;
+        public exp: number;
+        public email: string;
+        public email_verified: boolean;
+        constructor(a: any) {
+            super(a);
+            this.name = a.name;
+            this.picture = a.picture;
+            this.iss = a.iss;
+            this.aud = a.aud;
+            this.auth_time = a.auth_time;
+            this.user_id = a.user_id;
+            this.sub = a.sub;
+            this.iat = a.iat;
+            this.exp = a.exp;
+            this.email = a.email;
+            this.email_verified = a.email_verified;
+        }
+    }
+    export class FirebaseFullUser {
+        public customClaims: any;
+        public disabled: boolean;
+        public displayName: string;
+        public email: string;
+        public emailVerified: boolean;
+        public metadata: UserMetadata;
+        public passwordHash: string;
+        public passwordSalt: string;
+        public phoneNumber: string;
+        public photoURL: string;
+        public providerData: UserInfo;
+        public tenantId: string | null;
+        public tokensValidAfterTime: string;
+        public uid: string;
+        constructor(a: any) {
+            this.customClaims = a.customClaims;
+            this.disabled = a.disabled;
+            this.displayName = a.displayName;
+            this.email = a.email;
+            this.emailVerified = a.emailVerified;
+            this.metadata = a.metadata;
+            this.passwordHash = a.passwordHash;
+            this.passwordSalt = a.passwordSalt;
+            this.phoneNumber = a.phoneNumber;
+            this.photoURL = a.photoURL;
+            this.providerData = a.providerData;
+            this.tenantId = a.tenantId;
+            this.tokensValidAfterTime = a.tokensValidAfterTime;
+            this.uid = a.uid;
+        }
+    }
+    export class FirebaseUser {
+        public customClaims: any;
+        public disabled: boolean;
+        public displayName: string;
+        public email: string;
+        public emailVerified: boolean;
+        public metadata: UserMetadata;
+        public phoneNumber: string;
+        public photoURL: string;
+        public providerData: ProviderData;
+        public tenantId?: string | null;
+        public uid: string;
+        constructor(a: any) {
+            this.customClaims = a.customClaims;
+            this.disabled = a.disabled;
+            this.displayName = a.displayName;
+            this.email = a.email;
+            this.emailVerified = a.emailVerified;
+            this.metadata = a.metadata;
+            this.phoneNumber = a.phoneNumber;
+            this.photoURL = a.photoURL;
+            this.providerData = a.providerData;
+            this.tenantId = a.tenantId;
+            this.uid = a.uid;
+        }
+    }
+// ---- GescolarUser ------------
+    export class Relaciones extends GsuiteRelations {
+        fecha: Date; // fecha de creacion
+        uid: string; // uid del usuario 'acudiente' del 'estudiante'
+        activo: boolean; // true, si es esta activo en la institución
+        acudiente: boolean; // define si el acudiente
+        constructor(a: any) {
+            super(a);
+            this.fecha = new Date();
+            this.uid = a.uid;
+            this.activo = a.activo;
+            this.acudiente = true;
         }
     }
     export class GescolarUser {
@@ -667,12 +736,12 @@
                 this.direcciones = user.addresses;
                 this.email = user.primaryEmail;
             } else if (user instanceof FirebaseUser) {
-                const c = new Claims();
-                Object.keys(user.customClaims).forEach(i => {
-                    if (typeof c[i as keyof Claims] !== 'undefined') {
-                        c[i as keyof Claims] = user.customClaims[i];
-                    }
-                });
+                const c = new Claims(user.customClaims);
+                // Object.keys(user.customClaims).forEach(i => {
+                //     if (typeof c[i as keyof Claims] !== 'undefined') {
+                //         c[i as keyof Claims] = user.customClaims[i];
+                //     }
+                // });
                 this.claims = c;
                 this.uid =  user.uid;
                 this.rol =  c.Rol();

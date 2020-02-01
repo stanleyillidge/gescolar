@@ -162,10 +162,10 @@ export class InstProfilePage implements OnInit {
     // si no estan en ninguno de los medios, muestro el formulario vacio
     if (!this.ds.database.institucion) {
       // console.log('No estan almacenados localmente, lo descargaré');
-      this.ds.getDatabase('institucion').then((a) => {
+      this.ds.loadDatabaseChild('institucion').then((a) => {
         if (a) {este.showInstitucion(); } else { este.instOn = true; }
       });
-      this.ds.getDatabase('sedes').then((a) => {
+      this.ds.loadDatabaseChild('sedes').then((a) => {
         if (a) {este.showSedes(); } else { este.sedesOn = true; }
       });
     } else {

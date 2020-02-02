@@ -34,7 +34,8 @@ export class AppComponent {
   initializeApp() {
     this.platform.ready().then(() => {
       this.splashScreen.hide();
-      this.statusBar.backgroundColorByHexString('#f4f5f8'); // .styleDefault(); // .styleLightContent();
+      this.statusBar.backgroundColorByName('white');
+      this.statusBar.styleDefault();
       // this.authService.estado();
       const este = this;
       this.storage.get('user').then((response) => {

@@ -803,7 +803,7 @@
 // ---- Local DataBase ----------
     export class LocalDatabase {
         // public Matriculas: { [key: string]: Matricula };
-        // public usuarios: { [key: string]: GescolarUser };
+        public usuarios?: { [key: string]: GescolarUser };
         public authUser?: AuthUser | null;
         public logo?: string;
         public institucion?: { [key: string]: Institucion };

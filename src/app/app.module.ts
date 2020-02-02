@@ -55,7 +55,7 @@ const firebaseConfig = {
     AngularFireDatabaseModule,
     IonicStorageModule.forRoot({
       name: 'GescolarDB',
-driverOrder: ['indexeddb', 'sqlite', 'websql']
+      driverOrder: ['sqlite', 'indexeddb'] // 'indexeddb', 'sqlite', 'websql'
     }),
     BrowserAnimationsModule,
     ComponentsModule,

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Platform } from '@ionic/angular';
+import { Platform, LoadingController } from '@ionic/angular';
 import { Institucion, Sedes } from 'src/app/models/data-models';
 import colombia from 'src/app/models/colombia.json';
 import { FormControl, FormGroup, FormBuilder, FormArray } from '@angular/forms';
@@ -115,6 +115,8 @@ export class InstProfilePage implements OnInit {
   instOn = false;
   sedesOn = false;
 
+  loading: any;
+
   constructor(
     public plataforma: Platform,
     public ds: DataService2,
@@ -123,6 +125,7 @@ export class InstProfilePage implements OnInit {
     public camera: Camera,
     public imageResizer: ImageResizer,
     public file: File,
+    public loadingController: LoadingController,
   ) {
     const este = this;
     // console.log(this.plataforma.is('android'));
@@ -134,30 +137,25 @@ export class InstProfilePage implements OnInit {
     this.ds.observer['sedes'].subscribe((newData) => {
       este.ngOnInit();
     });
-    /* if (!this.ds.database.institucion) {
-      this.ds.loadDatabase('institucion');
-    }
-    if (!this.ds.database.sedes) {
-      this.ds.loadDatabase('sedes');
-    } */
-    /* if (this.ds.observer) {
-      if (this.ds.observer['institucion']) {
-        this.ds.observer['institucion'].subscribe((newData) => {
-          este.ngOnInit();
-        });
-      }
-      if (this.ds.observer['sedes']) {
-        this.ds.observer['sedes'].subscribe((newData) => {
-          este.ngOnInit();
-        });
-      }
-    } */
   }
   async ngOnInit() {
     const este = this;
-    // this.user = await this.auth.getUser();
     console.log(este.ds.database);
-    // setTimeout(() => {
+    /* setTimeout(async () => {
+      console.log('loading', this.loading);
+      if (typeof this.loading !== 'undefined') {
+        console.log('loading2', this.loading);
+        this.loading.dismiss();
+        return;
+      }
+    }, 100);
+    this.loading = await this.loadingController.create({
+      // message: 'Trabajando...',
+      spinner: 'dots',
+      translucent: true,
+      cssClass: 'backRed'
+    });
+    await this.loading.present(); */
     // verifico la existencia de los datos necesarios localmente o en internet si no estan locales
     // si no estan en ninguno de los medios, muestro el formulario vacio
     if (!this.ds.database.institucion) {
@@ -173,7 +171,9 @@ export class InstProfilePage implements OnInit {
       este.showInstitucion();
       este.showSedes();
     }
-    // }, 300);
+    /* if (typeof this.loading !== 'undefined') {
+      this.loading.dismiss();
+    } */
   }
   showInstitucion() {
     const este = this;

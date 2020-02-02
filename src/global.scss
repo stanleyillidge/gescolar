@@ -26,3 +26,26 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 @import '~magic.css/dist/magic.min.css';
+// --------------------------
+ion-loading.backRed {
+    --spinner-color:var(--ion-color-primary);
+    transform: scale(2) !important;
+    font-size: small;
+    .loading-wrapper{
+      background: transparent !important;
+      box-shadow: none !important;
+    //   transform: scale(2) !important;
+      color:white !important;
+      width: -webkit-fill-available;
+      .loading-spinner.sc-ion-loading-md + .loading-content.sc-ion-loading-md {
+        position: absolute;
+        width: 50%;
+        margin: -2.5em 0 0 1em;
+        font-size: small;
+      }
+    }
+    ion-backdrop{
+      opacity: 0.34 !important;
+      // filter: blur(1em)
+    }
+}

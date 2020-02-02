@@ -52,7 +52,7 @@ export class AuthService {
             // console.log('Geuser que ingresa:', u.val());
             este.user = new GescolarUser(u.val());
             // console.log('Usuario:', este.user);
-            este.storage.set('user', JSON.stringify(este.user)).then(() => {
+            este.storage.set('user', este.user).then(() => {
                 console.log('Datos de usuario guardados localmente', este.user);
                 resolve(u.val());
             });

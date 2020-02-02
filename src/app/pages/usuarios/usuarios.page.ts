@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/AuthService';
+import { DataService2 } from 'src/app/services/data-service';
 
 @Component({
   selector: 'app-usuarios',
@@ -12,18 +13,33 @@ export class UsuariosPage implements OnInit {
 
   constructor(
     public router: Router,
+    public ds: DataService2,
     public authService: AuthService,
     public actionSheetController: ActionSheetController
   ) { }
-  async ionViewDidEnter() {
-    const user: firebase.User = await this.authService.getUser();
-    console.log(user);
-  }
   viewUser(page: string, i: number, edit: boolean) {
     console.log(page, i, edit);
-    this.router.navigate(['/' + page, { id: i }]);
+    this.router.navigate([page, { id: i }]);
   }
-  ngOnInit() {
+  async ngOnInit() {
+    const este = this;
+    const user = this.ds.getUser;
+    console.log(user, este.ds.database);
+    // verifico la existencia de los datos necesarios localmente o en internet si no estan locales
+    // si no estan en ninguno de los medios, muestro el formulario vacio
+    if (!this.ds.database.usuarios) {
+      // console.log('No estan almacenados localmente, los descargaré');
+      this.ds.roles.forEach(element => {
+        this.ds.loadDatabaseChild(element)
+        .then((a) => {
+          // if (a) {este.showInstitucion(); } else { este.instOn = true; }
+          console.log(a);
+        });
+      });
+    } else {
+      // console.log('Si estan almacenados localmente');
+      console.log(este.ds.database['usuarios[116675950093144953544]']);
+    }
   }
   async presentActionSheet() {
     const actionSheet = await this.actionSheetController.create({

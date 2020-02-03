@@ -752,19 +752,19 @@
                 this.email =  user.email;
                 this.photoURL =  user.photoURL;
             } else {
-                this.uid = user.uid;
-                this.rol = user.rol;
-                this.claims = user.claims;
-                this.creacion = user.creacion;
-                this.sede = user.sede;
-                this.activo = user.activo;
-                this.nombre = user.nombre;
-                this.fechaNacim = user.fechaNacim;
-                this.documentoTipo = user.documentoTipo;
-                this.documentoNum = user.documentoNum;
-                this.telefonos = user.telefonos;
-                this.direcciones = user.direcciones;
-                this.email = user.email;
+                this.uid = ((user.uid) ? user.uid : '');
+                this.rol = ((user.rol) ? user.rol : '');
+                this.claims = ((user.claims) ? user.claims : '');
+                this.creacion = ((user.creacion) ? user.creacion : '');
+                this.sede = ((user.sede) ? user.sede : '');
+                this.activo = ((user.activo) ? user.activo : '');
+                this.nombre = ((user.nombre) ? user.nombre : '');
+                this.fechaNacim = ((user.fechaNacim) ? user.fechaNacim : '');
+                this.documentoTipo = ((user.documentoTipo) ? user.documentoTipo : '');
+                this.documentoNum = ((user.documentoNum) ? user.documentoNum : '');
+                this.telefonos = ((user.telefonos) ? user.telefonos : '');
+                this.direcciones = ((user.direcciones) ? user.direcciones : '');
+                this.email = ((user.email) ? user.email : '');
                 this.token =  ((user.token) ? user.token : '');
                 this.password =  ((user.password) ? user.password : '');
                 this.photoURL = ((user.photoURL) ? user.photoURL : '');
@@ -803,7 +803,7 @@
 // ---- Local DataBase ----------
     export class LocalDatabase {
         // public Matriculas: { [key: string]: Matricula };
-        public usuarios?: { [key: string]: GescolarUser };
+        public usuarios: { [key: string]: GescolarUser };
         public authUser?: AuthUser | null;
         public logo?: string;
         public institucion?: { [key: string]: Institucion };

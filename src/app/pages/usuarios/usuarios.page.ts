@@ -3,6 +3,7 @@ import { ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/AuthService';
 import { DataService2 } from 'src/app/services/data-service';
+import { GescolarUser } from 'src/app/models/data-models';
 
 @Component({
   selector: 'app-usuarios',
@@ -22,6 +23,7 @@ export class UsuariosPage implements OnInit {
     this.router.navigate([page, { id: i }]);
   }
   async ngOnInit() {
+    // this.otro();
     const este = this;
     const user = this.ds.getUser;
     console.log(user, este.ds.database);
@@ -38,8 +40,15 @@ export class UsuariosPage implements OnInit {
       });
     } else {
       // console.log('Si estan almacenados localmente');
-      console.log(este.ds.database['usuarios[116675950093144953544]']);
+      const filter = {nombre: 'Nombre1', sede: 'Celia'};
+      console.log(this.multiFilter(este.ds.database.usuarios, filter));
     }
+  }
+  multiFilter(obj, filters) {
+    const array = Object.values(obj);
+    return array.filter(o =>
+        Object.keys(filters).every(k =>
+            [].concat(filters[k]).some(v => o[k].toLowerCase().includes(v.toLowerCase()))));
   }
   async presentActionSheet() {
     const actionSheet = await this.actionSheetController.create({

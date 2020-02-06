@@ -23,14 +23,17 @@ export class InicioPage implements OnInit {
     private authService: AuthService
   ) {}
   ngOnInit() {
+    const este = this;
     setTimeout(() => {
       this.menuCtrl.enable(true).then((r) => {
         console.log(r);
       });
       this.ds.initObservers();
-      this.user = this.ds.getUser;
-      this.test = true;
-      console.log(this.user);
+      this.ds.getUser().then((u) => {
+        este.user = new GescolarUser(u);
+        este.test = true;
+        console.log(este.user);
+      });
     }, 300);
   }
   async inicio() {}

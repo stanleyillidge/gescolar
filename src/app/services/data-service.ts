@@ -20,7 +20,7 @@ import { GescolarUser, FirebaseUser, Institucion, Sedes, LocalDatabase, AuthUser
 export class DataService2 {
     // private _usuarios = new BehaviorSubject<GescolarUser[]>([]);
     // public productosObserver: ReplaySubject<any> = new ReplaySubject<any>();
-    database: LocalDatabase = {};
+    database: LocalDatabase;
     nodos: string[] = ['institucion', 'sedes'];
     observer: { [key: string]: ReplaySubject<any> } = {};
     uid: string;
@@ -69,8 +69,9 @@ export class DataService2 {
                             //     datax = Object(JSON.stringify(val));
                             // }
                             console.log('El usuario', uid, 'SI tiene datos almacenados localmente', val);
-                            this.database = val;
-                            this.database.authUser = new AuthUser(val.authUser);
+                            this.database = new LocalDatabase(val);
+                            console.log(this.database);
+                            // this.database.authUser = new AuthUser(val.authUser);
                             if (!this.database.authUser.historial) {
                                 // console.log('No tiene historial');
                                 this.database.authUser.historial = [{inicio: new Date()}];
@@ -85,7 +86,9 @@ export class DataService2 {
                         } else {
                             // console.log('El usuario', uid, 'NO tiene datos almacenados localmente');
                             // se obtiene la data completa del usuario que ingresa por primera vez
-                            este.database.authUser =  new AuthUser(this.user);
+                            this.database = new LocalDatabase({authUser: this.user});
+                            console.log(this.user, este.database);
+                            // este.database.authUser =  new AuthUser(this.user);
                             if (!this.database.authUser.historial) {
                                 // console.log('No tiene historial');
                                 this.database.authUser.historial = [{inicio: new Date()}];
@@ -370,10 +373,20 @@ export class DataService2 {
         page(page) {
             this.router.navigate(['/' + page]);
         }
-        get getUser(): GescolarUser {
-            this.database.authUser =  new AuthUser(this.user);
-            this.storage.set(this.user.uid, this.database);
-            return this.user;
+        getUser() {
+            return new Promise((resolve, reject) => {
+                if (this.user) {
+                    resolve(this.user);
+                } else {
+                    this.storage.get('user').then(async (u) => {
+                        if (u) {
+                            // console.log(JSON.parse(u));
+                            this.user = new GescolarUser(u);
+                            resolve(this.user);
+                        }
+                    });
+                }
+            });
         }
         getAuthUser() {
             return new Promise((resolve, reject) => {

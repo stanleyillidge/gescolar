@@ -803,13 +803,49 @@
 // ---- Local DataBase ----------
     export class LocalDatabase {
         // public Matriculas: { [key: string]: Matricula };
-        public usuarios: { [key: string]: GescolarUser };
+        public usuarios?: { [key: string]: GescolarUser };
         public authUser?: AuthUser | null;
         public logo?: string;
         public institucion?: { [key: string]: Institucion };
         public sedes?: { [key: string]: Sedes };
         constructor(a: any) {
-            this.authUser = ((a instanceof AuthUser) ? a : null);
+            this.authUser = ((a.authUser) ? new AuthUser(a.authUser) : null);
+            if (a.usuarios) {
+                if (!this.usuarios) {
+                    this.usuarios = {};
+                }
+                const obj = a.usuarios;
+                const keys = Object.keys(obj);
+                keys.forEach(key => {
+                    this.usuarios[key] = new GescolarUser(obj[key]);
+                });
+            }
+            if (a.institucion) {
+                if (!this.institucion) {
+                    this.institucion = {};
+                }
+                const obj = a.institucion;
+                const keys = Object.keys(obj);
+                keys.forEach(key => {
+                    this.institucion[key] = new Institucion(obj[key]);
+                });
+            }
+            if (a.sedes) {
+                if (!this.sedes) {
+                    this.sedes = {};
+                }
+                const obj = a.sedes;
+                const keys = Object.keys(obj);
+                keys.forEach(key => {
+                    this.sedes[key] = new Sedes(obj[key]);
+                });
+            }
+        }
+        MultiFilter(obj, filters) {
+            const array = Object.values(obj);
+            return array.filter(o =>
+                Object.keys(filters).every(k =>
+                    [].concat(filters[k]).some(v => o[k].toLowerCase().includes(v.toLowerCase()))));
         }
     }
 // ------------------------------

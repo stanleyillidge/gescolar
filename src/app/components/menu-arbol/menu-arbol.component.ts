@@ -1,6 +1,6 @@
 import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component, Injectable} from '@angular/core';
+import {Component, Injectable, Input, OnInit} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 import {BehaviorSubject} from 'rxjs';
 
@@ -55,10 +55,11 @@ export class ChecklistDatabase {
     this.initialize();
   }
 
-  initialize() {
+  initialize(a?: any) {
     // Build the tree nodes from Json object. The result is a list of `TodoItemNode` with nested
     //     file node as children.
-    const data = this.buildFileTree(TREE_DATA, 0);
+    const b = ((a) ? a : TREE_DATA);
+    const data = this.buildFileTree(b, 0);
 
     // Notify the change.
     this.dataChange.next(data);
@@ -109,10 +110,10 @@ export class ChecklistDatabase {
   styleUrls: ['./menu-arbol.component.scss'],
   providers: [ChecklistDatabase]
 })
-export class MenuArbolComponent {
+export class MenuArbolComponent implements OnInit {
   /** Map from flat node to nested node. This helps us finding the nested node to be modified */
   flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
-
+  @Input('datos') datos;
   /** Map from nested node to flattened node. This helps us to keep the same object for selection */
   nestedNodeMap = new Map<TodoItemNode, TodoItemFlatNode>();
 
@@ -136,12 +137,18 @@ export class MenuArbolComponent {
       this.isExpandable, this.getChildren);
     this.treeControl = new FlatTreeControl<TodoItemFlatNode>(this.getLevel, this.isExpandable);
     this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-
+    
     _database.dataChange.subscribe(data => {
       this.dataSource.data = data;
     });
   }
-
+  ngOnInit() {
+    console.log(this.datos);
+    this._database.initialize(this.datos);
+    this._database.dataChange.subscribe(data => {
+      this.dataSource.data = data;
+    });
+  }
   getLevel = (node: TodoItemFlatNode) => node.level;
 
   isExpandable = (node: TodoItemFlatNode) => node.expandable;

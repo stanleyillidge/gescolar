@@ -424,6 +424,17 @@ export class DataService2 {
         get newKey() {
             return firebase.database().ref().push().key;
         }
+        getDataBaseChildArray(child: string) {
+            const array = [];
+            return new Promise((resolve, reject) => {
+                for (const i in this.database[child]) {
+                    if (this.database[child].hasOwnProperty(i)) {
+                        array.push(this.database[child][i]);
+                    }
+                }
+                resolve(array);
+            });
+        }
         iteraModelo(modelo: any, data: any) {
             // console.log(modelo, data);
             Object.keys(modelo).forEach(i => {

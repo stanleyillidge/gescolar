@@ -13,25 +13,15 @@
   <ion-grid>
     <ion-row>
       <ion-col>
-        <!-- <ion-row>
-          <ion-col class="ion-padding menu1" size="3"
-            size-xs="12"
-            size-sm="12"
-            size-md="12"
-            size-lg="12"
-            size-xl="12">
-            <menu-arbol *ngIf=data [datos]=data></menu-arbol>
-          </ion-col>
-        </ion-row> -->
         <ion-row>
-          <ion-col class="ion-padding menu2" size="3"
+          <ion-col class="ion-padding" size="3"
             size-xs="12"
             size-sm="12"
             size-md="12"
             size-lg="12"
             size-xl="12">
             <!-- <menu-arbol *ngIf=data [datos]=data></menu-arbol> -->
-            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="example-tree">
+            <mat-tree [dataSource]="treeData" [treeControl]="treeControl" class="example-tree">
               <!-- This is the tree node template for leaf nodes -->
               <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 <li class="mat-tree-node">
@@ -44,7 +34,7 @@
                 </li>
               </mat-tree-node>
               <!-- This is the tree node template for expandable nodes -->
-              <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+              <mat-nested-tree-node matTreeNodeToggle *matTreeNodeDef="let node; when: hasChild">
                 <li>
                   <div class="mat-tree-node">
                     <button mat-icon-button matTreeNodeToggle
@@ -73,7 +63,91 @@
         size-md="12"
         size-lg="9"
         size-xl="9">
-        <ion-grid>
+        <ion-grid [hidden]="!plataforma.desktop">
+          <ion-row>
+            <mat-form-field class="filtro0">
+              <mat-label class="filtro">Filter</mat-label>
+              <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
+            </mat-form-field>
+            
+            <table mat-table [dataSource]="tableData" matSort>
+              
+              <ng-container matColumnDef="select">
+                <th  [style.max-width.px]="myInnerWidth" class="foto" mat-header-cell *matHeaderCellDef mat-sort-header></th>
+                <td class="foto" mat-cell *matCellDef="let row">
+                  <img *ngIf=row.photoURL mat-card-avatar src="row.photoURL">
+                  <img *ngIf=!row.photoURL mat-card-avatar src="assets/images/user.png">
+                </td>
+                <!-- <th  [style.max-width.px]="myInnerWidth" class="check" mat-header-cell *matHeaderCellDef>
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                                [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                [aria-label]="checkboxLabel()">
+                  </mat-checkbox>
+                </th>
+                <td class="check" mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null"
+                                [checked]="selection.isSelected(row)"
+                                [aria-label]="checkboxLabel(row)">
+                  </mat-checkbox>
+                </td> -->
+              </ng-container>
+              
+              <ng-container matColumnDef="nombre">
+                <th  [style.max-width.px]="myInnerWidth" class="nombre" mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+                <td class="nombre" mat-cell *matCellDef="let row"> {{row.nombre}} </td>
+              </ng-container>
+              
+              <ng-container matColumnDef="email">
+                <th  [style.max-width.px]="myInnerWidth" class="email" mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+                <td class="email" mat-cell *matCellDef="let row"> {{row.email}} </td>
+              </ng-container>
+              
+              <ng-container matColumnDef="cargo">
+                <th  [style.max-width.px]="myInnerWidth" class="cargo" mat-header-cell *matHeaderCellDef mat-sort-header> Cargo </th>
+                <td class="cargo" mat-cell *matCellDef="let row"> {{row.cargo}} </td>
+              </ng-container>
+              
+              <ng-container matColumnDef="telefono">
+                <th  [style.max-width.px]="myInnerWidth" class="telefono" mat-header-cell *matHeaderCellDef mat-sort-header> Telefono </th>
+                <td class="telefono" mat-cell *matCellDef="let row"> {{row.telefono}} </td>
+              </ng-container>
+          
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                  (click)="rowSelect(row)">
+              </tr>
+            </table>
+
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+          </ion-row>
+        </ion-grid>
+        <ion-grid [hidden]="plataforma.desktop">
+          <cdk-virtual-scroll-viewport itemSize="3" class="example-viewport"  [style.height.px]="myInnerHeight">
+            <div *cdkVirtualFor="let user of users" class="example-item">
+              <mat-card class="example-card">
+                <mat-card-header>
+                  <img *ngIf=user.photoURL mat-card-avatar src="user.photoURL">
+                  <img *ngIf=!user.photoURL mat-card-avatar src="assets/images/user.png">
+                  <mat-card-title>{{user.nombre}}</mat-card-title>
+                  <mat-card-subtitle>{{user.cargo}}</mat-card-subtitle>
+                  <i class="material-icons">more_vert</i>
+                </mat-card-header>
+              </mat-card>
+            </div>
+          </cdk-virtual-scroll-viewport>
+          <!-- <ion-row>
+            <h3 mat-subheader>Ususarios</h3>
+            <mat-list>
+              <mat-list-item class="filtro" *ngFor="let user of users">
+                <h4 mat-line>{{user.nombre}}</h4>
+                <p mat-line> {{user.cargo}} </p>
+              </mat-list-item>
+            </mat-list>
+          </ion-row> -->
+        </ion-grid>
+        <!-- <ion-grid>
           <ion-row>
             <ion-col size="12"
             size-xs="12"
@@ -93,7 +167,7 @@
               </ion-card>
             </ion-col>
           </ion-row>
-        </ion-grid>
+        </ion-grid> -->
       </ion-col>
     </ion-row>
   </ion-grid>

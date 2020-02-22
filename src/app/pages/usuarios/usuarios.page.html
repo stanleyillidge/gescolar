@@ -138,11 +138,15 @@
                   <img class="image" *ngIf=user.photoURL mat-card-avatar src="user.photoURL">
                   <img class="image" *ngIf=!user.photoURL mat-card-avatar src="assets/images/user.png">
                   <mat-card-title-group>
-                    <mat-card-title [style.width.px]="myInnerWidth * 38">{{user.nombre}}</mat-card-title>
+                    <mat-card-title [style.width.px]="myInnerWidth * f">{{user.nombre}}</mat-card-title>
                     <mat-card-subtitle>{{user.cargo}}</mat-card-subtitle>
                   </mat-card-title-group>
                   <div fxFlex></div>
-                  <i class="material-icons">more_vert</i>
+                  <div class="vmedio">
+                    <button mat-button>
+                      <i class="material-icons">more_vert</i>
+                    </button>
+                  </div>
                 </mat-card-header> 
               </mat-card>
             </div>

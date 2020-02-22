@@ -63,13 +63,19 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding: 0 5% 0 0% !important;
+        // padding: 0 5% 0 0% !important;
     }
     .image {
         margin: 0 -20px 0 -5px;
         border-radius: 50%;
         flex-shrink: 0;
         object-fit: cover;
+    }
+    .vmedio {
+        align-self: center;
+        padding: 0 1em 0 0;
+        width: 3em;
+        min-width: 3em;
     }
     @media (min-width: 991px) { // vista web
         .mat-card-avatar {

@@ -132,6 +132,7 @@ export class UsuariosPage implements OnInit {
   myInnerWidth: number;
   test: boolean;
   user: GescolarUser;
+  f: number;
   constructor(
     public platform: Platform,
     public router: Router,
@@ -155,10 +156,15 @@ export class UsuariosPage implements OnInit {
     });
     this.displayedColumns = a;
     if (windowsize > 300 && windowsize < 500) {
+      if (windowsize < 400) {
+        this.f = window.innerWidth * 0.09;
+      } else {
+        this.f = 38;
+      }
+      this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.27);
       this.plataforma.android = true;
       this.plataforma.cordova = true;
       this.plataforma.desktop = false;
-      this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.27);
       console.log(this.users);
       // this.hideColum('telefono');
       // this.hideColum('email');
@@ -191,6 +197,7 @@ export class UsuariosPage implements OnInit {
     const este = this;
     this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.27);
     this.myInnerWidth = (window.innerWidth * 0.015);
+    this.f = 40;
     this.plataforma.desktop = this.platform.is('desktop');
     this.plataforma.android = this.platform.is('android');
     this.plataforma.cordova = this.platform.is('cordova');

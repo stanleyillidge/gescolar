@@ -1,4 +1,9 @@
 // --- table -------------------
+    ion-avatar {
+        width: 2.3em;
+        height: 2.3em;
+        margin: 0 1em 0 0;
+    }
     .example-viewport {
         height: 0px;
         width: 100%;
@@ -12,7 +17,7 @@
         margin: 5px 0 0 0;
     }
     .mat-card-avatar {
-        height: 4em;
+        height: 3.3em;
         width: 4em;
     }
     table {
@@ -54,6 +59,17 @@
     }
     .mat-card-header .mat-card-title {
         font-size: 1em;
+        word-break: break-word;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 0 5% 0 0% !important;
+    }
+    .image {
+        margin: 0 -20px 0 -5px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        object-fit: cover;
     }
     @media (min-width: 991px) { // vista web
         .mat-card-avatar {

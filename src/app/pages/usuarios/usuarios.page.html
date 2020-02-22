@@ -5,7 +5,10 @@
       <ion-menu-button></ion-menu-button>
       <!-- <ion-back-button></ion-back-button> -->
     </ion-buttons>
-    <!-- <ion-searchbar showCancelButton="focus" placeholder="Usuarios"></ion-searchbar> -->
+    <ion-searchbar showCancelButton="focus" placeholder="Usuarios"></ion-searchbar>
+    <ion-avatar *ngIf="test === true" slot="end" (click)="ds.page('profile')">
+      <img src={{user.photoURL}}>
+    </ion-avatar>
   </ion-toolbar>
 </ion-header>
 
@@ -21,11 +24,9 @@
             size-lg="12"
             size-xl="12">
             <!-- <menu-arbol *ngIf=data [datos]=data></menu-arbol> -->
-            <mat-tree [dataSource]="treeData" [treeControl]="treeControl" class="example-tree">
-              <!-- This is the tree node template for leaf nodes -->
+            <mat-tree *ngIf=treeData [dataSource]="treeData" [treeControl]="treeControl" class="example-tree">
               <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 <li class="mat-tree-node">
-                  <!-- use a disabled button to provide padding for tree leaf -->
                   <button mat-icon-button disabled></button>
                   <mat-checkbox (click)="onClick()"
                                 [(ngModel)]="node.estado.checked"
@@ -33,7 +34,6 @@
                                 (change)="onChange(node)" >{{node.name}}</mat-checkbox>
                 </li>
               </mat-tree-node>
-              <!-- This is the tree node template for expandable nodes -->
               <mat-nested-tree-node matTreeNodeToggle *matTreeNodeDef="let node; when: hasChild">
                 <li>
                   <div class="mat-tree-node">
@@ -64,7 +64,7 @@
         size-lg="9"
         size-xl="9">
         <ion-grid [hidden]="!plataforma.desktop">
-          <ion-row>
+          <ion-row [hidden]=!tableData>
             <mat-form-field class="filtro0">
               <mat-label class="filtro">Filter</mat-label>
               <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
@@ -73,12 +73,12 @@
             <table mat-table [dataSource]="tableData" matSort>
               
               <ng-container matColumnDef="select">
-                <th  [style.max-width.px]="myInnerWidth" class="foto" mat-header-cell *matHeaderCellDef mat-sort-header></th>
+                <th [style.max-width.px]="myInnerWidth" class="foto" mat-header-cell *matHeaderCellDef mat-sort-header></th>
                 <td class="foto" mat-cell *matCellDef="let row">
                   <img *ngIf=row.photoURL mat-card-avatar src="row.photoURL">
                   <img *ngIf=!row.photoURL mat-card-avatar src="assets/images/user.png">
                 </td>
-                <!-- <th  [style.max-width.px]="myInnerWidth" class="check" mat-header-cell *matHeaderCellDef>
+                <!-- <th [style.max-width.px]="myInnerWidth" class="check" mat-header-cell *matHeaderCellDef>
                   <mat-checkbox (change)="$event ? masterToggle() : null"
                                 [checked]="selection.hasValue() && isAllSelected()"
                                 [indeterminate]="selection.hasValue() && !isAllSelected()"
@@ -95,22 +95,22 @@
               </ng-container>
               
               <ng-container matColumnDef="nombre">
-                <th  [style.max-width.px]="myInnerWidth" class="nombre" mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+                <th [style.max-width.px]="myInnerWidth" class="nombre" mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
                 <td class="nombre" mat-cell *matCellDef="let row"> {{row.nombre}} </td>
               </ng-container>
               
               <ng-container matColumnDef="email">
-                <th  [style.max-width.px]="myInnerWidth" class="email" mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
+                <th [style.max-width.px]="myInnerWidth" class="email" mat-header-cell *matHeaderCellDef mat-sort-header> Email </th>
                 <td class="email" mat-cell *matCellDef="let row"> {{row.email}} </td>
               </ng-container>
               
               <ng-container matColumnDef="cargo">
-                <th  [style.max-width.px]="myInnerWidth" class="cargo" mat-header-cell *matHeaderCellDef mat-sort-header> Cargo </th>
+                <th [style.max-width.px]="myInnerWidth" class="cargo" mat-header-cell *matHeaderCellDef mat-sort-header> Cargo </th>
                 <td class="cargo" mat-cell *matCellDef="let row"> {{row.cargo}} </td>
               </ng-container>
               
               <ng-container matColumnDef="telefono">
-                <th  [style.max-width.px]="myInnerWidth" class="telefono" mat-header-cell *matHeaderCellDef mat-sort-header> Telefono </th>
+                <th [style.max-width.px]="myInnerWidth" class="telefono" mat-header-cell *matHeaderCellDef mat-sort-header> Telefono </th>
                 <td class="telefono" mat-cell *matCellDef="let row"> {{row.telefono}} </td>
               </ng-container>
           
@@ -124,16 +124,26 @@
           </ion-row>
         </ion-grid>
         <ion-grid [hidden]="plataforma.desktop">
-          <cdk-virtual-scroll-viewport itemSize="3" class="example-viewport"  [style.height.px]="myInnerHeight">
+          <cdk-virtual-scroll-viewport *ngIf=users itemSize="3" class="example-viewport"  [style.height.px]="myInnerHeight">
             <div *cdkVirtualFor="let user of users" class="example-item">
               <mat-card class="example-card">
-                <mat-card-header>
+                <!-- <mat-card-header>
                   <img *ngIf=user.photoURL mat-card-avatar src="user.photoURL">
                   <img *ngIf=!user.photoURL mat-card-avatar src="assets/images/user.png">
                   <mat-card-title>{{user.nombre}}</mat-card-title>
                   <mat-card-subtitle>{{user.cargo}}</mat-card-subtitle>
+                  <i class="material-icons menu-fin">more_vert</i>
+                </mat-card-header> -->
+                <mat-card-header>
+                  <img class="image" *ngIf=user.photoURL mat-card-avatar src="user.photoURL">
+                  <img class="image" *ngIf=!user.photoURL mat-card-avatar src="assets/images/user.png">
+                  <mat-card-title-group>
+                    <mat-card-title [style.width.px]="myInnerWidth * 38">{{user.nombre}}</mat-card-title>
+                    <mat-card-subtitle>{{user.cargo}}</mat-card-subtitle>
+                  </mat-card-title-group>
+                  <div fxFlex></div>
                   <i class="material-icons">more_vert</i>
-                </mat-card-header>
+                </mat-card-header> 
               </mat-card>
             </div>
           </cdk-virtual-scroll-viewport>

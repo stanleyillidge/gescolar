@@ -130,6 +130,8 @@ export class UsuariosPage implements OnInit {
   // -------------------------------
   plataforma = {desktop: false, android: false, cordova: false};
   myInnerWidth: number;
+  test: boolean;
+  user: GescolarUser;
   constructor(
     public platform: Platform,
     public router: Router,
@@ -185,7 +187,6 @@ export class UsuariosPage implements OnInit {
     this.router.navigate([page, { id: i }]);
   }
   hasChild = (_: number, node: Node2) => !!node.children && node.children.length > 0;
-
   ngOnInit() {
     const este = this;
     this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.27);
@@ -193,48 +194,54 @@ export class UsuariosPage implements OnInit {
     this.plataforma.desktop = this.platform.is('desktop');
     this.plataforma.android = this.platform.is('android');
     this.plataforma.cordova = this.platform.is('cordova');
-    let user;
-    this.ds.getUser().then((u) => {
-      user = new GescolarUser(u);
-    });
-    // console.log(user, este.ds.database);
-    // obtengo las sedes de la base de datos
-    this.data = {Institucion:[]}; // defino el objeto sedes para cargar en el menu de arbol
-    this.users = [];
-    for (const i in this.ds.database.sedes) {
-      if (this.ds.database.sedes.hasOwnProperty(i)) {
-        this.data.Institucion.push(this.ds.database.sedes[i].nombre);
+    setTimeout(() => {
+      if (!this.ds.database) {
+        console.log('initObserver');
+        this.ds.initObservers();
       }
-    }
-    this.treeData.data = this.buildFileTree(this.data, 0);
-    let conta = 0;
-    for (const i in this.ds.database.usuarios) {
-      if (this.ds.database.usuarios.hasOwnProperty(i)) {
-        this.users.push(new UserDataTable(this.ds.database.usuarios[i], conta));
-        conta = conta + 1;
+      this.ds.getUser().then((u) => {
+        this.user = new GescolarUser(u);
+        este.test = true;
+      });
+      // console.log(user, este.ds.database);
+      // obtengo las sedes de la base de datos
+      this.data = {Institucion:[]}; // defino el objeto sedes para cargar en el menu de arbol
+      this.users = [];
+      for (const i in this.ds.database.sedes) {
+        if (this.ds.database.sedes.hasOwnProperty(i)) {
+          this.data.Institucion.push(this.ds.database.sedes[i].nombre);
+        }
       }
-    }
-    this.tableData = new MatTableDataSource(this.users);
-    this.tableData.paginator = this.paginator;
-    this.tableData.sort = this.sort;
-    console.log(this.treeData.data, this.tableData);
-    this.onResize();
-    // verifico la existencia de los datos necesarios localmente o en internet si no estan locales
-    // si no estan en ninguno de los medios, muestro el formulario vacio
-    if (!this.ds.database.usuarios) {
-      // console.log('No estan almacenados localmente, los descargaré');
-      this.load().then((a) => {
-        // console.log(this.ds.database);
-      });
-    } else {
-      // console.log('Si estan almacenados localmente');
-      const filter = {nombre: 'Nombre1', sede: 'Celia'};
-      // console.log(this.ds.database.MultiFilter(este.ds.database.usuarios, filter));
-      this.ds.getDataBaseChildArray('usuarios').then((a) => {
-        this.usuarios = a;
-        // console.log(this.usuarios);
-      });
-    }
+      this.treeData.data = this.buildFileTree(this.data, 0);
+      let conta = 0;
+      for (const i in this.ds.database.usuarios) {
+        if (this.ds.database.usuarios.hasOwnProperty(i)) {
+          this.users.push(new UserDataTable(this.ds.database.usuarios[i], conta));
+          conta = conta + 1;
+        }
+      }
+      this.tableData = new MatTableDataSource(this.users);
+      this.tableData.paginator = this.paginator;
+      this.tableData.sort = this.sort;
+      console.log(this.treeData.data, this.tableData);
+      this.onResize();
+      // verifico la existencia de los datos necesarios localmente o en internet si no estan locales
+      // si no estan en ninguno de los medios, muestro el formulario vacio
+      if (!this.ds.database.usuarios) {
+        // console.log('No estan almacenados localmente, los descargaré');
+        this.load().then((a) => {
+          // console.log(this.ds.database);
+        });
+      } else {
+        // console.log('Si estan almacenados localmente');
+        const filter = {nombre: 'Nombre1', sede: 'Celia'};
+        // console.log(this.ds.database.MultiFilter(este.ds.database.usuarios, filter));
+        this.ds.getDataBaseChildArray('usuarios').then((a) => {
+          this.usuarios = a;
+          // console.log(this.usuarios);
+        });
+      }
+    }, 300);
   }
   // --- Table component --------------
     applyFilter(event: Event) {

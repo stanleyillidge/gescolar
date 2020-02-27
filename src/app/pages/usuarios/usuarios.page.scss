@@ -1,3 +1,54 @@
+// --- Searchbar ---------------
+    .searchbar {
+        width: 40em;
+        left: 25%;
+        right: 25%;
+    }
+    .user-menu {
+        font-size: large;
+        margin: -3px 0.35em 0 0;
+    }
+    /* .user-menu0 {
+        text-transform: none !important;
+        --background: #424242;
+        --background-hover: #505050;
+    } */
+    .user-menu0{
+        text-transform: none !important;
+        // display: inline-block;
+        // text-decoration: none;
+        // color: rgba(152, 152, 152, 0.43);/*IconColor*/
+        // // width: 80px;
+        // // height: 80px;
+        // // line-height: 80px;
+        // // font-size: 40px;
+        // // border-radius: 50%;
+        // text-align: center;
+        // vertical-align: middle;
+        // overflow: hidden;
+        // font-weight: bold;
+        // --background: -webkit-linear-gradient(#e8e8e8 0%, #d6d6d6 100%);
+        // --background: linear-gradient(#e8e8e8 0%, #d6d6d6 100%);
+        --background-hover: #d6d6d6;
+        // text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
+        // box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), 0 2px 2px rgba(0, 0, 0, 0.19);
+        // border-bottom: solid 2px #b5b5b5;
+        --background: white;
+        box-shadow: 0px 5px 10px -5px rgba(0, 0, 0, 0.2);
+        color: #91CCC2;
+        transition:.3s;
+    }
+    // .user-menu0 .fa {
+    //     line-height: 80px;
+    // }
+    .user-menu0:active {/*onClick*/
+        --background: -webkit-linear-gradient(#efefef 0%, #d6d6d6 100%);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 2px rgba(0, 0, 0, 0.19);
+        border-bottom: none;
+    }
+    .user-opt {
+        color: rgba(255,255,255,.47);
+    }
 // --- table -------------------
     ion-avatar {
         width: 2.3em;
@@ -98,17 +149,48 @@
         margin-bottom: 0;
         list-style-type: none;
     }
-    .menu3{
+    .androidView{
         display: none;
+    }
+    .tabletView{
+        display: none;
+    }
+    .desktopView{
+        display: flex;
     }
     .mat-nested-tree-node, .mat-tree-node {
         font-size: 1em;
     }
-    @media (max-width: 991px) { // vista web
-        .menu2{
+    .user-lista {
+        margin: -0.75em 0 0 0;
+    }
+    @media only screen and (min-width: 4000px) { // vista web
+        .desktopView{
+            display: flex;
+        }
+        .tabletView{
             display: none;
         }
-        .menu3{
+        .androidView{
+            display: none;
+        }
+    }
+    @media only screen and (max-width: 900px) { // vista web
+        .desktopView{
+            display: none;
+        }
+        .tabletView{
+            display: flex;
+        }
+        .androidView{
+            display: none;
+        }
+    }
+    @media only screen and (max-width: 500px) { // vista tablet
+        .tabletView{
+            display: none;
+        }
+        .androidView{
             display: block;
         }
     }

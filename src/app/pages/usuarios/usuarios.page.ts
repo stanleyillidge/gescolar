@@ -161,7 +161,7 @@ export class UsuariosPage implements OnInit {
       } else {
         this.f = 38;
       }
-      this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.27);
+      this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.115);
       this.plataforma.android = true;
       this.plataforma.cordova = true;
       this.plataforma.desktop = false;
@@ -180,6 +180,10 @@ export class UsuariosPage implements OnInit {
       this.plataforma.cordova = false;
       this.plataforma.desktop = true;
       this.hideColum('telefono');
+    } else if (windowsize > 999 && windowsize < 4000) {
+      this.plataforma.android = false;
+      this.plataforma.cordova = false;
+      this.plataforma.desktop = true;
     }
   }
   hideColum(label: string) {
@@ -195,7 +199,7 @@ export class UsuariosPage implements OnInit {
   hasChild = (_: number, node: Node2) => !!node.children && node.children.length > 0;
   ngOnInit() {
     const este = this;
-    this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.27);
+    this.myInnerHeight = window.innerHeight - (window.innerHeight * 0.115);
     this.myInnerWidth = (window.innerWidth * 0.015);
     this.f = 40;
     this.plataforma.desktop = this.platform.is('desktop');
@@ -407,9 +411,10 @@ export class UsuariosPage implements OnInit {
       });
     });
   }
-  async presentActionSheet() {
+  async presentActionSheet(a?: any) {
+    const titulo = (a ? a.nombre : 'Albums');
     const actionSheet = await this.actionSheetController.create({
-      header: 'Albums',
+      header: titulo,
       buttons: [{
         text: 'Delete',
         role: 'destructive',
@@ -443,6 +448,28 @@ export class UsuariosPage implements OnInit {
           console.log('Cancel clicked');
         }
       }]
+    });
+    await actionSheet.present();
+  }
+  async userMenuAndroid(a?: any) {
+    const titulo = 'Administrar usuarios';
+    const actionSheet = await this.actionSheetController.create({
+      header: titulo,
+      buttons: [{
+          text: 'Crear usuario',
+          role: 'destructive',
+          icon: 'person-add',
+          handler: () => {
+            console.log('Crear usuario clicked');
+          }
+        }, {
+          text: 'Crear varios usuarios',
+          icon: 'people',
+          handler: () => {
+            console.log('Crear varios usuarios clicked');
+          }
+        }
+      ]
     });
     await actionSheet.present();
   }

@@ -4,8 +4,15 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
       <!-- <ion-back-button></ion-back-button> -->
+      Usuarios
     </ion-buttons>
-    <ion-searchbar showCancelButton="focus" placeholder="Usuarios"></ion-searchbar>
+    <ion-searchbar class="desktopView" (keyup)="applyFilter($event)" showCancelButton="focus" placeholder="Usuarios"></ion-searchbar>
+    <ion-button slot="end" fill="clear">
+      <mat-icon>settings</mat-icon>
+    </ion-button>
+    <!-- <ion-button slot="end" fill="clear">
+      <mat-icon>group_add</mat-icon>
+    </ion-button> -->
     <ion-avatar *ngIf="test === true" slot="end" (click)="ds.page('profile')">
       <img src={{user.photoURL}}>
     </ion-avatar>
@@ -15,7 +22,7 @@
 <ion-content>
   <ion-grid>
     <ion-row>
-      <ion-col>
+      <ion-col class="desktopView">
         <ion-row>
           <ion-col class="ion-padding" size="3"
             size-xs="12"
@@ -24,7 +31,7 @@
             size-lg="12"
             size-xl="12">
             <!-- <menu-arbol *ngIf=data [datos]=data></menu-arbol> -->
-            <mat-tree *ngIf=treeData [dataSource]="treeData" [treeControl]="treeControl" class="example-tree">
+            <!-- <mat-tree *ngIf=treeData [dataSource]="treeData" [treeControl]="treeControl" class="example-tree">
               <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
                 <li class="mat-tree-node">
                   <button mat-icon-button disabled></button>
@@ -53,7 +60,18 @@
                   </ul>
                 </li>
               </mat-nested-tree-node>
-            </mat-tree>            
+            </mat-tree> -->
+            <ion-button class="desktopView user-menu0" [matMenuTriggerFor]="menu">
+              <ion-icon class="fa user-menu" name="add-circle-outline"></ion-icon> Crear contacto
+            </ion-button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item>
+                <mat-icon>person_add</mat-icon> Crear un usuario
+              </button>
+              <button mat-menu-item>
+                <mat-icon>group_add</mat-icon> Crear varios usuarios
+              </button>
+            </mat-menu>
           </ion-col>
         </ion-row>
       </ion-col>
@@ -63,7 +81,7 @@
         size-md="12"
         size-lg="9"
         size-xl="9">
-        <ion-grid [hidden]="!plataforma.desktop">
+        <ion-grid class="desktopView tabletView" [hidden]="!plataforma.desktop">
           <ion-row [hidden]=!tableData>
             <mat-form-field class="filtro0">
               <mat-label class="filtro">Filter</mat-label>
@@ -78,7 +96,7 @@
                   <img *ngIf=row.photoURL mat-card-avatar src="row.photoURL">
                   <img *ngIf=!row.photoURL mat-card-avatar src="assets/images/user.png">
                 </td>
-                <!-- <th [style.max-width.px]="myInnerWidth" class="check" mat-header-cell *matHeaderCellDef>
+                <th [style.max-width.px]="myInnerWidth" class="check" mat-header-cell *matHeaderCellDef>
                   <mat-checkbox (change)="$event ? masterToggle() : null"
                                 [checked]="selection.hasValue() && isAllSelected()"
                                 [indeterminate]="selection.hasValue() && !isAllSelected()"
@@ -91,11 +109,26 @@
                                 [checked]="selection.isSelected(row)"
                                 [aria-label]="checkboxLabel(row)">
                   </mat-checkbox>
-                </td> -->
+                </td>
               </ng-container>
               
               <ng-container matColumnDef="nombre">
-                <th [style.max-width.px]="myInnerWidth" class="nombre" mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+                <th
+                  [style.max-width.px]="myInnerWidth"
+                  class="nombre"
+                  mat-header-cell *matHeaderCellDef mat-sort-header>
+                  Nombre
+                </th>
+                <!-- <th
+                  [style.max-width.px]="myInnerWidth"
+                  class="nombre"
+                  mat-header-cell *matHeaderCellDef mat-sort-header>>
+                  Tenant Name
+                  <mat-form-field class="filter" floatLabel="never">
+                    <mat-label>Search</mat-label>
+                    <input matInput [formControl]="nameFilter">
+                  </mat-form-field>
+                </th> -->
                 <td class="nombre" mat-cell *matCellDef="let row"> {{row.nombre}} </td>
               </ng-container>
               
@@ -120,20 +153,13 @@
               </tr>
             </table>
 
-            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 50, 100, 150]"></mat-paginator>
           </ion-row>
         </ion-grid>
-        <ion-grid [hidden]="plataforma.desktop">
+        <ion-grid class="androidView user-lista" [hidden]="plataforma.desktop">
           <cdk-virtual-scroll-viewport *ngIf=users itemSize="3" class="example-viewport"  [style.height.px]="myInnerHeight">
             <div *cdkVirtualFor="let user of users" class="example-item">
               <mat-card class="example-card">
-                <!-- <mat-card-header>
-                  <img *ngIf=user.photoURL mat-card-avatar src="user.photoURL">
-                  <img *ngIf=!user.photoURL mat-card-avatar src="assets/images/user.png">
-                  <mat-card-title>{{user.nombre}}</mat-card-title>
-                  <mat-card-subtitle>{{user.cargo}}</mat-card-subtitle>
-                  <i class="material-icons menu-fin">more_vert</i>
-                </mat-card-header> -->
                 <mat-card-header>
                   <img class="image" *ngIf=user.photoURL mat-card-avatar src="user.photoURL">
                   <img class="image" *ngIf=!user.photoURL mat-card-avatar src="assets/images/user.png">
@@ -143,8 +169,8 @@
                   </mat-card-title-group>
                   <div fxFlex></div>
                   <div class="vmedio">
-                    <button mat-button>
-                      <i class="material-icons">more_vert</i>
+                    <button mat-button (click)="presentActionSheet(user)">
+                      <i class="user-opt material-icons">more_vert</i>
                     </button>
                   </div>
                 </mat-card-header> 
@@ -186,8 +212,13 @@
     </ion-row>
   </ion-grid>
 </ion-content>
-<ion-fab class="menu3" vertical="bottom" horizontal="end" slot="fixed">
-  <ion-fab-button (click)="presentActionSheet()">
+<ion-fab class="tabletView" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button color="danger" (click)="userMenuAndroid()">
+    <ion-icon name="arrow-dropleft"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
+<ion-fab class="androidView" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button (click)="userMenuAndroid()">
     <ion-icon name="arrow-dropleft"></ion-icon>
   </ion-fab-button>
 </ion-fab>

@@ -1,8 +1,7 @@
 // --- Searchbar ---------------
     .searchbar {
-        width: 40em;
-        left: 25%;
-        right: 25%;
+        width: 90%;
+        left: 5%;
     }
     .user-menu {
         font-size: large;
@@ -156,7 +155,7 @@
         display: none;
     }
     .desktopView{
-        display: flex;
+        display: block;
     }
     .mat-nested-tree-node, .mat-tree-node {
         font-size: 1em;
@@ -166,7 +165,7 @@
     }
     @media only screen and (min-width: 4000px) { // vista web
         .desktopView{
-            display: flex;
+            display: block;
         }
         .tabletView{
             display: none;
@@ -180,7 +179,7 @@
             display: none;
         }
         .tabletView{
-            display: flex;
+            display: block;
         }
         .androidView{
             display: none;

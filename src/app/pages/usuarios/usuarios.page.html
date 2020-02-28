@@ -1,17 +1,18 @@
 <ion-header>
   <ion-toolbar>
     <!-- <ion-title>Usuarios</ion-title> -->
-    <ion-buttons slot="start">
+    <ion-buttons *ngIf=!ast slot="start">
       <ion-menu-button></ion-menu-button>
       <!-- <ion-back-button></ion-back-button> -->
       Usuarios
     </ion-buttons>
-    <ion-searchbar class="desktopView" (keyup)="applyFilter($event)" showCancelButton="focus" placeholder="Usuarios"></ion-searchbar>
-    <ion-button slot="end" fill="clear">
-      <mat-icon>settings</mat-icon>
+    <ion-searchbar class="searchbar desktopView" (keyup)="applyFilter($event)" showCancelButton="focus" placeholder="Usuarios"></ion-searchbar>
+    <ion-searchbar #search *ngIf=ast class="androidView" (ionBlur)="searchbtn()" (keyup)="applyFilter($event)" showCancelButton="focus" placeholder="Usuarios"></ion-searchbar>
+    <ion-button (click)="searchbtn()" class="androidView" slot="end" fill="clear">
+      <ion-icon name="search"></ion-icon>
     </ion-button>
     <!-- <ion-button slot="end" fill="clear">
-      <mat-icon>group_add</mat-icon>
+      <mat-icon>settings</mat-icon>
     </ion-button> -->
     <ion-avatar *ngIf="test === true" slot="end" (click)="ds.page('profile')">
       <img src={{user.photoURL}}>
@@ -61,11 +62,11 @@
                 </li>
               </mat-nested-tree-node>
             </mat-tree> -->
-            <ion-button class="desktopView user-menu0" [matMenuTriggerFor]="menu">
+            <ion-button class="user-menu0" [matMenuTriggerFor]="menu">
               <ion-icon class="fa user-menu" name="add-circle-outline"></ion-icon> Crear contacto
             </ion-button>
             <mat-menu #menu="matMenu">
-              <button mat-menu-item>
+              <button (click)="presentAlertRadio()" mat-menu-item>
                 <mat-icon>person_add</mat-icon> Crear un usuario
               </button>
               <button mat-menu-item>
@@ -83,8 +84,8 @@
         size-xl="9">
         <ion-grid class="desktopView tabletView" [hidden]="!plataforma.desktop">
           <ion-row [hidden]=!tableData>
-            <mat-form-field class="filtro0">
-              <mat-label class="filtro">Filter</mat-label>
+            <mat-form-field class="tabletView filtro0">
+              <mat-label class="filtro">Usuarios</mat-label>
               <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium">
             </mat-form-field>
             

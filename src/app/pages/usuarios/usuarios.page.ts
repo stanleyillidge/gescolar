@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
-import { ActionSheetController, Platform } from '@ionic/angular';
+import { ActionSheetController, Platform, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/AuthService';
 import { DataService2 } from 'src/app/services/data-service';
@@ -12,6 +12,8 @@ import {MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {SelectionModel} from '@angular/cdk/collections';
+
+import { IonSearchbar } from '@ionic/angular';
 
 // --- Tree component -------
 export class Estado {
@@ -73,6 +75,7 @@ export class UsuariosPage implements OnInit {
     selection = new SelectionModel<UserDataTable>(true, []);
     @ViewChild(MatPaginator, {static: true}) paginator: MatPaginator;
     @ViewChild(MatSort, {static: true}) sort: MatSort;
+    @ViewChild('search', {static: false}) search: IonSearchbar;
     users: any[];
     myInnerHeight = 0;
     states = [
@@ -133,12 +136,14 @@ export class UsuariosPage implements OnInit {
   test: boolean;
   user: GescolarUser;
   f: number;
+  ast = false;
   constructor(
     public platform: Platform,
     public router: Router,
     public ds: DataService2,
     public authService: AuthService,
-    public actionSheetController: ActionSheetController
+    public actionSheetController: ActionSheetController,
+    public alertController: AlertController
   ) {}
   @HostListener('window:resize', ['$event'])
   onResize(event?) {
@@ -253,6 +258,14 @@ export class UsuariosPage implements OnInit {
         });
       }
     }, 300);
+  }
+  searchbtn() {
+    this.ast = !this.ast;
+    if (this.ast) {
+      setTimeout(() => {
+        this.search.setFocus();
+      }, 200);
+    }
   }
   // --- Table component --------------
     applyFilter(event: Event) {
@@ -472,5 +485,64 @@ export class UsuariosPage implements OnInit {
       ]
     });
     await actionSheet.present();
+  }
+  async presentAlertRadio() {
+    const alert = await this.alertController.create({
+      header: 'Tipo de usuario',
+      inputs: [
+        {
+          name: 'radio1',
+          type: 'radio',
+          label: 'Radio 1',
+          value: 'value1',
+          checked: true
+        },
+        {
+          name: 'radio2',
+          type: 'radio',
+          label: 'Radio 2',
+          value: 'value2'
+        },
+        {
+          name: 'radio3',
+          type: 'radio',
+          label: 'Radio 3',
+          value: 'value3'
+        },
+        {
+          name: 'radio4',
+          type: 'radio',
+          label: 'Radio 4',
+          value: 'value4'
+        },
+        {
+          name: 'radio5',
+          type: 'radio',
+          label: 'Radio 5',
+          value: 'value5'
+        },
+        {
+          name: 'radio6',
+          type: 'radio',
+          label: 'Radio 6 Radio 6 Radio 6 Radio 6 Radio 6 Radio 6 Radio 6 Radio 6 Radio 6 Radio 6 ',
+          value: 'value6'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {
+            console.log('Confirm Cancel');
+          }
+        }, {
+          text: 'Ok',
+          handler: () => {
+            console.log('Confirm Ok');
+          }
+        }
+      ]
+    });
   }
 }
